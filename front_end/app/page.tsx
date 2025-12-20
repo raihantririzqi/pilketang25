@@ -12,6 +12,8 @@ const Home = () => {
 
       <main className="container mx-auto px-4">
         <HeroSection />
+        
+        <SectionDivider />
 
         <CandidateSection />
 
