@@ -1,26 +1,61 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* 1. LOAD FONT MANUAL */
+@font-face {
+  font-family: 'RetroByte';
+  src: url('/fonts/retro_byte.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@font-face {
+  font-family: 'Roster';
+  src: url('/fonts/roster_personal_use.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  /* --- Warna Custom --- */
+  --color-background: #efe8e0;
+  --color-foreground: #000000;
+  --color-navy: #2b5ca6;
+  --color-sky: #92c3dd;
+  --color-lavender: #e7a0cc;
+  --color-magenta: #e84797;
+  --color-green: #65a30d;
+  --color-yellow: #eab308;
+
+  /* --- Shadow Retro --- */
+  --shadow-retro: 4px 4px 0px 0px #000000;
+
+  /* --- Font --- */
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-retro: "RetroByte", monospace;
+  --font-roster: "Roster", serif;
+
+  /* --- Animasi --- */
+  --animate-pop: pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  --animate-fade-up: fade-up 0.5s ease-out forwards;
+
+  @keyframes pop {
+    0% { transform: scale(0); opacity: 0; }
+    80% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes fade-up {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Setup Body */
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
 }
