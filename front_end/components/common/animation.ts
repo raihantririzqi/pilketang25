@@ -1,4 +1,4 @@
-import { Variants } from "framer-motion";
+import { TargetAndTransition, Variants } from "framer-motion";
 
 export const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -30,7 +30,7 @@ export const popUpVariants: Variants = {
 };
 
 // animasi container (section)
-export const sectionVariants : Variants = {
+export const sectionVariants: Variants = {
   hidden: { opacity: 0, y: 32 },
   visible: {
     opacity: 1,
@@ -45,7 +45,7 @@ export const sectionVariants : Variants = {
 };
 
 // animasi tiap card
-export const cardVariants : Variants = {
+export const cardVariants: Variants = {
   hidden: { opacity: 0, y: 24 },
   visible: {
     opacity: 1,
@@ -54,5 +54,35 @@ export const cardVariants : Variants = {
       duration: 0.45,
       ease: "easeOut",
     },
+  },
+};
+
+
+// 1. Definisikan konfigurasi animasi Idle di sini (atau di animations.ts)
+export const floatingAnimation: TargetAndTransition = {
+  y: [0, -15, 0], // Bergerak ke atas 15px lalu kembali
+  rotate: [0, 1, -1, 0], // Sedikit rotasi agar natural
+  transition: {
+    duration: 4, // Durasi satu siklus (makin besar makin lambat)
+    repeat: Infinity, // Ulangi selamanya
+    ease: "easeInOut",
+  },
+};
+
+export const breathingAnimation: TargetAndTransition = {
+  scale: [1, 1.02, 1], // Membesar sedikit lalu kembali
+  transition: {
+    duration: 3,
+    repeat: Infinity,
+    ease: "easeInOut",
+  },
+};
+
+export const slowFloatingAnimation = {
+  y: [-10, 10, -10], // Gerakannya vertikal naik turun
+  transition: {
+    duration: 6, // Lebih lambat dari badge (4s) karena objeknya besar
+    repeat: Infinity,
+    ease: "easeInOut" as const,
   },
 };

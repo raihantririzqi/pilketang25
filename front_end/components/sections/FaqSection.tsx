@@ -103,7 +103,7 @@ const FaqSection = () => {
         className="text-center py-16 px-4"
       >
         <h3 className="font-roster text-2xl md:text-4xl text-orange-600">
-          GAME OVER IF YOU DON&apos;T VOTE!
+          GAME OVER IF YOU DON'T VOTE!
         </h3>
       </motion.div>
 
