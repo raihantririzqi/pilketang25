@@ -3,6 +3,7 @@
 import { motion, Variants } from "framer-motion";
 import CandidateCard from "../ui/CandidatCard";
 import CandidateCarousel from "../ui/CandidatCarousel";
+import { cardVariants, sectionVariants } from "../common/animation";
 
 const easeOut = [0.16, 1, 0.3, 1];
 
@@ -38,35 +39,6 @@ const candidatesData = [
     ],
   },
 ];
-
-/* ===============================
-   ANIMATION VARIANTS (LIGHT)
-================================ */
-const sectionVariants : Variants = {
-  hidden: { opacity: 0, y: 32 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: "easeOut",
-      when: "beforeChildren",
-      staggerChildren: 0.15,
-    },
-  },
-};
-
-const cardVariants : Variants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.45,
-      ease: "easeOut",
-    },
-  },
-};
 
 /* ===============================
    COMPONENT

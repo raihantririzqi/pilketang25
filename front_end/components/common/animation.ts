@@ -30,7 +30,7 @@ export const popUpVariants: Variants = {
 };
 
 // animasi container (section)
-export const sectionVariants = {
+export const sectionVariants : Variants = {
   hidden: { opacity: 0, y: 32 },
   visible: {
     opacity: 1,
@@ -45,7 +45,7 @@ export const sectionVariants = {
 };
 
 // animasi tiap card
-export const cardVariants = {
+export const cardVariants : Variants = {
   hidden: { opacity: 0, y: 24 },
   visible: {
     opacity: 1,

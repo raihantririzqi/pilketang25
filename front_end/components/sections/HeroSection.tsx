@@ -13,7 +13,7 @@ const HeroSection = () => {
         }
     };
     return (
-        <section className="flex flex-col h-screen container mx-auto py-10 items-center justify-evenly">
+        <section id="hero-section" className="flex flex-col h-screen container mx-auto py-10 items-center justify-evenly">
             <motion.div
                 variants={containerVariants}
                 initial="hidden"

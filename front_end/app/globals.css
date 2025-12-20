@@ -1,24 +1,29 @@
 @import "tailwindcss";
 
-/* 1. LOAD FONT MANUAL */
+/* =========================
+   FONT CUSTOM
+========================= */
 @font-face {
-  font-family: 'RetroByte';
-  src: url('/fonts/retro_byte.ttf') format('truetype');
+  font-family: "RetroByte";
+  src: url("/fonts/retro_byte.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Roster';
-  src: url('/fonts/roster_personal_use.ttf') format('truetype');
+  font-family: "Roster";
+  src: url("/fonts/roster_personal_use.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
+/* =========================
+   DESIGN SYSTEM KAMU
+========================= */
 @theme {
-  /* --- Warna Custom --- */
+  /* --- WARNA UTAMA (RETRO) --- */
   --color-background: #efe8e0;
   --color-foreground: #000000;
   --color-navy: #2b5ca6;
@@ -28,34 +33,91 @@
   --color-green: #65a30d;
   --color-yellow: #eab308;
 
-  /* --- Shadow Retro --- */
+  /* --- SHADOW --- */
   --shadow-retro: 4px 4px 0px 0px #000000;
 
-  /* --- Font --- */
-  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  /* --- FONT --- */
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
   --font-retro: "RetroByte", monospace;
   --font-roster: "Roster", serif;
 
-  /* --- Animasi --- */
+  /* --- ANIMASI --- */
   --animate-pop: pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   --animate-fade-up: fade-up 0.5s ease-out forwards;
 
   @keyframes pop {
-    0% { transform: scale(0); opacity: 0; }
-    80% { transform: scale(1.05); }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    80% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 
   @keyframes fade-up {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 }
 
-/* Setup Body */
+/* =========================
+   BODY STYLE (AMAN)
+========================= */
 @layer base {
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
   }
+}
+
+/* =========================
+   SHADCN MINIMAL TOKEN
+   (WAJIB BIAR AMAN)
+========================= */
+:root {
+  /* core */
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+
+  /* surface */
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+
+  /* border & focus */
+  --border: #000000;
+  --input: #000000;
+  --ring: var(--color-magenta);
+
+  /* primary (tidak dipakai langsung oleh UI kamu) */
+  --primary: var(--color-navy);
+  --primary-foreground: #ffffff;
+}
+
+/* =========================
+   OPTIONAL: DARK MODE
+   (BOLEH DIHAPUS JIKA TIDAK PERLU)
+========================= */
+.dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #111111;
+  --card-foreground: #ffffff;
+  --popover: #111111;
+  --popover-foreground: #ffffff;
+  --border: #ffffff;
+  --ring: var(--color-yellow);
 }
