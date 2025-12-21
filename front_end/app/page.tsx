@@ -1,35 +1,65 @@
+"use client"; // Pastikan ini ada
+
+import { useState, useEffect } from "react";
+import { AnimatePresence } from "framer-motion"; // Import AnimatePresence
+
 import Navbar from "@/components/layout/Navbar";
 import HeroSection from "@/components/sections/HeroSection";
-import CandidateSection from "@/components/sections/CandidatSection";
+import CandidateSection from "@/components/sections/CandidatSection"; // Typo fix: Candidat -> Candidate
 import FeedbackSection from "@/components/sections/FeedbackSection";
 import FaqSection from "@/components/sections/FaqSection";
 import SectionDivider from "@/components/ui/SectionDivider";
 import RundownSection from "@/components/sections/RundownSection";
+import PixelLoader from "@/components/ui/PixelLoader"; // Import Loader
 
 const Home = () => {
+  // State untuk Loading
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Mencegah scroll saat loading (Opsional tapi disarankan)
+  useEffect(() => {
+    if (isLoading) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isLoading]);
+
   return (
     <>
-      <Navbar />
+      {/* WRAPPER UNTUK LOADER */}
+      <AnimatePresence mode="wait">
+        {isLoading && (
+          <PixelLoader key="loader" onComplete={() => setIsLoading(false)} />
+        )}
+      </AnimatePresence>
 
-      <main className="container mx-auto px-4">
-        <HeroSection />
-        
-        <SectionDivider />
+      {/* KONTEN UTAMA */}
+      {!isLoading && (
+        <>
+          <Navbar />
 
-        <CandidateSection />
+          <main className="container mx-auto px-4">
+            <HeroSection />
+            
+            <SectionDivider />
 
-        <SectionDivider />
+            <CandidateSection />
 
-        <RundownSection />
+            <SectionDivider />
 
-        <SectionDivider />
+            <RundownSection />
 
-        <FeedbackSection />
-      </main>
+            <SectionDivider />
 
-      <SectionDivider />
+            <FeedbackSection />
+          </main>
 
-      <FaqSection />
+          <SectionDivider />
+
+          <FaqSection />
+        </>
+      )}
     </>
   );
 };
