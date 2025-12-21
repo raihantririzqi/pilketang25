@@ -10,6 +10,7 @@ type Candidate = {
   base_color: string;
   kandidat_number: number;
   vision: string;
+  imageSrc: string;
   missions: string[];
 };
 
@@ -66,6 +67,7 @@ const CandidateCarousel = ({ data }: Props) => {
                     kandidat_number={candidate.kandidat_number}
                     vision={candidate.vision}
                     missions={candidate.missions}
+                    imageSrc={candidate.imageSrc}
                   />
                 </div>
               </div>
