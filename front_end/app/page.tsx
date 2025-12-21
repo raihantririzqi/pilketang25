@@ -4,6 +4,7 @@ import CandidateSection from "@/components/sections/CandidatSection";
 import FeedbackSection from "@/components/sections/FeedbackSection";
 import FaqSection from "@/components/sections/FaqSection";
 import SectionDivider from "@/components/ui/SectionDivider";
+import RundownSection from "@/components/sections/RundownSection";
 
 const Home = () => {
   return (
@@ -16,6 +17,10 @@ const Home = () => {
         <SectionDivider />
 
         <CandidateSection />
+
+        <SectionDivider />
+
+        <RundownSection />
 
         <SectionDivider />
 

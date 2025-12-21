@@ -29,7 +29,7 @@ const CandidateCard = ({
     >
       {/* Background Decoration */}
       <div
-        className={`absolute ${base_color} w-72 h-[30rem] md:h-[35rem] md:w-96 translate-x-4 translate-y-4 border-4`}
+        className={`absolute bg-${base_color} w-72 h-[30rem] md:h-[35rem] md:w-96 translate-x-4 translate-y-4 border-4`}
       />
       <div className="absolute bg-black w-72 h-[30rem] md:h-[35rem] md:w-96 translate-x-2 translate-y-2 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform group-active:translate-x-4 group-active:translate-y-4" />
 
@@ -39,7 +39,7 @@ const CandidateCard = ({
           /* ================= FRONT (KANDIDAT) ================= */
           <>
             {/* Header */}
-            <div className={`${base_color} w-full h-24 border-b-4 flex items-center`}>
+            <div className={`bg-${base_color} w-full h-24 border-b-4 flex items-center`}>
               <span className="text-white font-bold text-3xl ml-4 font-retro">
                 {kandidat_number}P
               </span>
@@ -62,7 +62,18 @@ const CandidateCard = ({
               {/* Foto / Placeholder */}
               <div className="h-full w-full flex justify-center p-4">
                 <div className="relative w-full h-full bg-gray-300 border-4">
-                  <div className="absolute w-full border-t-4 h-12 bottom-0" />
+                  <div className="absolute w-full border-t-4 h-12 bottom-0 backdrop-blur-sm flex items-center justify-center" >
+                    {/* Segitiga */}
+                    <div className={`mr-4 w-0 h-0 
+                    border-t-[10px] border-t-transparent 
+                    border-b-[10px] border-b-transparent 
+                    border-l-[15px] border-l-${base_color}`}>
+                    </div>
+
+                    {/* Teks */}
+                    <span className="font-retro">{name.toLowerCase().replace(/\s+/g, "_")}.exe</span>
+
+                  </div>
                 </div>
               </div>
             </div>

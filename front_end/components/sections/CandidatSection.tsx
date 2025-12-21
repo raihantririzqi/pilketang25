@@ -15,7 +15,7 @@ const candidatesData = [
   {
     name: "Raihan Tri rizqi Wibowo",
     nim: "125140125",
-    base_color: "bg-magenta",
+    base_color: "magenta",
     kandidat_number: 1,
     vision:
       "Menjadikan angkatan yang solid, aktif, dan berdampak positif bagi lingkungan kampus.",
@@ -28,7 +28,7 @@ const candidatesData = [
   {
     name: "Calon Ketua Kedua",
     nim: "125140126",
-    base_color: "bg-navy",
+    base_color: "navy",
     kandidat_number: 2,
     vision:
       "Mewujudkan angkatan yang kolaboratif dan adaptif terhadap perubahan.",
