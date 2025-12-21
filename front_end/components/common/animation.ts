@@ -86,3 +86,27 @@ export const slowFloatingAnimation = {
     ease: "easeInOut" as const,
   },
 };
+
+export const crtIdleAnimation = {
+    opacity: [0.98, 1, 0.97, 1], // Opacity berubah sangat sedikit
+    boxShadow: [
+        "0 0 20px rgba(0, 255, 0, 0.1)", 
+        "0 0 25px rgba(0, 255, 0, 0.2)", 
+        "0 0 20px rgba(0, 255, 0, 0.1)"
+    ], // Glow hijau berdenyut
+    transition: {
+        duration: 3, // Durasi lambat agar tidak bikin pusing
+        repeat: Infinity,
+        ease: "easeInOut" as const,
+    }
+};
+
+// 2. Status Blinking (Khusus status yang bukan [ OK ])
+export const statusPulse = {
+    opacity: [1, 0.4, 1],
+    transition: {
+        duration: 1.5,
+        repeat: Infinity,
+        ease: "easeInOut" as const,
+    }
+};
