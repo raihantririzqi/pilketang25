@@ -3,13 +3,42 @@
 import { motion } from "framer-motion";
 
 const biosData = [
-    { time: "07:30", task: "CHECKING REGISTRATION...", status: "[ OK ]" },
-    { time: "08:00", task: "LOADING OPENING CEREMONY...", status: "[ OK ]" },
-    { time: "09:00", task: "INITIALIZING SPEECH_MODULE...", status: "[ OK ]" },
-    { time: "10:30", task: "RUNNING DEBATE_PROTOCOL...", status: "[WAIT]" },
-    { time: "12:00", task: "SYSTEM COOLING DOWN (ISHOMA)...", status: "[WAIT]" },
+  { 
+    time: "07:30", 
+    task: "PHASE_01: PRE_ACARA (PREPARE)", 
+    status: "[ OK ]" 
+  },
+  { 
+    time: "08:30", 
+    task: "PHASE_02: PEMBUKAAN_SYSTEM", 
+    status: "[ OK ]" 
+  },
+  { 
+    time: "09:20", 
+    task: "PHASE_03: CALON_PENGENALAN_MODULE", 
+    status: "[LOAD]" 
+  },
+  { 
+    time: "09:44", 
+    task: "PHASE_04: DEBAT_TERBUKA_PROTOCOL", 
+    status: "[RUN ]" 
+  },
+  { 
+    time: "10:20", 
+    task: "PHASE_05: TANYA_JAWAB_INTERACTIVE", 
+    status: "[WAIT]" 
+  },
+  { 
+    time: "12:15", 
+    task: "PHASE_06: PENUTUP_&_VOTING_CORE", 
+    status: "[WAIT]" 
+  },
+  { 
+    time: "14:00", 
+    task: "PHASE_07: AFTER_ACARA (CLEANUP)", 
+    status: "[END ]" 
+  }
 ];
-
 const RundownBIOS = () => {
     return (
         <section id="rundown-section" className="container mx-auto py-10 px-4">
@@ -33,7 +62,7 @@ const RundownBIOS = () => {
                             transition={{ delay: index * 0.15 }}
                             className="flex justify-between items-end border-b border-dashed border-gray-700 pb-1"
                         >
-                            <div className="flex flex-col md:flex-row md:gap-4">
+                            <div className="flex flex-col md:flex-row md:gap-4 text-sm md:text-lg">
                                 <span className="text-gray-400">{item.time}</span>
                                 <span className="uppercase tracking-wider">{item.task}</span>
                             </div>
