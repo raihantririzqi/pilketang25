@@ -12,7 +12,7 @@ const biosData = [
 
 const RundownBIOS = () => {
     return (
-        <section className="container mx-auto py-10 px-4">
+        <section id="rundown-section" className="container mx-auto py-10 px-4">
             
             <div className="w-full max-w-3xl mx-auto bg-black border-4 border-gray-500 p-6 md:p-10 shadow-[0_0_20px_rgba(0,255,0,0.2)] font-mono text-white">
                 
