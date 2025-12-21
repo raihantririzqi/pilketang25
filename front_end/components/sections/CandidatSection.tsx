@@ -17,8 +17,8 @@ const candidatesData = [
     nim: "125140125",
     base_color: "magenta",
     kandidat_number: 1,
-    vision:
-      "Menjadikan angkatan yang solid, aktif, dan berdampak positif bagi lingkungan kampus.",
+    vision: "Menjadikan angkatan yang solid, aktif, dan berdampak positif bagi lingkungan kampus.",
+    imageSrc: "images/kandidat/1.jpg",
     missions: [
       "Meningkatkan solidaritas antar mahasiswa",
       "Mewadahi aspirasi dan kreativitas angkatan",
@@ -30,8 +30,8 @@ const candidatesData = [
     nim: "125140126",
     base_color: "navy",
     kandidat_number: 2,
-    vision:
-      "Mewujudkan angkatan yang kolaboratif dan adaptif terhadap perubahan.",
+    vision: "Mewujudkan angkatan yang kolaboratif dan adaptif terhadap perubahan.",
+    imageSrc: "images/kandidat/2.jpg",
     missions: [
       "Mendorong budaya diskusi terbuka",
       "Menguatkan peran akademik dan non-akademik",
@@ -96,6 +96,7 @@ const CandidateSection = () => {
               kandidat_number={candidate.kandidat_number}
               vision={candidate.vision}
               missions={candidate.missions}
+              imageSrc={candidate.imageSrc}
             />
           </motion.div>
         ))}
