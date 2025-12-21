@@ -8,6 +8,7 @@ import MobileMenu from "./MobileMenu";
 const menuItems = [
   { label: "Home", target: "hero-section" },
   { label: "Kandidat", target: "kandidat-section" },
+  { label: "Rundown", target: "rundown-section" },
   { label: "Feedback", target: "feedback-section" },
   { label: "FAQ", target: "faq-section" },
 ];
