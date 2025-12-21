@@ -28,7 +28,7 @@ const HeroSection = () => {
     };
 
     return (
-        <section id="hero-section" className="flex flex-col min-h-screen container mx-auto py-10 items-center justify-center overflow-x-hidden pt-24"> 
+        <section id="hero-section" className="flex flex-col min-h-screen container mx-auto py-10 items-center justify-center overflow-x-hidden pt-20"> 
             {/* overflow-x-hidden: Mencegah scroll samping jika ada animasi yang lewat batas */}
             
             <motion.div
