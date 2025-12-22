@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { containerVariants, fadeInUpVariants, floatingAnimation, popUpVariants, slowFloatingAnimation } from "../common/animation";
+import { containerVariants, fadeInUpVariants, floatingAnimation, neonBacklight, popUpVariants, slowFloatingAnimation } from "../common/animation";
 
 // --- DEFINISI ANIMASI GLOW BARU ---
 const textGlowAnimation = {
@@ -40,27 +40,35 @@ const HeroSection = () => {
             >
                 {/* UPDATE 2: Ubah jadi Flex-Row di Desktop agar Logo di kiri & Teks di Kanan */}
                 <div className="flex flex-col items-center gap-14 lg:flex-row lg:justify-center lg:gap-24 w-full">
-
-                    {/* --- LOGO BESAR --- */}
+                    {/* --- LOGO BESAR (DENGAN NEON BACKLIGHT) --- */}
                     <motion.div
                         variants={popUpVariants}
                         className="relative z-10"
                     >
+                        {/* === BARU: LAYER GLOW/NEON === */}
+                        {/* Ditaruh di belakang logo utama dengan posisi absolute */}
+                        <motion.div
+                            variants={neonBacklight}
+                            animate="animate"
+                            className="absolute top-0 left-0 w-full h-full rounded-full bg-magenta/60 z-0 blur-[30px] md:blur-[50px]"
+                        // blur besar membuat efek pendaran cahaya lembut
+                        />
+
+                        {/* === LOGO UTAMA (TETAP SAMA) === */}
                         <motion.div
                             animate={slowFloatingAnimation}
-                            // UPDATE 3: Ukuran Logo Mobile diperkecil (h-48 w-48) agar tidak menuhin layar
-                            className="relative bg-white rounded-full h-48 w-48 sm:h-64 sm:w-64 lg:h-96 lg:w-96 flex items-center justify-center border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] lg:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]"
+                            // Tambahkan 'relative z-10' agar berada di atas layer glow
+                            className="relative z-10 bg-white rounded-full h-48 w-48 sm:h-64 sm:w-64 lg:h-80 lg:w-80 flex items-center justify-center border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] lg:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]"
                         >
                             <Image
                                 src="/images/logo_pemiket.png"
                                 alt="Logo Pemiket"
                                 fill
-                                // Padding dikurangi di mobile agar logo tetap terlihat besar di dalam lingkaran yang kecil
                                 className="object-contain p-6 lg:p-10"
                                 sizes="(max-width: 768px) 192px, 384px"
                                 priority
                             />
-                            {/* Efek Kilau */}
+                            {/* Efek Kilau Stiker (Opsional) */}
                             <div className="absolute top-6 right-8 w-8 h-4 bg-white/50 rounded-full rotate-45 blur-[2px]"></div>
                         </motion.div>
                     </motion.div>
