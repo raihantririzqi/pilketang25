@@ -81,7 +81,7 @@ const HeroSection = () => {
                                 {/* Star 1 (Ukuran disesuaikan) */}
                                 <div className="absolute -left-2 -top-2 w-5 h-5 lg:-left-4 lg:-top-4 lg:w-8 lg:h-8 bg-blue-600 rotate-6 [clip-path:polygon(50%_0%,61%_35%,98%_35%,68%_57%,79%_91%,50%_70%,21%_91%,32%_57%,2%_35%,39%_35%)]"></div>
                                 {/* Star 2 */}
-                                <div className="absolute -right-2 -bottom-2 lg:left-1 lg:-top-1 w-5 h-5 lg:translate-x-70.5 lg:translate-y-8 lg:w-8 lg:h-8 bg-blue-600 rotate-6 [clip-path:polygon(50%_0%,61%_35%,98%_35%,68%_57%,79%_91%,50%_70%,21%_91%,32%_57%,2%_35%,39%_35%)]"></div>
+                                <div className="absolute -right-2 -bottom-2 lg:left-1 lg:bottom-5 w-5 h-5 lg:translate-x-70.5 lg:translate-y-8 lg:w-8 lg:h-8 bg-blue-600 rotate-6 [clip-path:polygon(50%_0%,61%_35%,98%_35%,68%_57%,79%_91%,50%_70%,21%_91%,32%_57%,2%_35%,39%_35%)]"></div>
 
                                 {/* UPDATE 4: Font size badge diperkecil (text-sm) agar tidak kepotong di HP kecil */}
                                 <div className="bg-magenta px-3 py-1 lg:px-4 lg:py-2 rounded-lg text-sm lg:text-2xl shadow-lg border-2 border-black">
@@ -97,7 +97,7 @@ const HeroSection = () => {
                             // UPDATE 5: Font size judul diperkecil (text-4xl) di mobile
                             className="flex flex-col font-roster text-4xl sm:text-5xl lg:text-7xl font-bold text-center lg:text-left leading-tight"
                         >
-                            <motion.div animate={textGlowAnimation}>
+                            <motion.div animate={textGlowAnimation} className="text-center">
                                 <div className="text-black">Selamat</div>
                                 <div className="text-black">Datang Di</div>
                                 <div className="text-magenta mt-1 lg:mt-2">Peduli Hati</div>
