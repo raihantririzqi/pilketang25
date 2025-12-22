@@ -10,7 +10,7 @@ const FeedbackSection = () => {
       <div className="w-full max-w-2xl flex flex-col gap-8 items-center">
         
         {/* Judul Section */}
-        <h2 className="font-roster text-3xl md:text-5xl text-center">
+        <h2 className="font-roster text-3xl lg:text-5xl text-center">
           Send Us Feedback
         </h2>
         

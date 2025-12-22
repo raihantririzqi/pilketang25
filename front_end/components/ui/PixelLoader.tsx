@@ -65,7 +65,7 @@ const PixelLoader = ({ onComplete }: PixelLoaderProps) => {
         </div>
 
         {/* LOADING TEXT */}
-        <div className="flex justify-between items-end text-sm md:text-base font-bold uppercase tracking-widest text-[#D6658D]">
+        <div className="flex justify-between items-end text-sm lg:text-base font-bold uppercase tracking-widest text-[#D6658D]">
           <span>{loadingTexts[textIndex]}</span>
           <span>{progress}%</span>
         </div>

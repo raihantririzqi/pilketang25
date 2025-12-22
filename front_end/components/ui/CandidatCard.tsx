@@ -52,16 +52,16 @@ const CandidateCard = ({
     <button
       type="button"
       onClick={() => setShowVision(!showVision)}
-      className="group relative cursor-pointer w-72 h-[30rem] md:w-96 md:h-[35rem] flex items-center justify-center mt-4 mb-4 mx-4 text-left focus:outline-none"
+      className="group relative cursor-pointer w-72 h-[30rem] lg:w-96 lg:h-[35rem] flex items-center justify-center mt-4 mb-4 mx-4 text-left focus:outline-none"
     >
       {/* Background Decoration (Static CSS) */}
       <div
-        className={`absolute bg-${base_color} w-72 h-[30rem] md:h-[35rem] md:w-96 translate-x-4 translate-y-4 border-4`}
+        className={`absolute bg-${base_color} w-72 h-[30rem] lg:h-[35rem] lg:w-96 translate-x-4 translate-y-4 border-4`}
       />
-      <div className="absolute bg-black w-72 h-[30rem] md:h-[35rem] md:w-96 translate-x-2 translate-y-2 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform group-active:translate-x-4 group-active:translate-y-4" />
+      <div className="absolute bg-black w-72 h-[30rem] lg:h-[35rem] lg:w-96 translate-x-2 translate-y-2 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform group-active:translate-x-4 group-active:translate-y-4" />
 
       {/* Main Card (Static CSS Hover Wrapper) */}
-      <div className="flex flex-col absolute bg-white w-72 h-[30rem] md:h-[35rem] md:w-96 border-4 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform group-active:translate-x-4 group-active:translate-y-4 overflow-hidden">
+      <div className="flex flex-col absolute bg-white w-72 h-[30rem] lg:h-[35rem] lg:w-96 border-4 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform group-active:translate-x-4 group-active:translate-y-4 overflow-hidden">
         {!showVision ? (
           /* ================= FRONT (KANDIDAT) ================= */
           <>
@@ -128,7 +128,7 @@ const CandidateCard = ({
                     </motion.div>
 
                     {/* Teks Nama File */}
-                    <span className="font-retro text-xs md:text-sm truncate max-w-[150px] text-black">
+                    <span className="font-retro text-xs lg:text-sm truncate max-w-[150px] text-black">
                         {name.split(" ")[0].toLowerCase()}.exe
                     </span>
 

@@ -47,7 +47,7 @@ const CandidateSection = () => {
   return (
     <motion.section
       id="kandidat-section"
-      className="flex flex-col min-h-screen container mx-auto py-10 pt-24 md:gap-2"
+      className="flex flex-col min-h-screen container mx-auto py-10 pt-24 lg:gap-2"
       variants={sectionVariants}
       initial="hidden"
       whileInView="visible"
@@ -58,8 +58,8 @@ const CandidateSection = () => {
         className="flex items-center gap-4 px-4"
         variants={cardVariants}
       >
-        <div className="w-full border-t border-2 md:border-4 rounded-xl"></div>
-        <div className="flex flex-col items-center font-roster text-xl md:text-3xl px-2 text-center">
+        <div className="w-full border-t border-2 lg:border-4 rounded-xl"></div>
+        <div className="flex flex-col items-center font-roster text-xl lg:text-3xl px-2 text-center">
           <div className="flex gap-2">
             <div>Kandidat</div>
             <div>Calon</div>
@@ -69,24 +69,24 @@ const CandidateSection = () => {
             <div>Angkatan</div>
           </div>
         </div>
-        <div className="w-full border-t border-2 md:border-4 rounded-xl"></div>
+        <div className="w-full border-t border-2 lg:border-4 rounded-xl"></div>
       </motion.div>
 
       {/* HINT TEXT */}
       <motion.p
         variants={cardVariants}
-        className="text-center text-xs md:text-sm text-black/60 font-mono tracking-wide"
+        className="text-center text-xs lg:text-sm text-black/60 font-mono tracking-wide"
       >
         Ketuk kartu kandidat untuk melihat visi & misi
       </motion.p>
 
       {/* MOBILE (NO HEAVY ANIMATION) */}
-      <div className="block md:hidden">
+      <div className="block lg:hidden">
         <CandidateCarousel data={candidatesData} />
       </div>
 
       {/* DESKTOP */}
-      <div className="hidden md:flex justify-center gap-10 flex-wrap px-4">
+      <div className="hidden lg:flex justify-center gap-10 flex-wrap px-4">
         {candidatesData.map((candidate, index) => (
           <motion.div key={index} variants={cardVariants}>
             <CandidateCard

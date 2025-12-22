@@ -60,7 +60,7 @@ const FaqSection = () => {
         className="container mx-auto px-6 py-20"
         variants={cardVariants}
       >
-        <h2 className="font-roster text-3xl md:text-4xl mb-10 text-center md:text-left">
+        <h2 className="font-roster text-3xl lg:text-4xl mb-10 text-center lg:text-left">
           Frequently Asked Questions
         </h2>
 
@@ -102,7 +102,7 @@ const FaqSection = () => {
         variants={cardVariants}
         className="text-center py-16 px-4"
       >
-        <h3 className="font-roster text-2xl md:text-4xl text-orange-600">
+        <h3 className="font-roster text-2xl lg:text-4xl text-orange-600">
           GAME OVER IF YOU DON'T VOTE!
         </h3>
       </motion.div>
@@ -118,10 +118,10 @@ const FaqSection = () => {
             -top-12
             left-1/2
             -translate-x-1/2
-            md:left-24
-            md:translate-x-0
+            lg:left-24
+            lg:translate-x-0
             w-24 h-24
-            md:w-28 md:h-28
+            lg:w-28 lg:h-28
             bg-white
             rounded-full
             flex items-center justify-center
@@ -141,14 +141,14 @@ const FaqSection = () => {
             px-6 pb-12
             grid
             grid-cols-1
-            md:grid-cols-2
+            lg:grid-cols-2
             lg:grid-cols-3
             gap-10
             font-retro
             text-sm
           "
         >
-          <div className="flex flex-col gap-4 max-w-sm mx-auto md:mx-0 text-center md:text-left">
+          <div className="flex flex-col gap-4 max-w-sm mx-auto lg:mx-0 text-center lg:text-left">
             <p className="leading-relaxed">
               Lorem Ipsum is simply dummy text of the printing and typesetting
               industry. Lorem Ipsum has been the industry&apos;s standard dummy
@@ -156,7 +156,7 @@ const FaqSection = () => {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 text-center md:text-left">
+          <div className="flex flex-col gap-3 text-center lg:text-left">
             <h4 className="font-bold text-lg">Contact Us</h4>
             <p>Jl. Terusan Ryacudu, Kec. Jati Agung</p>
             <p>informatisciter25@gmail.com</p>
@@ -164,7 +164,7 @@ const FaqSection = () => {
             <p>@nordbyte.25</p>
           </div>
 
-          <div className="flex flex-col gap-3 text-center md:text-left">
+          <div className="flex flex-col gap-3 text-center lg:text-left">
             <h4 className="font-bold text-lg">Pages</h4>
             <a href="#hero-section" className="hover:underline">Home</a>
             <a href="#kandidat-section" className="hover:underline">Kandidat</a>

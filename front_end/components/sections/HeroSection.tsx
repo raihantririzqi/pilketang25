@@ -28,18 +28,18 @@ const HeroSection = () => {
     };
 
     return (
-        <section id="hero-section" className="flex flex-col min-h-screen container mx-auto py-10 items-center justify-center overflow-x-hidden pt-20"> 
+        <section id="hero-section" className="flex flex-col min-h-screen container mx-auto py-10 items-center justify-center overflow-x-hidden pt-20">
             {/* overflow-x-hidden: Mencegah scroll samping jika ada animasi yang lewat batas */}
-            
+
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
                 // UPDATE 1: Gap diperkecil drastis di mobile (gap-8) vs desktop (gap-20)
-                className="flex flex-col gap-8 md:gap-20 w-full items-center"
+                className="flex flex-col gap-8 lg:gap-20 w-full items-center"
             >
                 {/* UPDATE 2: Ubah jadi Flex-Row di Desktop agar Logo di kiri & Teks di Kanan */}
-                <div className="flex flex-col items-center gap-14 md:flex-row md:justify-center md:gap-24 w-full">
+                <div className="flex flex-col items-center gap-14 lg:flex-row lg:justify-center lg:gap-24 w-full">
 
                     {/* --- LOGO BESAR --- */}
                     <motion.div
@@ -49,14 +49,14 @@ const HeroSection = () => {
                         <motion.div
                             animate={slowFloatingAnimation}
                             // UPDATE 3: Ukuran Logo Mobile diperkecil (h-48 w-48) agar tidak menuhin layar
-                            className="relative bg-white rounded-full h-48 w-48 sm:h-64 sm:w-64 md:h-96 md:w-96 flex items-center justify-center border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]"
+                            className="relative bg-white rounded-full h-48 w-48 sm:h-64 sm:w-64 lg:h-96 lg:w-96 flex items-center justify-center border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] lg:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]"
                         >
                             <Image
                                 src="/images/logo_pemiket.png"
                                 alt="Logo Pemiket"
                                 fill
                                 // Padding dikurangi di mobile agar logo tetap terlihat besar di dalam lingkaran yang kecil
-                                className="object-contain p-6 md:p-10"
+                                className="object-contain p-6 lg:p-10"
                                 sizes="(max-width: 768px) 192px, 384px"
                                 priority
                             />
@@ -65,18 +65,18 @@ const HeroSection = () => {
                         </motion.div>
                     </motion.div>
 
-                    <div className="flex flex-col gap-4 md:gap-8 items-center md:items-start">
+                    <div className="flex flex-col gap-4 lg:gap-8 items-center lg:items-start">
 
                         {/* --- 1. DEKORASI BINTANG & BADGE --- */}
                         <motion.div variants={popUpVariants} className="relative -rotate-6">
                             <motion.div animate={floatingAnimation}>
                                 {/* Star 1 (Ukuran disesuaikan) */}
-                                <div className="absolute -left-3 -top-3 w-5 h-5 md:-left-4 md:-top-4 md:w-8 md:h-8 bg-blue-600 rotate-6 [clip-path:polygon(50%_0%,61%_35%,98%_35%,68%_57%,79%_91%,50%_70%,21%_91%,32%_57%,2%_35%,39%_35%)]"></div>
+                                <div className="absolute -left-2 -top-2 w-5 h-5 lg:-left-4 lg:-top-4 lg:w-8 lg:h-8 bg-blue-600 rotate-6 [clip-path:polygon(50%_0%,61%_35%,98%_35%,68%_57%,79%_91%,50%_70%,21%_91%,32%_57%,2%_35%,39%_35%)]"></div>
                                 {/* Star 2 */}
-                                <div className="absolute -right-3 -bottom-2 w-5 h-5 md:translate-x-70.5 md:translate-y-8 md:w-8 md:h-8 bg-blue-600 rotate-6 [clip-path:polygon(50%_0%,61%_35%,98%_35%,68%_57%,79%_91%,50%_70%,21%_91%,32%_57%,2%_35%,39%_35%)]"></div>
+                                <div className="absolute -right-2 -bottom-2 lg:left-1 lg:-top-1 w-5 h-5 lg:translate-x-70.5 lg:translate-y-8 lg:w-8 lg:h-8 bg-blue-600 rotate-6 [clip-path:polygon(50%_0%,61%_35%,98%_35%,68%_57%,79%_91%,50%_70%,21%_91%,32%_57%,2%_35%,39%_35%)]"></div>
 
                                 {/* UPDATE 4: Font size badge diperkecil (text-sm) agar tidak kepotong di HP kecil */}
-                                <div className="bg-magenta px-3 py-1 md:px-4 md:py-2 rounded-lg text-sm md:text-2xl shadow-lg border-2 border-black">
+                                <div className="bg-magenta px-3 py-1 lg:px-4 lg:py-2 rounded-lg text-sm lg:text-2xl shadow-lg border-2 border-black">
                                     <span className="text-white font-retro whitespace-nowrap">Satu Suara, Satu Angkatan!!</span>
                                 </div>
                             </motion.div>
@@ -87,12 +87,12 @@ const HeroSection = () => {
                         <motion.div
                             variants={fadeInUpVariants}
                             // UPDATE 5: Font size judul diperkecil (text-4xl) di mobile
-                            className="flex flex-col font-roster text-4xl sm:text-5xl md:text-7xl font-bold text-center md:text-left leading-tight"
+                            className="flex flex-col font-roster text-4xl sm:text-5xl lg:text-7xl font-bold text-center lg:text-left leading-tight"
                         >
                             <motion.div animate={textGlowAnimation}>
                                 <div className="text-black">Selamat</div>
                                 <div className="text-black">Datang Di</div>
-                                <div className="text-magenta mt-1 md:mt-2">Peduli Hati</div>
+                                <div className="text-magenta mt-1 lg:mt-2">Peduli Hati</div>
                             </motion.div>
                         </motion.div>
 
@@ -103,7 +103,7 @@ const HeroSection = () => {
                 <motion.div
                     variants={fadeInUpVariants}
                     // UPDATE 6: Gap antar tombol diperkecil (gap-6) agar muat berdampingan
-                    className="flex justify-center gap-6 md:gap-16 font-retro w-full mt-4 md:mt-8"
+                    className="flex justify-center gap-6 lg:gap-16 font-retro w-full mt-4 lg:mt-8"
                 >
                     <ActionButton text="Start" color="bg-green" onClick={handleStartScroll} />
                     <ActionButton text="Voting" color="bg-navy" />
@@ -122,15 +122,18 @@ interface ActionButtonProps {
 
 const ActionButton = ({ text, color, onClick }: ActionButtonProps) => (
     // UPDATE 7: Ukuran tombol mobile diperkecil (w-32 h-12)
-    <div
-        className="relative w-32 h-10 md:w-48 md:h-14 cursor-pointer group"
-        onClick={onClick}
-    >
-        <div className="absolute w-full h-full bg-black rounded-sm translate-x-1 translate-y-1 md:translate-x-1.5 md:translate-y-1.5"></div>
-        <div className={`absolute w-full h-full ${color} z-10 rounded-sm flex items-center justify-center border-2 md:border-4 border-black transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1 active:translate-x-0 active:translate-y-0`}>
-            <span className="text-white font-bold text-sm md:text-xl uppercase tracking-wider">{text}</span>
+    <button className="relative w-32 h-12 cursor-pointer group bg-transparent border-none p-0" onClick={onClick}>
+
+        {/* Layer Bayangan (Hitam) */}
+        <div className="absolute w-full h-full bg-black rounded-sm"></div>
+
+        {/* Layer Atas (Navy) */}
+        <div className={`absolute w-full h-full ${color} z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center justify-center border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0`}>
+            <span className="text-white font-bold font-retro text-lg">{text}</span>
         </div>
-    </div>
+
+    </button>
 );
+
 
 export default HeroSection;

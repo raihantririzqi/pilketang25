@@ -36,7 +36,7 @@ const VotingTokenCard = ({ tokenString, userName, userNIM }: VotingTokenProps) =
             className="relative group cursor-pointer"
             onClick={() => setIsRevealed(!isRevealed)}
           >
-            <div className={`transition-all duration-300 ${isRevealed ? 'blur-none' : 'blur-md opacity-20'}`}>
+            <div className={`transition-all duration-300 ${isRevealed ? 'blur-none' : 'blur-lg opacity-20'}`}>
                 <QRCodeSVG 
                     value={tokenString} 
                     size={200} 

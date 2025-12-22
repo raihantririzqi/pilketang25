@@ -15,7 +15,7 @@ const MobileMenu = ({ isOpen, onClose, onNavigate }: MobileMenuProps) => {
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full bg-[#fdf8f4] z-[100] flex flex-col items-center gap-6 pt-8 pb-12 shadow-2xl transition-transform duration-300 md:hidden ${
+      className={`fixed top-0 left-0 w-full bg-[#fdf8f4] z-[100] flex flex-col items-center gap-6 pt-8 pb-12 shadow-2xl transition-transform duration-300 lg:hidden ${
         isOpen ? "translate-y-0" : "-translate-y-full"
       }`}
     >

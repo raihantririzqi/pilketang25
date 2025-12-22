@@ -66,7 +66,7 @@ const Navbar = () => {
           </div>
 
           {/* DESKTOP MENU */}
-          <div className="hidden md:flex gap-8 font-retro items-center">
+          <div className="hidden lg:flex gap-8 font-retro items-center">
             {menuItems.map((item) => (
               <button
                 key={item.label}
@@ -88,7 +88,7 @@ const Navbar = () => {
 
           {/* HAMBURGER */}
           <button
-            className="md:hidden z-50 p-2"
+            className="lg:hidden z-50 p-2"
             onClick={() => setIsMenuOpen(true)}
           >
             <svg
