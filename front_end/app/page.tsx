@@ -11,7 +11,6 @@ import FaqSection from "@/components/sections/FaqSection";
 import SectionDivider from "@/components/ui/SectionDivider";
 import RundownSection from "@/components/sections/RundownSection";
 import PixelLoader from "@/components/ui/PixelLoader"; // Import Loader
-import LoveButton from "@/components/ui/LoveButton";
 
 const Home = () => {
   // State untuk Loading
@@ -59,8 +58,6 @@ const Home = () => {
           <SectionDivider />
 
           <FaqSection />
-
-          <LoveButton/>
         </>
       )}
     </>
