@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { containerVariants, fadeInUpVariants, floatingAnimation, neonBacklight, popUpVariants, slowFloatingAnimation } from "../common/animation";
+import Link from "next/link";
 
 // --- DEFINISI ANIMASI GLOW BARU ---
 const textGlowAnimation = {
@@ -114,34 +115,53 @@ const HeroSection = () => {
                     className="flex justify-center gap-6 lg:gap-16 font-retro w-full mt-4 lg:mt-8"
                 >
                     <ActionButton text="Start" color="bg-green" onClick={handleStartScroll} />
-                    <ActionButton text="Voting" color="bg-navy" />
+                    <ActionButton text="Voting" color="bg-navy" href="/qr_generate"/>
                 </motion.div>
             </motion.div>
         </section>
     );
 };
 
-// Update Component ActionButton agar ukuran responsive
+
 interface ActionButtonProps {
     text: string;
     color: string;
     onClick?: () => void;
+    href?: string; // 1. Tambahkan prop opsional href
 }
 
-const ActionButton = ({ text, color, onClick }: ActionButtonProps) => (
-    // UPDATE 7: Ukuran tombol mobile diperkecil (w-32 h-12)
-    <button className="relative w-32 h-12 cursor-pointer group bg-transparent border-none p-0" onClick={onClick}>
+const ActionButton = ({ text, color, onClick, href }: ActionButtonProps) => {
+    
+    // 2. Definisikan tampilan visual tombol (tanpa wrapper fungsional)
+    const ButtonVisual = () => (
+        <div className="relative w-32 h-12 cursor-pointer group">
+            {/* Layer Bayangan (Hitam) */}
+            <div className="absolute w-full h-full bg-black rounded-sm"></div>
 
-        {/* Layer Bayangan (Hitam) */}
-        <div className="absolute w-full h-full bg-black rounded-sm"></div>
-
-        {/* Layer Atas (Navy) */}
-        <div className={`absolute w-full h-full ${color} z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center justify-center border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0`}>
-            <span className="text-white font-bold font-retro text-lg">{text}</span>
+            {/* Layer Atas */}
+            <div className={`absolute w-full h-full ${color} z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center justify-center border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0`}>
+                <span className="text-white font-bold font-retro text-lg">{text}</span>
+            </div>
         </div>
+    );
 
-    </button>
-);
+    // 3. LOGIKA RENDER:
+    
+    // A. Jika ada HREF, render sebagai Link (untuk navigasi)
+    if (href) {
+        return (
+            <Link href={href}>
+                <ButtonVisual />
+            </Link>
+        );
+    }
 
+    // B. Jika tidak ada HREF, render sebagai Button/Div biasa (untuk onClick)
+    return (
+        <div onClick={onClick} role="button" className="bg-transparent border-none p-0 inline-block">
+            <ButtonVisual />
+        </div>
+    );
+};
 
 export default HeroSection;

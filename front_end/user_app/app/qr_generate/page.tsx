@@ -1,7 +1,7 @@
 import VotingTokenCard from "@/components/ui/VotingTokenCard";
 import SecurityScanner from "@/components/ui/SecurityScanner";
 
-export default function VotingPage() {
+export default function GenerateQr() {
   // Mode: "USER" (Lihat Token) atau "ADMIN" (Scan Token)
   const mode = "USER"; 
 

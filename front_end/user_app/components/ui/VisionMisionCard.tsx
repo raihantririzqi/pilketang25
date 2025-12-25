@@ -25,7 +25,7 @@ const VisionMissionCard = ({
       </div>
 
       {/* CONTENT */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-6">
         {/* VISI */}
         <div className="relative bg-white border-4 border-black p-4">
           <span className="absolute -top-4 left-4 bg-blue-400 text-white font-retro px-3 py-1 border-2 border-black">
