@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import MobileMenu from "./MobileMenu";
+import Link from "next/link";
 
 const menuItems = [
   { label: "Home", target: "hero-section" },
@@ -78,12 +79,14 @@ const Navbar = () => {
             ))}
 
             {/* LOGIN BUTTON */}
+            <Link href={"/login"}>
             <div className="relative w-24 h-10 cursor-pointer group">
               <div className="absolute w-24 h-10 bg-black rounded-sm"></div>
               <div className="absolute w-24 h-10 bg-navy z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center justify-center border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0">
                 <span className="text-white font-bold text-lg">Login</span>
               </div>
             </div>
+            </Link>
           </div>
 
           {/* HAMBURGER */}

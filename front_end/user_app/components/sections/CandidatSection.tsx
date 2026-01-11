@@ -15,7 +15,7 @@ const candidatesData = [
   {
     name: "Raihan Tri rizqi Wibowo",
     nim: "125140125",
-    base_color: "magenta",
+    base_color: "red",
     kandidat_number: 1,
     vision: "Menjadikan angkatan yang solid, aktif, dan berdampak positif bagi lingkungan kampus.",
     imageSrc: "images/kandidat/1.jpg",

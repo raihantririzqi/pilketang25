@@ -115,7 +115,7 @@ const HeroSection = () => {
                     className="flex justify-center gap-6 lg:gap-16 font-retro w-full mt-4 lg:mt-8"
                 >
                     <ActionButton text="Start" color="bg-green" onClick={handleStartScroll} />
-                    <ActionButton text="Voting" color="bg-navy" href="/qr_generate"/>
+                    <ActionButton text="Voting" color="bg-navy" href="/login"/>
                 </motion.div>
             </motion.div>
         </section>

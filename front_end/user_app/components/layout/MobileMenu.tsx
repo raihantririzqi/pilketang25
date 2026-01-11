@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
@@ -15,9 +17,8 @@ const MobileMenu = ({ isOpen, onClose, onNavigate }: MobileMenuProps) => {
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full bg-[#fdf8f4] z-[100] flex flex-col items-center gap-6 pt-8 pb-12 shadow-2xl transition-transform duration-300 lg:hidden ${
-        isOpen ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`fixed top-0 left-0 w-full bg-[#fdf8f4] z-[100] flex flex-col items-center gap-6 pt-8 pb-12 shadow-2xl transition-transform duration-300 lg:hidden ${isOpen ? "translate-y-0" : "-translate-y-full"
+        }`}
     >
       {/* HEADER */}
       <div className="w-full px-6 flex justify-between items-center mb-4">
@@ -52,15 +53,17 @@ const MobileMenu = ({ isOpen, onClose, onNavigate }: MobileMenuProps) => {
         ))}
 
         {/* LOGIN */}
-        <div
-          className="relative w-40 h-12 cursor-pointer group mt-2"
-          onClick={onClose}
-        >
-          <div className="absolute w-40 h-12 bg-black rounded-sm"></div>
-          <div className="absolute w-40 h-12 bg-navy z-10 -translate-x-1 -translate-y-1 rounded-sm flex items-center justify-center border-4 border-black transition-transform active:translate-x-0 active:translate-y-0">
-            <span className="text-white font-bold text-xl">Login</span>
+        <Link href={"/href"}>
+          <div
+            className="relative w-40 h-12 cursor-pointer group mt-2"
+            onClick={onClose}
+          >
+            <div className="absolute w-40 h-12 bg-black rounded-sm"></div>
+            <div className="absolute w-40 h-12 bg-navy z-10 -translate-x-1 -translate-y-1 rounded-sm flex items-center justify-center border-4 border-black transition-transform active:translate-x-0 active:translate-y-0">
+              <span className="text-white font-bold text-xl">Login</span>
+            </div>
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );

@@ -65,33 +65,44 @@ const FaqSection = () => {
         </h2>
 
         <Accordion type="single" collapsible className="w-full">
+          {/* FAQ 1: TENTANG ACARA (Updated) */}
           <AccordionItem value="item-1">
-            <AccordionTrigger>
-              Apa itu Peduli Hati?
+            <AccordionTrigger className="font-roster text-lg uppercase">
+              Apa itu PEDULI HATI?
             </AccordionTrigger>
-            <AccordionContent>
-              Peduli Hati adalah platform untuk meningkatkan partisipasi
-              dan kepedulian masyarakat dalam proses pemilihan.
+            <AccordionContent className="font-mono text-gray-600 leading-relaxed">
+              <strong>PEDULI HATI</strong> adalah singkatan dari <em>"PEmilihan DUa LIma Harapan Anak Teknik Informatika"</em>.
+              <br /><br />
+              Ini merupakan acara resmi pemilihan <strong>Ketua Angkatan Mahasiswa Teknik Informatika 2025</strong>.
+              Platform ini dibangun untuk memfasilitasi proses demokrasi tersebut secara modern, transparan, dan berbasis teknologi (E-Voting Kiosk).
             </AccordionContent>
           </AccordionItem>
 
+          {/* FAQ 2: ALUR VOTING */}
           <AccordionItem value="item-2">
-            <AccordionTrigger>
-              Bagaimana cara memilih kandidat?
+            <AccordionTrigger className="font-roster text-lg uppercase">
+              Bagaimana cara memilih?
             </AccordionTrigger>
-            <AccordionContent>
-              Kamu dapat melihat daftar kandidat, mempelajari profilnya,
-              lalu memberikan suara sesuai pilihanmu.
+            <AccordionContent className="font-mono text-gray-600 leading-relaxed">
+              Prosesnya mudah dan futuristik:
+              <ol className="list-decimal list-inside mt-2 space-y-1">
+                <li>Login menggunakan akun Google Itera/Mahasiswa kamu.</li>
+                <li>Masuk ke Dashboard dan klik <strong>Generate Ticket</strong> untuk dapat QR Code.</li>
+                <li>Bawa HP-mu ke <strong>Bilik Suara</strong> dan minta panitia men-scan QR tersebut.</li>
+                <li>Lakukan pencoblosan kandidat pada <strong>Laptop/Layar yang tersedia</strong> di bilik.</li>
+              </ol>
             </AccordionContent>
           </AccordionItem>
 
+          {/* FAQ 3: KEAMANAN */}
           <AccordionItem value="item-3">
-            <AccordionTrigger>
+            <AccordionTrigger className="font-roster text-lg uppercase">
               Apakah data saya aman?
             </AccordionTrigger>
-            <AccordionContent>
-              Ya. Kami menjaga keamanan data pengguna dan tidak
-              menyalahgunakan informasi pribadi.
+            <AccordionContent className="font-mono text-gray-600 leading-relaxed">
+              <strong>100% Aman.</strong> Kami menggunakan sistem <em>One-Time-Token</em> di mana QR Code hanya berlaku sekali scan
+              dan akan hangus otomatis dalam 30 detik. Data suara disimpan secara <strong>Anonim (Hashing)</strong> di database,
+              sehingga siapapun tidak bisa melacak pilihanmu.
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -109,9 +120,9 @@ const FaqSection = () => {
 
       {/* ================= FOOTER ================= */}
       {/* ❌ footer TANPA animasi (best practice) */}
-      <footer className="relative bg-magenta text-white w-full pt-24">
+      <footer className="relative bg-[#e84797] text-white w-full pt-24 border-t-4 border-black">
 
-        {/* LOGO BULAT */}
+        {/* LOGO BULAT (Floating) */}
         <div
           className="
             absolute
@@ -125,13 +136,15 @@ const FaqSection = () => {
             bg-white
             rounded-full
             flex items-center justify-center
+            border-4 border-black
+            shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
           "
         >
           <Image
             src="/images/logo.png"
-            alt="Logo"
+            alt="Logo Peduli Hati"
             fill
-            className="object-contain p-3"
+            className="object-contain p-2"
           />
         </div>
 
@@ -141,36 +154,87 @@ const FaqSection = () => {
             px-6 pb-12
             grid
             grid-cols-1
-            lg:grid-cols-2
+            md:grid-cols-2
             lg:grid-cols-3
             gap-10
             font-retro
             text-sm
           "
         >
+          {/* LAJUR 1: JENAMA & DESKRIPSI */}
           <div className="flex flex-col gap-4 max-w-sm mx-auto lg:mx-0 text-center lg:text-left">
-            <p className="leading-relaxed">
-              Lorem Ipsum is simply dummy text of the printing and typesetting
-              industry. Lorem Ipsum has been the industry&apos;s standard dummy
-              text ever since the 1500s.
+            <h3 className="font-roster text-2xl text-yellow-300">PEDULI HATI</h3>
+            <p className="leading-relaxed opacity-90">
+              <strong>PE</strong>milihan <strong>DU</strong>a <strong>LI</strong>ma <strong>HA</strong>rapan <strong>A</strong>nak <strong>T</strong>eknik <strong>I</strong>nformatika.
+            </p>
+            <p className="text-xs opacity-75">
+              Platform E-Voting rasmi untuk pemilihan Ketua Angkatan Teknik Informatika ITERA 2025. Jujur, Adil, & Telus.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 text-center lg:text-left">
-            <h4 className="font-bold text-lg">Contact Us</h4>
-            <p>Jl. Terusan Ryacudu, Kec. Jati Agung</p>
-            <p>informatisciter25@gmail.com</p>
-            <p>+62 812-9891-1597</p>
-            <p>@nordbyte.25</p>
+          {/* LAJUR 2: MAKLUMAT HUBUNGI */}
+          <div className="flex flex-col gap-3 text-center lg:text-left items-center lg:items-start">
+            <h4 className="font-roster text-xl mb-1 text-yellow-300">CONTACT BASE</h4>
+
+            {/* ALAMAT (Pautan Google Maps) */}
+            <div className="flex items-start gap-2">
+              <span>📍</span>
+              <a
+                href="https://maps.google.com/?cid=915303199932108582&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-yellow-300 transition-colors hover:underline text-left"
+              >
+                Jl. Terusan Ryacudu, Way Huwi, Jati Agung (ITERA)
+              </a>
+            </div>
+
+            {/* E-MEL (Pautan Mailto) */}
+            <div className="flex items-center gap-2">
+              <span>✉️</span>
+              <a
+                href="mailto:informatisciter25@gmail.com"
+                className="hover:text-yellow-300 transition-colors hover:underline"
+              >
+                informatisciter25@gmail.com
+              </a>
+            </div>
+
+            {/* WHATSAPP (Pautan Wa.me) */}
+            <div className="flex items-center gap-2">
+              <span>📞</span>
+              <a
+                href="https://wa.me/6281298911597"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-yellow-300 transition-colors hover:underline"
+              >
+                +62 812-9891-1597
+              </a>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span>📷</span>
+              <a href="https://instagram.com/nordbyte.25" target="_blank" className="hover:text-yellow-300 transition-colors underline decoration-dotted">
+                @nordbyte.25
+              </a>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-3 text-center lg:text-left">
-            <h4 className="font-bold text-lg">Pages</h4>
-            <a href="#hero-section" className="hover:underline">Home</a>
-            <a href="#kandidat-section" className="hover:underline">Kandidat</a>
-            <a href="#feedback-section" className="hover:underline">Feedback</a>
-            <a href="#faq-section" className="hover:underline">FAQ</a>
+          {/* LAJUR 3: PAUTAN PANTAS */}
+          <div className="flex flex-col gap-3 text-center lg:text-left items-center lg:items-start">
+            <h4 className="font-roster text-xl mb-1 text-yellow-300">QUICK LINKS</h4>
+            <a href="#hero-section" className="hover:text-yellow-300 transition-colors hover:translate-x-1 duration-200">Home</a>
+            <a href="#candidate-section" className="hover:text-yellow-300 transition-colors hover:translate-x-1 duration-200">Kandidat</a>
+            <a href="#rundown-section" className="hover:text-yellow-300 transition-colors hover:translate-x-1 duration-200">Rundown</a>
+            <a href="#feedback-section" className="hover:text-yellow-300 transition-colors hover:translate-x-1 duration-200">Feedback</a>
+            <a href="#faq-section" className="hover:text-yellow-300 transition-colors hover:translate-x-1 duration-200">FAQ</a>
           </div>
+        </div>
+
+        {/* BAR HAK CIPTA */}
+        <div className="w-full bg-black py-4 text-center font-retro text-xs text-white/60">
+          <p>© 2025 PEDULI HATI SYSTEM. MADE WITH 💻 & ☕ BY PANITIA.</p>
         </div>
       </footer>
     </motion.section>
