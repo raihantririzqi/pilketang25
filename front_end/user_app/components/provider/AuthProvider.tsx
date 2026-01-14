@@ -43,7 +43,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   // Logout function
   const logout = useCallback(async () => {
     try {
-      await api.post('/api/auth/logout');
+      await api.post('/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

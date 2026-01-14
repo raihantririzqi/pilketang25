@@ -47,7 +47,7 @@ export default function DashboardPage() {
     const displayUser = user || localUser || { name: "User", nim: "000000000", email: "" };
 
     // --- TARGET DATE (Sesuaikan dengan jadwal asli) ---
-    const TARGET_DATE = new Date("2026-01-04T09:49:00").getTime(); 
+    const TARGET_DATE = new Date("2026-01-04T09:49:00").getTime();
 
     useEffect(() => {
         const checkTime = () => {
@@ -82,9 +82,9 @@ export default function DashboardPage() {
     };
 
     const getBgColor = () => {
-        if (status === 'LOCKED') return '#cbd5e1'; 
-        if (status === 'VOTED') return '#92c3dd'; 
-        return '#eab308'; 
+        if (status === 'LOCKED') return '#cbd5e1';
+        if (status === 'VOTED') return '#92c3dd';
+        return '#eab308';
     };
 
     return (
@@ -154,12 +154,12 @@ export default function DashboardPage() {
                                     <span className="font-retro">🔒</span>
                                 </div>
                                 <h2 className="font-roster text-3xl md:text-5xl mb-2 text-gray-700">ACCESS LOCKED</h2>
-                                
+
                                 {/* --- UPDATE TEKS DI SINI --- */}
                                 <p className="font-retro text-xs text-black/60 max-w-md mx-auto mb-8 leading-relaxed">
                                     Sabar dong! biliknya aja belum di buka
                                 </p>
-                                
+
                                 <div className="bg-black text-white px-6 py-3 border-4 border-gray-500 shadow-[4px_4px_0px_0px_white] font-retro text-sm animate-pulse">
                                     OPENS IN: {timeLeft || "Checking..."}
                                 </div>
@@ -176,7 +176,7 @@ export default function DashboardPage() {
                                 transition={{ type: "spring", stiffness: 200, damping: 15 }}
                                 className="relative z-10 w-full flex flex-col items-center"
                             >
-                                <motion.div 
+                                <motion.div
                                     initial={{ scale: 0 }} animate={{ scale: 1.5, opacity: 0 }} transition={{ duration: 0.5 }}
                                     className="absolute inset-0 bg-white/30 rounded-full blur-xl z-[-1]"
                                 />
