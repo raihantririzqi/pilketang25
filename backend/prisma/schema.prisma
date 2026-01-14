@@ -1,0 +1,154 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  ADMIN
+  COMMITTEE
+  PARTICIPANT
+}
+
+model User {
+  id                String             @id @default(uuid())
+  google_id         String             @unique
+  name              String
+  email             String
+  nim               String             @unique
+  role              UserRole           @default(PARTICIPANT)
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @updatedAt
+  qrcodes           QRCode[]
+  attendanceRecords AttendanceRecord[]
+  auditLogs         AuditLog[]
+  tokenBlacklists   TokenBlacklist[]
+
+  @@index([google_id, email, nim, role])
+}
+
+model Candidate {
+  id          String       @id @default(uuid())
+  name        String
+  nim         String       @unique
+  vision      String
+  mission     String
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  voteRecords VoteRecord[]
+
+  @@index([name, nim])
+}
+
+model VotingSession {
+  id                      String                   @id @default(uuid())
+  start_time              DateTime
+  end_time                DateTime
+  is_active               Boolean                  @default(true)
+  is_published            Boolean                  @default(false)
+  published_at            DateTime?
+  created_at              DateTime                 @default(now())
+  qrcodes                 QRCode[]
+  temporaryVotingSessions TemporaryVotingSession[]
+  attendanceRecords       AttendanceRecord[]
+  voteRecords             VoteRecord[]
+
+  @@index([is_active, is_published, start_time, end_time])
+}
+
+model QRCode {
+  token        String   @id
+  voting_token String
+  user_id      String   @unique
+  session_id   String   @unique
+  is_used      Boolean  @default(false)
+  created_at   DateTime @default(now())
+  expires_at   DateTime
+
+  user                    User                     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  session                 VotingSession            @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  temporaryVotingSessions TemporaryVotingSession[]
+  voteRecords             VoteRecord[]
+
+  @@index([user_id, session_id, is_used, expires_at, token, voting_token])
+}
+
+model TemporaryVotingSession {
+  voting_token String   @id
+  qr_token     String
+  session_id   String
+  created_at   DateTime @default(now())
+  expires_at   DateTime
+  is_used      Boolean  @default(false)
+
+  qr_code     QRCode        @relation(fields: [qr_token], references: [token], onDelete: Cascade)
+  session     VotingSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  voteRecords VoteRecord[]
+
+  @@index([qr_token, is_used, expires_at, session_id])
+}
+
+model AttendanceRecord {
+  id         String   @id @default(uuid())
+  user_id    String   @unique
+  session_id String   @unique
+  has_voted  Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  user    User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  session VotingSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, session_id, has_voted])
+}
+
+model VoteRecord {
+  id           String   @id @default(uuid())
+  session_id   String
+  candidate_id String
+  voted_at     DateTime @default(now())
+  qr_token     String
+  voting_token String
+
+  session      VotingSession          @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  candidate    Candidate              @relation(fields: [candidate_id], references: [id], onDelete: Cascade)
+  qr_code      QRCode                 @relation(fields: [qr_token], references: [token], onDelete: Cascade)
+  temp_session TemporaryVotingSession @relation(fields: [voting_token], references: [voting_token], onDelete: Cascade)
+
+  @@index([session_id, candidate_id, voted_at, qr_token, voting_token])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  user_id    String
+  action     String
+  target_id  String
+  old_value  String?
+  new_value  String?
+  ip_address String
+  user_agent String
+  created_at DateTime
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, action, created_at, target_id])
+}
+
+model TokenBlacklist {
+  jti        String   @id
+  user_id    String
+  created_at DateTime @default(now())
+  expires_at DateTime
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, expires_at])
+}
