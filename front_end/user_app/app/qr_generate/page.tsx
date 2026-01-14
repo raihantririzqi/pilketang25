@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import VotingTokenCard from "@/components/ui/VotingTokenCard";
 import GeneratorCard from "@/components/ui/GeneratorCard";
+import axios from "@/lib/axios";
+import api from "@/lib/axios";
 
 // --- KOMPONEN BARU: WARNING BANNER ---
 const WarningBanner = () => (
@@ -178,6 +180,8 @@ export default function GenerateQrPage() {
   // HANDLERS
   const handleRefreshToken = () => { setIsTimeout(false); handleGenerateToken(); };
 
+  // Di dalam export default function GenerateQrPage() ...
+
   const handleGenerateToken = async () => {
     setIsLoading(true);
     setIsTimeout(false);
@@ -185,28 +189,30 @@ export default function GenerateQrPage() {
     setTimeLeft(30);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Memanggil proxy: /api/qr/generate (auto-detect active session)
+      const res = await api.post("/qr/generate");
 
-      const rawDataArray = [
-        "125140125",
-        "Raihan Tri Rizqi Wibowo",
-        `VOTE-${Math.random()}`,
-        Date.now()
-      ];
+      // Sesuai dengan interface ticketData kamu
+      if (res.data.result) {
+        setTicketData({
+          token: res.data.result.token,
+          name: res.data.result.user_name,
+          nim: res.data.result.user_nim,
+        });
+      }
+    } catch (error: any) {
+      // Proxy kamu mengembalikan JSON { message: "..." } jika terjadi error
+      const errorMessage = error.response?.data?.message || "Gagal mendapatkan tiket";
 
-      const arrayString = JSON.stringify(rawDataArray);
+      // Tampilkan error secara visual (bisa pakai toast atau state statusText)
+      console.error("Voting Error:", errorMessage);
+      alert(`ERROR: ${errorMessage.toUpperCase()}`);
 
-      setTicketData({
-        token: arrayString,
-        name: "Raihan Tri Rizqi Wibowo",
-        nim: "125140125"
-      });
-
+      setTicketData(null);
     } finally {
       setIsLoading(false);
     }
   };
-
   if (!isClient) return null;
 
   return (

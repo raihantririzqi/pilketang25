@@ -6,6 +6,7 @@ import {
   GenerateTokenPayloadResult,
   GoogleCallbackResult,
   RefreshResult,
+  UserProfile,
   ValidateGooglePayloadResult,
 } from "./auth_type";
 import {
@@ -202,6 +203,22 @@ export class AuthService {
       nim: raw_nim,
     });
   }
+
+  /**
+   * Retrieves the current user's profile by user ID.
+   *
+   * @param user_id - The user ID from the JWT payload.
+   * @returns The user profile data.
+   */
+  public getMe = async (user_id: string): Promise<UserProfile> => {
+    const user = await this.prisma.user.findUnique({
+      where: { id: user_id },
+    });
+
+    if (!user) throw new NotFoundError("User not found");
+
+    return user as UserProfile;
+  };
 
   /**
    * Internal helper to create unique payloads for both Access and Refresh tokens.

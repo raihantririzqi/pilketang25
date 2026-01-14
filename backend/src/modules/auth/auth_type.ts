@@ -42,3 +42,15 @@ export type GenerateTokenPayloadResult = {
     jti: string;
   };
 };
+
+export type UserProfile = {
+  id: string;
+  google_id: string;
+  name: string;
+  email: string;
+  nim: string;
+  role: string;
+  image: string | null;
+  created_at: Date;
+  updated_at: Date;
+};

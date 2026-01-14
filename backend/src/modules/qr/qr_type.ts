@@ -4,3 +4,10 @@ export type GenerateQRResult = {
   created_at: Date;
   expires_at: number;
 };
+
+export type SimpleQRResult = {
+  token: string;
+  user_name: string;
+  user_nim: string;
+  expires_at: Date;
+};

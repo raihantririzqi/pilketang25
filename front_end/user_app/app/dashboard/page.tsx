@@ -4,49 +4,45 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/components/provider/AuthProvider";
-import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // --- KOMPONEN BUTTON REUSABLE ---
 interface RetroButtonProps {
-    text: string;
-    colorClass: string;
-    onClick?: () => void;
-    className?: string;
+  text: string;
+  colorClass: string;
+  onClick?: () => void;
+  className?: string;
 }
 
-const RetroButton = ({ text, colorClass, onClick, className = "w-32 h-12" }: RetroButtonProps) => {
-    return (
-        <div onClick={onClick} className={`relative cursor-pointer group ${className}`}>
-            <div className="absolute w-full h-full bg-black rounded-sm translate-x-1.5 translate-y-1.5"></div>
-            <div className={`absolute w-full h-full ${colorClass} z-10 rounded-sm flex items-center justify-center border-4 border-black transition-transform duration-200 group-hover:translate-x-1.5 group-hover:translate-y-1.5 group-active:translate-x-1.5 group-active:translate-y-1.5`}>
-                <span className="text-white font-bold font-retro text-xs md:text-sm tracking-widest">{text}</span>
-            </div>
-        </div>
-    );
+const RetroButton = ({
+  text,
+  colorClass,
+  onClick,
+  className = "w-32 h-12",
+}: RetroButtonProps) => {
+  return (
+    <div onClick={onClick} className={`relative cursor-pointer group ${className}`}>
+      <div className="absolute w-full h-full bg-black rounded-sm translate-x-1.5 translate-y-1.5"></div>
+      <div
+        className={`absolute w-full h-full ${colorClass} z-10 rounded-sm flex items-center justify-center border-4 border-black transition-transform duration-200 group-hover:translate-x-1.5 group-hover:translate-y-1.5 group-active:translate-x-1.5 group-active:translate-y-1.5`}
+      >
+        <span className="text-white font-bold font-retro text-xs md:text-sm tracking-widest">
+          {text}
+        </span>
+      </div>
+    </div>
+  );
 };
 
 export default function DashboardPage() {
-    const { user, logout } = useAuth();
+  const { user, logout } = useAuth();
 
-    // STATUS: 'LOCKED' | 'OPEN' | 'VOTED'
-    const [status, setStatus] = useState<'LOCKED' | 'OPEN' | 'VOTED'>('LOCKED');
-    const [timeLeft, setTimeLeft] = useState("");
+  // STATUS: 'LOCKED' | 'OPEN' | 'VOTED'
+  const [status, setStatus] = useState<"LOCKED" | "OPEN" | "VOTED">("LOCKED");
+  const [timeLeft, setTimeLeft] = useState("");
 
-    // Fallback user data jika belum ada dari context (ambil dari localStorage)
-    const [localUser, setLocalUser] = useState<{ name: string; nim: string; email: string; image: string } | null>(null);
-
-    useEffect(() => {
-        if (!user) {
-            const storedUser = localStorage.getItem('user');
-            if (storedUser) {
-                setLocalUser(JSON.parse(storedUser));
-            }
-        }
-    }, [user]);
-
-    // User data yang akan ditampilkan
-    const displayUser = user || localUser || { name: "User", nim: "000000000", email: "", image: "" };
+  // User data yang akan ditampilkan (langsung dari context, tidak perlu localStorage)
+  const displayUser = user || { name: "User", nim: "000000000", email: "", image: "" };
 
     // --- TARGET DATE (Sesuaikan dengan jadwal asli) ---
     const TARGET_DATE = new Date("2026-01-04T09:49:00").getTime();

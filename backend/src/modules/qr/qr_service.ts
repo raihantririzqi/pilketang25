@@ -4,11 +4,100 @@ import {
   NotFoundError,
   ValidationError,
 } from "../../shared/utils/error_util";
-import { GenerateQRResult } from "./qr_type";
+import { GenerateQRResult, SimpleQRResult } from "./qr_type";
 import { v4 as uuidv4 } from "uuid";
 
 export class QRService {
   public constructor(private readonly prisma: PrismaClient) {}
+
+  /**
+   * Generates a simple QR token for a user by auto-detecting active session.
+   * This is a simplified version for the kiosk voting flow.
+   *
+   * @param user_id - The unique identifier of the user.
+   * @returns SimpleQRResult containing token and user info.
+   */
+  public generate_simple_qr = async (
+    user_id: string,
+  ): Promise<SimpleQRResult> => {
+    // Get user info
+    const user = await this.prisma.user.findUnique({
+      where: { id: user_id },
+    });
+
+    if (!user) throw new NotFoundError("User not found");
+
+    // Find active voting session
+    const activeSession = await this.prisma.votingSession.findFirst({
+      where: { is_active: true },
+    });
+
+    if (!activeSession) {
+      throw new ValidationError("No active voting session available");
+    }
+
+    // Check if user already has an active (unused, not expired) QR code
+    const existingQR = await this.prisma.qRCode.findFirst({
+      where: {
+        user_id,
+        session_id: activeSession.id,
+        is_used: false,
+        expires_at: { gt: new Date() },
+      },
+    });
+
+    if (existingQR) {
+      return {
+        token: existingQR.token,
+        user_name: user.name,
+        user_nim: user.nim,
+        expires_at: existingQR.expires_at,
+      };
+    }
+
+    // Check if user has already voted in this session
+    const hasVoted = await this.prisma.qRCode.findFirst({
+      where: {
+        user_id,
+        session_id: activeSession.id,
+        is_used: true,
+      },
+    });
+
+    if (hasVoted) {
+      throw new ConflictError("You have already voted in this session");
+    }
+
+    // Delete any existing expired/unused QR codes for this user and session
+    await this.prisma.qRCode.deleteMany({
+      where: {
+        user_id,
+        session_id: activeSession.id,
+        is_used: false,
+      },
+    });
+
+    // Create new QR code (expires in 30 seconds)
+    const expires_at = new Date();
+    expires_at.setSeconds(expires_at.getSeconds() + 30);
+
+    const newQR = await this.prisma.qRCode.create({
+      data: {
+        token: uuidv4(),
+        voting_token: uuidv4(),
+        user_id,
+        session_id: activeSession.id,
+        expires_at,
+      },
+    });
+
+    return {
+      token: newQR.token,
+      user_name: user.name,
+      user_nim: user.nim,
+      expires_at: newQR.expires_at,
+    };
+  };
 
   /**
    * Generates a unique QR code for a user to participate in a specific voting session.

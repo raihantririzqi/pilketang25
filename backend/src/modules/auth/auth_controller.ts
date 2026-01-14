@@ -3,7 +3,7 @@ import Elysia, { t } from "elysia";
 import { AuthService } from "./auth_service";
 import { SuccessResponse } from "../../shared/types/custom_types";
 import { AuthenticationError } from "../../shared/utils/error_util";
-import { GoogleCallbackResult } from "./auth_type";
+import { GoogleCallbackResult, UserProfile } from "./auth_type";
 
 /**
  * Controller providing HTTP endpoints for the Authentication module.
@@ -98,7 +98,7 @@ export class AuthController {
           cookie: { refresh_token_cookie },
           refresh_jwt,
           access_jwt,
-        }): Promise<SuccessResponse<{ access_token: string }>> => {
+        }): Promise<SuccessResponse<{ signed_access_token: string }>> => {
           const token = refresh_token_cookie.value;
           if (!token)
             throw new AuthenticationError(
@@ -119,7 +119,7 @@ export class AuthController {
           return {
             code: 200,
             message: "Token refreshed",
-            result: { access_token: new_access_token },
+            result: { signed_access_token: new_access_token },
           };
         },
       )
@@ -164,6 +164,37 @@ export class AuthController {
             result: {
               success: true,
             },
+          };
+        },
+      )
+      /**
+       * @endpoint GET /auth/me
+       * @desc Returns the current authenticated user's profile.
+       */
+      .get(
+        "/me",
+        async ({
+          headers,
+          access_jwt,
+        }): Promise<SuccessResponse<UserProfile>> => {
+          const auth_header = headers["authorization"]?.replace(
+            "Bearer ",
+            "",
+          );
+
+          if (!auth_header)
+            throw new AuthenticationError("No token provided");
+
+          const payload = await access_jwt.verify(auth_header);
+          if (!payload)
+            throw new AuthenticationError("Invalid or expired token");
+
+          const user = await this.service.getMe(payload.sub as string);
+
+          return {
+            code: 200,
+            message: "User profile retrieved",
+            result: user,
           };
         },
       );

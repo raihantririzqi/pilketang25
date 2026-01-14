@@ -6,6 +6,10 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { OAuth2Client } from "google-auth-library";
 import { AuthController } from "./modules/auth/auth_controller";
 import { AuthService } from "./modules/auth/auth_service";
+import { QRController } from "./modules/qr/qr_controller";
+import { QRService } from "./modules/qr/qr_service";
+import { VotingController } from "./modules/voting/voting_controller";
+import { VotingService } from "./modules/voting/voting_service";
 
 // Environment variables
 const PORT = process.env.PORT || 3001;
@@ -33,6 +37,12 @@ const oauth2Client = new OAuth2Client(
 const authService = new AuthService(prisma, oauth2Client);
 const authController = new AuthController(authService);
 
+const qrService = new QRService(prisma);
+const qrController = new QRController(prisma, qrService);
+
+const votingService = new VotingService(prisma);
+const votingController = new VotingController(prisma, votingService);
+
 const app = new Elysia()
   .use(
     cors({
@@ -47,6 +57,8 @@ const app = new Elysia()
     status: "healthy",
   }))
   .use(authController.register())
+  .use(qrController.register())
+  .use(votingController.register())
   .listen(PORT);
 
 console.log(

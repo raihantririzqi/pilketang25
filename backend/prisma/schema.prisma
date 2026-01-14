@@ -69,8 +69,8 @@ model VotingSession {
 model QRCode {
   token        String   @id
   voting_token String
-  user_id      String   @unique
-  session_id   String   @unique
+  user_id      String
+  session_id   String
   is_used      Boolean  @default(false)
   created_at   DateTime @default(now())
   expires_at   DateTime
@@ -80,6 +80,7 @@ model QRCode {
   temporaryVotingSessions TemporaryVotingSession[]
   voteRecords             VoteRecord[]
 
+  @@unique([user_id, session_id])
   @@index([user_id, session_id, is_used, expires_at, token, voting_token])
 }
 
@@ -100,14 +101,15 @@ model TemporaryVotingSession {
 
 model AttendanceRecord {
   id         String   @id @default(uuid())
-  user_id    String   @unique
-  session_id String   @unique
+  user_id    String
+  session_id String
   has_voted  Boolean  @default(false)
   created_at DateTime @default(now())
 
   user    User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   session VotingSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
 
+  @@unique([user_id, session_id])
   @@index([user_id, session_id, has_voted])
 }
 

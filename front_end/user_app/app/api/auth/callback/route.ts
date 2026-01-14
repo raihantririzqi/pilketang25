@@ -4,7 +4,6 @@ import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
-    // 1. Terima Authorization Code dari Frontend
     const body = await request.json();
     const { code } = body;
 
@@ -12,39 +11,43 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Code is required" }, { status: 400 });
     }
 
-    // 2. Teruskan Code ke Backend Elysia
-    // Backend akan menukar code ini dengan Access Token & Data User
     const backendRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/google/callback`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         code: code,
         redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI,
       }),
     });
 
-    const data = await backendRes.json();
+    // --- PERBAIKAN START ---
+    const contentType = backendRes.headers.get("content-type");
+    let data;
+
+    if (contentType && contentType.includes("application/json")) {
+      data = await backendRes.json();
+    } else {
+      // Jika error berupa teks (Internal Server Error)
+      const textError = await backendRes.text();
+      console.error("Backend Raw Error:", textError);
+      return NextResponse.json(
+        { message: textError || "Backend returned non-JSON error" },
+        { status: backendRes.status }
+      );
+    }
+    // --- PERBAIKAN END ---
 
     if (!backendRes.ok) {
+      console.log("Backend Logical Error:", data);
       return NextResponse.json(
-        { message: data.message || "Failed to exchange token" },
+        { message: data?.message || "Failed to exchange token" },
         { status: backendRes.status }
       );
     }
 
-    // 3. Ambil Token & User dari Respon Backend (Elysia)
-    // Backend mengembalikan: result: { signed_access_token, user }
-    // Note: Backend set refresh_token_cookie via Set-Cookie header, tapi karena ini proxy
-    // Set-Cookie tidak otomatis diteruskan ke browser. Jika backend juga return
-    // signed_refresh_token di body, kita set manual.
     const { signed_access_token, signed_refresh_token, user } = data.result;
-
-    // 4. SIMPAN TOKEN KE DALAM HTTP-ONLY COOKIE
     const cookieStore = await cookies();
 
-    // Access Token Cookie
     cookieStore.set({
       name: "token",
       value: signed_access_token,
@@ -52,10 +55,9 @@ export async function POST(request: Request) {
       path: "/",
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 30 * 60, // 30 menit
+      maxAge: 30 * 60,
     });
 
-    // Refresh Token Cookie - hanya set jika ada di response body
     if (signed_refresh_token) {
       cookieStore.set({
         name: "refresh_token_cookie",
@@ -64,20 +66,19 @@ export async function POST(request: Request) {
         path: "/",
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60, // 7 hari
+        maxAge: 7 * 24 * 60 * 60,
       });
     }
 
-    // 5. Kembalikan respons sukses ke Frontend
     return NextResponse.json({
       success: true,
-      user: user,
+      user: user, // Gunakan data user dari backend, bukan string "user"
     });
 
-  } catch (error) {
-    console.error("Proxy Error:", error);
+  } catch (error: any) {
+    console.error("Proxy Error Details:", error.message);
     return NextResponse.json(
-      { message: "Internal Server Error" },
+      { message: "Internal Server Error", error: error.message },
       { status: 500 }
     );
   }

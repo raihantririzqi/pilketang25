@@ -35,7 +35,7 @@ export class AuthenticationMiddleware {
         }),
       )
       .derive({ as: "global" }, async ({ jwt, headers, set }) => {
-        const auth_header = headers["Authorization"];
+        const auth_header = headers["authorization"] || headers["Authorization"];
         if (!auth_header?.startsWith("Bearer ")) {
           set.status = 401;
           throw new Error("Missing authorization header");

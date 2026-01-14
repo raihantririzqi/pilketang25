@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-
+// Pastikan ini sesuai dengan port Elysia kamu
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 // Interface untuk params (Next.js 15 mengharuskan Promise, Next.js 14 bisa langsung)
 type Props = {
   params: Promise<{ path: string[] }> | { path: string[] };
 };
 
 async function proxyRequest(request: Request, { params }: Props) {
-  // 1. Handle params (support Next.js 15 & 14)
+  console.log("--- PROXY INCOMING ---");
   const resolvedParams = await Promise.resolve(params);
+  console.log("Target Path:", resolvedParams.path.join("/"));
+  // 1. Handle params (support Next.js 15 & 14)
   const pathString = resolvedParams.path.join("/");
 
   // 2. Baca Token
@@ -21,7 +23,7 @@ async function proxyRequest(request: Request, { params }: Props) {
   const url = new URL(request.url);
   const queryString = url.search; // Ambil query param (?page=1&limit=10)
   const targetUrl = `${BACKEND_URL}/${pathString}${queryString}`;
-
+  console.log("🚀 Forwarding to:", targetUrl); // LIHAT INI DI TERMINAL
   // 4. Siapkan Headers
   const headers = new Headers();
 
@@ -53,6 +55,12 @@ async function proxyRequest(request: Request, { params }: Props) {
 
     // 6. Handle Response (Hati-hati, backend tidak selalu return JSON)
     const resBody = await res.arrayBuffer(); // Baca sebagai buffer mentah dulu
+
+    // Debug: Log response jika error
+    if (!res.ok) {
+      const decoder = new TextDecoder();
+      console.error("Backend Error Response:", decoder.decode(resBody));
+    }
 
     // Return response apa adanya (bisa JSON, bisa file, bisa text)
     return new NextResponse(resBody, {

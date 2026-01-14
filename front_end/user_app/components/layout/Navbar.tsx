@@ -6,8 +6,14 @@ import { motion } from "framer-motion";
 import MobileMenu from "./MobileMenu";
 import Link from "next/link";
 import { useAuth } from "../provider/AuthProvider";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { LayoutDashboard, LogOut, User } from "lucide-react";
 
 const menuItems = [
@@ -20,6 +26,7 @@ const menuItems = [
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
 
   // Lock scroll saat mobile menu terbuka
   useEffect(() => {
@@ -36,23 +43,6 @@ const Navbar = () => {
       block: "start",
     });
   };
-
-  const { user, logout } = useAuth();
-
-  const [isLogin, setIsLogin] = useState<boolean>(false);
-  const [localUser, setLocalUser] = useState<{ name: string; nim: string; email: string; image: string } | null>(null);
-
-  useEffect(() => {
-    if (!user) {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        setLocalUser(JSON.parse(storedUser));
-        setIsLogin(true);
-      } else {
-        setIsLogin(false);
-      }
-    }
-  }, [user]);
 
   return (
     <>
@@ -100,25 +90,22 @@ const Navbar = () => {
             ))}
 
             {/* LOGIN / USER MENU DROPDOWN */}
-            {isLogin || user ? (
+            {isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className="relative w-12 h-12 cursor-pointer group font-retro">
+                  <div className="relative h-10 cursor-pointer group font-retro w-fit">
                     {/* Bayangan Hitam di Belakang (Shadow Layer) */}
-                    <div className="absolute inset-0 bg-black rounded-full"></div>
+                    <div className="absolute inset-0 bg-black rounded-sm w-full h-full"></div>
 
                     {/* Kotak Utama (Top Layer) */}
-                    <div className="absolute inset-0  bg-magenta z-10 -translate-x-1.5 -translate-y-1.5 rounded-full flex items-center justify-center border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0 overflow-hidden">
-                      <Avatar className="h-full w-full rounded">
-                        <AvatarImage
-                          src={localUser?.image || ""}
-                          alt={localUser?.name || "User"}
-                          className="object-cover"
-                        />
-                        <AvatarFallback className="rounded-none bg-navy text-white text-lg font-bold">
-                          {localUser?.name?.charAt(0).toUpperCase() || "U"}
-                        </AvatarFallback>
-                      </Avatar>
+                    <div className="relative h-full px-4 bg-magenta z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center gap-2 border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0">
+                      {/* Icon User */}
+                      <User size={18} className="text-white stroke-[3px]" />
+
+                      {/* Display Name (Hanya nama depan agar tidak terlalu panjang) */}
+                      <span className="text-white font-bold text-sm uppercase whitespace-nowrap">
+                        {user.name?.split(" ")[0] || "User"}
+                      </span>
                     </div>
                   </div>
                 </DropdownMenuTrigger>
@@ -126,9 +113,8 @@ const Navbar = () => {
                   align="end"
                   className="w-52 mt-3 rounded-none border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] font-retro p-0"
                 >
-
                   <DropdownMenuLabel className="bg-navy text-white p-3 text-xs uppercase border-b-4 border-black">
-                    {localUser?.name}
+                    {user.name}
                   </DropdownMenuLabel>
 
                   <div className="p-1">
