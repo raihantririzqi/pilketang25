@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/components/provider/AuthProvider";
+import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // --- KOMPONEN BUTTON REUSABLE ---
 interface RetroButtonProps {
@@ -32,7 +34,7 @@ export default function DashboardPage() {
     const [timeLeft, setTimeLeft] = useState("");
 
     // Fallback user data jika belum ada dari context (ambil dari localStorage)
-    const [localUser, setLocalUser] = useState<{ name: string; nim: string; email: string } | null>(null);
+    const [localUser, setLocalUser] = useState<{ name: string; nim: string; email: string; image: string } | null>(null);
 
     useEffect(() => {
         if (!user) {
@@ -44,7 +46,7 @@ export default function DashboardPage() {
     }, [user]);
 
     // User data yang akan ditampilkan
-    const displayUser = user || localUser || { name: "User", nim: "000000000", email: "" };
+    const displayUser = user || localUser || { name: "User", nim: "000000000", email: "", image: "" };
 
     // --- TARGET DATE (Sesuaikan dengan jadwal asli) ---
     const TARGET_DATE = new Date("2026-01-04T09:49:00").getTime();
@@ -114,8 +116,21 @@ export default function DashboardPage() {
                 <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} className="md:col-span-5 bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_black] relative">
                     <div className="absolute top-0 right-0 bg-[#65a30d] text-white text-[10px] font-retro px-2 py-1 border-l-4 border-b-4 border-black">VERIFIED_USER</div>
                     <div className="flex flex-col items-center text-center mt-4">
-                        <div className="w-32 h-32 bg-[#92c3dd] border-4 border-black mb-4 flex items-center justify-center shadow-[4px_4px_0px_0px_black] relative overflow-hidden group">
-                            <span className="font-retro text-5xl group-hover:scale-110 transition-transform text-black">{displayUser.name.charAt(0)}</span>
+                        <div className="w-32 h-32 mb-4 relative group">
+                            {/* Layer Bayangan (Shadow) */}
+                            <div className="absolute inset-0 bg-black translate-x-1 translate-y-1"></div>
+
+                            {/* Layer Utama Avatar */}
+                            <Avatar className="w-32 h-32 rounded-none border-4 border-black bg-[#92c3dd] relative z-10 transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1">
+                                <AvatarImage
+                                    src={displayUser.image || ""}
+                                    alt={displayUser.name}
+                                    className="object-cover group-hover:scale-110 transition-transform duration-300"
+                                />
+                                <AvatarFallback className="rounded-none bg-[#92c3dd] font-retro text-5xl text-black uppercase">
+                                    {displayUser.name.charAt(0)}
+                                </AvatarFallback>
+                            </Avatar>
                         </div>
                         <h2 className="font-roster text-2xl mb-1 uppercase">{displayUser.name}</h2>
                         <div className="inline-block bg-black text-white px-3 py-1 font-retro text-xs mb-6">NIM: {displayUser.nim}</div>

@@ -22,7 +22,7 @@ export class AuthService {
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly oauth2: OAuth2Client,
-  ) {}
+  ) { }
 
   /**
    * Processes the Google OAuth2 callback by exchanging the authorization code for user data
@@ -64,16 +64,22 @@ export class AuthService {
       audience: process.env.GOOGLE_CLIENT_ID,
     });
 
-    const validate = this.validate_google_payload(
-      ticket.getPayload(),
-    );
+    // 1. Ambil payload mentah dari ticket
+    const payload = ticket.getPayload();
+
+    // 2. Pastikan fungsi validate_google_payload kamu juga menangkap field 'picture'
+    const validate = this.validate_google_payload(payload);
     if (validate.isErr()) throw new ValidationError(validate.error);
 
     const valid_data = validate.value;
+    // Ambil URL foto dari payload (biasanya ada di payload.picture)
+    const profile_picture = payload?.picture;
+
     const user = await this.prisma.user.upsert({
       where: { google_id: valid_data.google_id },
       update: {
         name: valid_data.name,
+        image: profile_picture, // Update foto profil jika berubah
         updated_at: new Date(),
       },
       create: {
@@ -81,6 +87,7 @@ export class AuthService {
         google_id: valid_data.google_id,
         name: valid_data.name,
         email: valid_data.email,
+        image: profile_picture, // Simpan foto saat pertama kali daftar
         nim: valid_data.nim,
         role: "PARTICIPANT",
       },

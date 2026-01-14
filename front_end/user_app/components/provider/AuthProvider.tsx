@@ -11,6 +11,7 @@ interface User {
   email: string;
   nim: string;
   role: string;
+  image: string | null;
 }
 
 // Type untuk Auth Context
