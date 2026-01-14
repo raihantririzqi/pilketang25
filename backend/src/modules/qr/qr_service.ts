@@ -65,7 +65,9 @@ export class QRService {
     });
 
     if (hasVoted) {
-      throw new ConflictError("You have already voted in this session");
+      throw new ConflictError(
+        "You have already voted in this session",
+      );
     }
 
     // Delete any existing expired/unused QR codes for this user and session
@@ -81,7 +83,7 @@ export class QRService {
     const expires_at = new Date();
     expires_at.setSeconds(expires_at.getSeconds() + 30);
 
-    const newQR = await this.prisma.qRCode.create({
+    const new_qr = await this.prisma.qRCode.create({
       data: {
         token: uuidv4(),
         voting_token: uuidv4(),
@@ -92,10 +94,10 @@ export class QRService {
     });
 
     return {
-      token: newQR.token,
+      token: new_qr.token,
       user_name: user.name,
       user_nim: user.nim,
-      expires_at: newQR.expires_at,
+      expires_at: new_qr.expires_at,
     };
   };
 
