@@ -6,21 +6,21 @@ import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 
 export default function LoadingPage() {
-  const [progress, setProgress] = useState(10); // Mulai dari 10% biar gak kosong
+  const [progress, setProgress] = useState(10);
   const [statusText, setStatusText] = useState("MENGHUBUNGKAN KE SERVER...");
-  
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const code = searchParams.get("code");
-  
+
   // Ref untuk mencegah double-execution di React Strict Mode
   const hasFetched = useRef(false);
 
   useEffect(() => {
     // 1. Validasi: Jika tidak ada code, tendang ke login
     if (!code) {
-        router.replace("/login");
-        return;
+      router.replace("/login");
+      return;
     }
 
     if (hasFetched.current) return;
@@ -30,40 +30,48 @@ export default function LoadingPage() {
     // Bar akan jalan pelan-pelan mentok di 90% sambil nunggu API
     const visualTimer = setInterval(() => {
       setProgress((old) => {
-        if (old >= 90) return 90; // Tahan di 90% kalau API belum kelar
+        if (old >= 90) return 90;
         return old + Math.floor(Math.random() * 5) + 2;
       });
     }, 200);
 
     // --- B. LOGIK API (REAL) ---
     const processLogin = async () => {
-        try {
-            setStatusText("VERIFIKASI TOKEN...");
-            
-            // Panggil Proxy Next.js (yang sudah kita buat sebelumnya)
-            const res = await axios.post("/api/auth/callback", { code });
+      try {
+        setStatusText("VERIFIKASI TOKEN...");
 
-            if (res.data.success) {
-                // SUKSES!
-                clearInterval(visualTimer);
-                setProgress(100);
-                setStatusText("BERHASIL! MENGALIHKAN...");
+        // Panggil Proxy Next.js untuk exchange code
+        const res = await axios.post("/api/auth/callback", { code });
 
-                // Beri jeda sedikit agar user lihat bar penuh (500ms)
-                setTimeout(() => {
-                    // Cek callbackUrl atau default ke dashboard
-                    const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-                    router.push(callbackUrl);
-                    router.refresh();
-                }, 800);
-            }
-        } catch (error) {
-            console.error("Callback Error:", error);
-            setStatusText("GAGAL. KEMBALI KE LOGIN...");
-            setTimeout(() => {
-                router.replace("/login?error=auth_failed");
-            }, 1500);
+        if (res.data.success) {
+          // SUKSES!
+          clearInterval(visualTimer);
+          setProgress(100);
+          setStatusText("BERHASIL! MENGALIHKAN...");
+
+          // Simpan user data ke localStorage untuk persistence
+          if (res.data.user) {
+            localStorage.setItem("user", JSON.stringify(res.data.user));
+          }
+
+          // Beri jeda sedikit agar user lihat bar penuh
+          setTimeout(() => {
+            const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+            router.push(callbackUrl);
+            router.refresh();
+          }, 800);
         }
+      } catch (error: any) {
+        console.error("Callback Error:", error);
+
+        // Tampilkan pesan error yang lebih spesifik
+        const errorMessage = error.response?.data?.message || "Terjadi kesalahan";
+        setStatusText(`GAGAL: ${errorMessage.toUpperCase()}`);
+
+        setTimeout(() => {
+          router.replace("/login?error=auth_failed");
+        }, 2000);
+      }
     };
 
     processLogin();

@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Code is required" }, { status: 400 });
     }
 
-    // 2. Teruskan Code ke Backend Golang
+    // 2. Teruskan Code ke Backend Elysia
     // Backend akan menukar code ini dengan Access Token & Data User
     const backendRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/google/callback`, {
       method: "POST",
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         code: code,
-        redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI, // Pastikan sama dengan console google
+        redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI,
       }),
     });
 
@@ -34,28 +34,44 @@ export async function POST(request: Request) {
       );
     }
 
-    // 3. Ambil Token & Expiry dari Respon Golang
-    // Sesuai spec API kamu: result: { access_token, expires_in, ... }
-    const { access_token, expires_in, user } = data.result;
+    // 3. Ambil Token & User dari Respon Backend (Elysia)
+    // Backend mengembalikan: result: { signed_access_token, user }
+    // Note: Backend set refresh_token_cookie via Set-Cookie header, tapi karena ini proxy
+    // Set-Cookie tidak otomatis diteruskan ke browser. Jika backend juga return
+    // signed_refresh_token di body, kita set manual.
+    const { signed_access_token, signed_refresh_token, user } = data.result;
 
-    // 4. SIMPAN TOKEN KE DALAM HTTP-ONLY COOKIE (Bagian Paling Penting!)
+    // 4. SIMPAN TOKEN KE DALAM HTTP-ONLY COOKIE
     const cookieStore = await cookies();
-    
+
+    // Access Token Cookie
     cookieStore.set({
-      name: "token",           // Nama cookie yang akan dibaca Middleware
-      value: access_token,     // Isi token JWT
-      httpOnly: true,          // AMAN: JS Browser tidak bisa baca (Anti XSS)
-      path: "/",               // Tersedia di seluruh halaman
-      secure: process.env.NODE_ENV === "production", // HTTPS only di production
-      sameSite: "lax",         // Proteksi CSRF standar
-      maxAge: expires_in,      // Sesuai umur token dari Golang (detik)
+      name: "token",
+      value: signed_access_token,
+      httpOnly: true,
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 60, // 30 menit
     });
 
+    // Refresh Token Cookie - hanya set jika ada di response body
+    if (signed_refresh_token) {
+      cookieStore.set({
+        name: "refresh_token_cookie",
+        value: signed_refresh_token,
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60, // 7 hari
+      });
+    }
+
     // 5. Kembalikan respons sukses ke Frontend
-    // Kita bisa kirim data user juga biar Frontend bisa simpan nama/foto di state/context
-    return NextResponse.json({ 
-      success: true, 
-      user: user 
+    return NextResponse.json({
+      success: true,
+      user: user,
     });
 
   } catch (error) {

@@ -38,14 +38,12 @@ export class AuthController {
         jwt({
           name: "access_jwt",
           secret: process.env.JWT_SECRET!,
-          alg: "RS512",
         }),
       )
       .use(
         jwt({
           name: "refresh_jwt",
           secret: process.env.REFRESH_TOKEN_SECRET!,
-          alg: "RS512",
         }),
       )
       /**

@@ -6,13 +6,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { containerVariants, popUpVariants, floatingAnimation } from "@/components/common/animation"; // Sesuaikan path
 
-// --- KONFIGURASI GOOGLE (Pindahkan ke ENV nanti) ---
+// --- KONFIGURASI GOOGLE ---
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "YOUR_CLIENT_ID";
-const REDIRECT_URI = process.env.NEXT_PUBLIC_BASE_URL
-    ? `${process.env.NEXT_PUBLIC_BASE_URL}/auth/google/callback`
-    : "http://localhost:3000/auth/google/callback";
+const REDIRECT_URI = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI ||
+    (process.env.NEXT_PUBLIC_BASE_URL
+        ? `${process.env.NEXT_PUBLIC_BASE_URL}/auth/google/callback`
+        : "http://localhost:3000/auth/google/callback");
 
-const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=email%20profile`;
+const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=consent`;
 
 export default function LoginPage() {
     return (

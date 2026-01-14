@@ -1,16 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion"; 
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-
-// MOCK DATA USER
-const mockUser = {
-    name: "Raihan Tri Rizqi",
-    nim: "121140001",
-    prodi: "Teknik Informatika",
-};
+import { useAuth } from "@/components/provider/AuthProvider";
 
 // --- KOMPONEN BUTTON REUSABLE ---
 interface RetroButtonProps {
@@ -32,11 +25,26 @@ const RetroButton = ({ text, colorClass, onClick, className = "w-32 h-12" }: Ret
 };
 
 export default function DashboardPage() {
-    const router = useRouter();
+    const { user, logout } = useAuth();
 
     // STATUS: 'LOCKED' | 'OPEN' | 'VOTED'
     const [status, setStatus] = useState<'LOCKED' | 'OPEN' | 'VOTED'>('LOCKED');
     const [timeLeft, setTimeLeft] = useState("");
+
+    // Fallback user data jika belum ada dari context (ambil dari localStorage)
+    const [localUser, setLocalUser] = useState<{ name: string; nim: string; email: string } | null>(null);
+
+    useEffect(() => {
+        if (!user) {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                setLocalUser(JSON.parse(storedUser));
+            }
+        }
+    }, [user]);
+
+    // User data yang akan ditampilkan
+    const displayUser = user || localUser || { name: "User", nim: "000000000", email: "" };
 
     // --- TARGET DATE (Sesuaikan dengan jadwal asli) ---
     const TARGET_DATE = new Date("2026-01-04T09:49:00").getTime(); 
@@ -69,8 +77,8 @@ export default function DashboardPage() {
         else setStatus('LOCKED');
     };
 
-    const handleLogout = () => {
-        router.push("/login");
+    const handleLogout = async () => {
+        await logout();
     };
 
     const getBgColor = () => {
@@ -107,16 +115,16 @@ export default function DashboardPage() {
                     <div className="absolute top-0 right-0 bg-[#65a30d] text-white text-[10px] font-retro px-2 py-1 border-l-4 border-b-4 border-black">VERIFIED_USER</div>
                     <div className="flex flex-col items-center text-center mt-4">
                         <div className="w-32 h-32 bg-[#92c3dd] border-4 border-black mb-4 flex items-center justify-center shadow-[4px_4px_0px_0px_black] relative overflow-hidden group">
-                            <span className="font-retro text-5xl group-hover:scale-110 transition-transform text-black">{mockUser.name.charAt(0)}</span>
+                            <span className="font-retro text-5xl group-hover:scale-110 transition-transform text-black">{displayUser.name.charAt(0)}</span>
                         </div>
-                        <h2 className="font-roster text-2xl mb-1 uppercase">{mockUser.name}</h2>
-                        <div className="inline-block bg-black text-white px-3 py-1 font-retro text-xs mb-6">ID: {mockUser.nim}</div>
+                        <h2 className="font-roster text-2xl mb-1 uppercase">{displayUser.name}</h2>
+                        <div className="inline-block bg-black text-white px-3 py-1 font-retro text-xs mb-6">NIM: {displayUser.nim}</div>
                         <div className="w-full bg-[#efe8e0] border-2 border-black p-4 text-left space-y-2 text-xs font-retro">
                             <div className="flex justify-between border-b-2 border-dashed border-gray-400 pb-2">
-                                <span className="text-gray-500">PRODI:</span><span className="font-bold">{mockUser.prodi.toUpperCase()}</span>
+                                <span className="text-gray-500">PRODI:</span><span className="font-bold">TEKNIK INFORMATIKA</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-gray-500">BATCH:</span><span className="font-bold">2021</span>
+                                <span className="text-gray-500">BATCH:</span><span className="font-bold">2025</span>
                             </div>
                         </div>
                     </div>

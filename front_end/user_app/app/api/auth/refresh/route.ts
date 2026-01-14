@@ -8,13 +8,13 @@ export async function POST() {
     // Browser otomatis mengirim Cookie "refresh_token" ke Golang jika domain sama/diatur benar.
     // Jika Refresh Token ada di cookie HttpOnly, kita perlu meneruskannya.
     
-    // Namun, karena Golang set Refresh Token di Cookie, dan Proxy ini berjalan di Server Next.js,
-    // kita perlu mengambil cookie refresh_token dari request browser lalu forward ke Golang.
+    // Backend Elysia set Refresh Token di Cookie dengan nama "refresh_token_cookie"
+    // Kita perlu mengambil cookie tersebut dari request browser lalu forward ke backend
     const cookieStore = await cookies();
-    const refreshToken = cookieStore.get("refresh_token")?.value;
-    
-    // Header Cookie manual untuk fetch ke Golang
-    const cookieHeader = refreshToken ? `refresh_token=${refreshToken}` : "";
+    const refreshToken = cookieStore.get("refresh_token_cookie")?.value;
+
+    // Header Cookie manual untuk fetch ke Backend
+    const cookieHeader = refreshToken ? `refresh_token_cookie=${refreshToken}` : "";
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
       method: "POST",
@@ -30,8 +30,8 @@ export async function POST() {
       return NextResponse.json(data, { status: res.status });
     }
 
-    // 2. DAPAT TOKEN BARU DARI GOLANG
-    const { access_token, expires_in } = data.result;
+    // 2. DAPAT TOKEN BARU DARI BACKEND
+    const { access_token } = data.result;
 
     // 3. UPDATE COOKIE "TOKEN" DI BROWSER
     // Ini poin pentingnya! Kita perpanjang nyawa Access Token di Cookie Browser.
@@ -40,8 +40,9 @@ export async function POST() {
       value: access_token,
       httpOnly: true,
       path: "/",
-      maxAge: expires_in,
+      maxAge: 30 * 60, // 30 menit (sesuai access token TTL)
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
     });
 
     return NextResponse.json({ success: true });
