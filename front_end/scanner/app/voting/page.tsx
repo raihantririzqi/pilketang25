@@ -3,9 +3,55 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 // Pastikan import ini mengarah ke file CandidateCard aslimu
 import CandidateCard from "@/components/ui/CandidatCard";
+
+// --- KOMPONEN BUTTON REUSABLE (STYLE BARU) ---
+interface BrutalistButtonProps {
+    onClick: () => void;
+    children: React.ReactNode;
+    color?: string; // Class warna background (misal: bg-white)
+    textColor?: string; // Class warna text (misal: text-black)
+    width?: string; // Class lebar (misal: w-full)
+    height?: string; // Class tinggi (misal: h-12)
+    className?: string;
+}
+
+const BrutalistButton = ({
+    onClick,
+    children,
+    color = "bg-white",
+    textColor = "text-black",
+    width = "w-full",
+    height = "h-14",
+    className = ""
+}: BrutalistButtonProps) => {
+    return (
+        <button
+            onClick={onClick}
+            className={`relative ${width} ${height} group outline-none ${className}`}
+        >
+            {/* Layer Bayangan (Hitam Statis) */}
+            <div className="absolute w-full h-full bg-black rounded-lg"></div>
+
+            {/* Layer Atas (Bergerak saat hover) */}
+            <div className={`
+                absolute w-full h-full z-10 
+                -translate-x-2 -translate-y-2 
+                rounded-lg border-2 border-black 
+                flex items-center justify-center 
+                transition-transform duration-200 
+                group-hover:translate-x-0 group-hover:translate-y-0 
+                group-active:translate-x-0 group-active:translate-y-0
+                ${color}
+            `}>
+                <span className={`${textColor} font-retro text-lg md:text-xl font-bold tracking-wider`}>
+                    {children}
+                </span>
+            </div>
+        </button>
+    );
+};
 
 // --- DATA DUMMY ---
 const candidates = [
@@ -14,6 +60,8 @@ const candidates = [
         name: "RAIHAN TRI RIZQI",
         nim: "12114001",
         base_color: "magenta",
+        bg_class: "bg-magenta", // Helper untuk class tailwind
+        hover_bg: "hover:bg-[#b04a6e]",
         kandidat_number: 1,
         imageSrc: "/images/kandidat1.jpg",
         vision: "Mewujudkan angkatan yang adaptif dan peduli satu sama lain.",
@@ -24,6 +72,8 @@ const candidates = [
         name: "CALON KANDIDAT 02",
         nim: "12114055",
         base_color: "navy",
+        bg_class: "bg-navy", // Helper untuk class tailwind
+        hover_bg: "hover:bg-[#000060]",
         kandidat_number: 2,
         imageSrc: "/images/kandidat2.jpg",
         vision: "Solidaritas tanpa batas, prestasi tanpa henti.",
@@ -54,23 +104,17 @@ export default function VotingPage() {
         }
     }, [token]);
 
-    // --- 2. AUTO REDIRECT LOGIC (BARU) ---
-    // --- 2. AUTO REDIRECT LOGIC (DIPERBAIKI) ---
-
-    // Effect A: Mengatur Interval Hitung Mundur
+    // --- 2. AUTO REDIRECT LOGIC ---
     useEffect(() => {
         let interval: NodeJS.Timeout;
-
         if (status === 'VOTED' && countdown > 0) {
             interval = setInterval(() => {
                 setCountdown((prev) => prev - 1);
             }, 1000);
         }
-
         return () => clearInterval(interval);
     }, [status, countdown]);
 
-    // Effect B: Melakukan Navigasi (Side Effect) saat countdown 0
     useEffect(() => {
         if (countdown === 0 && status === 'VOTED') {
             router.push('/');
@@ -83,7 +127,7 @@ export default function VotingPage() {
     };
 
     const submitVote = async () => {
-        // LOGIC KIRIM DATA KE BACKEND DISINI (Simulasi)
+        // LOGIC KIRIM DATA KE BACKEND DISINI
         setTimeout(() => {
             setStatus('VOTED');
         }, 2000);
@@ -110,21 +154,24 @@ export default function VotingPage() {
                 <p className="font-mono text-gray-600 mb-8 max-w-md">
                     Maaf, token keamanan tidak valid atau kadaluarsa. Silakan scan ulang QR Code Anda.
                 </p>
-                <button
+
+                {/* BUTTON UPDATE: HOME (DENIED) */}
+                <BrutalistButton
                     onClick={() => router.push('/')}
-                    className="bg-black text-white px-8 py-3 font-bold hover:bg-gray-800 transition-transform hover:-translate-y-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"
+                    width="w-64"
+                    color="bg-black"
+                    textColor="text-white"
                 >
                     KEMBALI KE HOME
-                </button>
+                </BrutalistButton>
             </div>
         );
     }
 
-    // --- TAMPILAN: BERHASIL VOTE (Updated) ---
+    // --- TAMPILAN: BERHASIL VOTE ---
     if (status === 'VOTED') {
         return (
             <div className="h-screen bg-[#f4f1ea] flex flex-col items-center justify-center text-center p-6 relative overflow-hidden">
-                {/* Dekorasi Bintang */}
                 <div className="absolute top-1/4 left-1/4 text-4xl animate-bounce">✨</div>
                 <div className="absolute bottom-1/4 right-1/4 text-4xl animate-bounce delay-75">✨</div>
 
@@ -138,16 +185,21 @@ export default function VotingPage() {
                 <h1 className="text-4xl md:text-5xl font-roster mb-2 text-black">Terima Kasih!</h1>
                 <p className="font-retro text-xl text-magenta mb-8">Suara Anda Telah Direkam.</p>
 
-                {/* Indikator Redirect */}
-                <div className="bg-white border-2 border-black px-4 py-2 rounded shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
+                <div className="bg-white border-2 border-black px-4 py-2 rounded shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)] mb-8">
                     <p className="text-sm font-mono text-gray-600">
                         Kembali otomatis dalam <span className="font-bold text-black text-lg">{countdown}</span> detik
                     </p>
                 </div>
 
-                <button onClick={() => router.push('/')} className="mt-6 underline font-bold hover:text-navy text-sm">
-                    Kembali Sekarang
-                </button>
+                {/* BUTTON UPDATE: HOME (VOTED) */}
+                <BrutalistButton
+                    onClick={() => router.push('/')}
+                    width="w-56"
+                    height="h-12"
+                    color="bg-white"
+                >
+                    KEMBALI SEKARANG
+                </BrutalistButton>
             </div>
         );
     }
@@ -156,10 +208,8 @@ export default function VotingPage() {
     return (
         <div className="min-h-screen bg-[#f4f1ea] text-black relative flex flex-col font-sans">
 
-            {/* HEADER JUDUL */}
-            <main className="flex-1 container mx-auto px-4 py-8 flex flex-col items-center">
+            <main className="flex-1 container mx-auto px-4 py-14 flex flex-col items-center">
                 <div className="text-center mb-10 relative">
-                    {/* Dekorasi Sticker */}
                     <motion.div
                         animate={{ rotate: [0, 5, 0, -5, 0] }}
                         transition={{ repeat: Infinity, duration: 5 }}
@@ -174,7 +224,6 @@ export default function VotingPage() {
                     <p className="font-retro text-gray-600 text-lg">Gunakan hak suaramu untuk masa depan kita.</p>
                 </div>
 
-                {/* GRID KARTU KANDIDAT */}
                 <div className="flex flex-wrap justify-center gap-12 lg:gap-20 items-start pb-24">
                     {candidates.map((candidate, index) => (
                         <motion.div
@@ -182,33 +231,28 @@ export default function VotingPage() {
                             initial={{ opacity: 0, y: 50 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.2 }}
-                            className="flex flex-col items-center group"
+                            className="flex flex-col items-center"
                         >
-                            <div className="relative z-10 hover:z-20 transform transition-transform duration-300 hover:scale-[1.02]">
+                            <div className="relative z-10 group hover:z-20 transform transition-transform duration-300 hover:scale-[1.02]">
                                 <CandidateCard {...candidate} />
                             </div>
 
-                            <button
-                                onClick={() => handleSelect(candidate.id)}
-                                className={`
-                            mt-6 relative px-10 py-3 w-full max-w-[250px]
-                            border-2 border-black rounded-lg
-                            shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
-                            transform transition-all active:translate-y-1 active:shadow-none
-                            ${candidate.base_color === 'magenta' ? 'bg-magenta hover:bg-[#b04a6e]' : 'bg-navy hover:bg-[#000060]'}
-                        `}
-                            >
-                                <span className="text-white font-retro text-xl font-bold tracking-wider">
+                            {/* BUTTON UPDATE: VOTE CANDIDATE */}
+                            <div className="mt-6 w-full max-w-[250px]">
+                                <BrutalistButton
+                                    onClick={() => handleSelect(candidate.id)}
+                                    color={candidate.base_color === 'magenta' ? 'bg-magenta' : 'bg-navy'}
+                                    textColor="text-white"
+                                >
                                     VOTE #0{candidate.kandidat_number}
-                                </span>
-                            </button>
+                                </BrutalistButton>
+                            </div>
 
                         </motion.div>
                     ))}
                 </div>
             </main>
 
-            {/* FOOTER SIMPLE */}
             <footer className="bg-[#f4f1ea] border-t-2 border-black py-4 text-center">
                 <p className="font-mono text-xs text-gray-500">© 2025 NORDBYTE SYSTEMS // PEMILIHAN KETUA ANGKATAN</p>
             </footer>
@@ -241,18 +285,28 @@ export default function VotingPage() {
                                 </p>
 
                                 <div className="flex gap-4 justify-center">
-                                    <button
+
+                                    {/* BUTTON UPDATE: BATAL */}
+                                    <BrutalistButton
                                         onClick={() => setIsConfirming(false)}
-                                        className="px-6 py-2 font-bold border-2 border-black rounded hover:bg-gray-200 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-transform active:translate-y-0.5 active:shadow-none bg-white"
+                                        width="w-32"
+                                        height="h-12"
+                                        color="bg-white"
                                     >
                                         BATAL
-                                    </button>
-                                    <button
+                                    </BrutalistButton>
+
+                                    {/* BUTTON UPDATE: YA, VOTE */}
+                                    <BrutalistButton
                                         onClick={submitVote}
-                                        className="px-6 py-2 font-bold text-white border-2 border-black rounded bg-green-600 hover:bg-green-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-transform active:translate-y-0.5 active:shadow-none"
+                                        width="w-40"
+                                        height="h-12"
+                                        color="bg-green-600"
+                                        textColor="text-white"
                                     >
                                         YA, VOTE
-                                    </button>
+                                    </BrutalistButton>
+
                                 </div>
                             </div>
                         </motion.div>

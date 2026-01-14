@@ -2,14 +2,28 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link"; // <--- 1. IMPORT LINK
-// import api from "@/lib/axios"; 
-
-// --- IMPORTS UI ---
+import Link from "next/link";
 import VotingTokenCard from "@/components/ui/VotingTokenCard";
 import GeneratorCard from "@/components/ui/GeneratorCard";
 
-// --- 1. KOMPONEN LOCKED STYLE DASHBOARD ---
+// --- KOMPONEN BARU: WARNING BANNER ---
+const WarningBanner = () => (
+  <motion.div
+    initial={{ opacity: 0, y: -10 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="bg-[#ffbe0b] border-2 border-black p-3 mb-6 max-w-sm w-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-start gap-3 relative z-20"
+  >
+    <div className="text-2xl animate-pulse">⚠️</div>
+    <div className="text-left text-black">
+      <h4 className="font-bold text-sm font-roster tracking-wide">JANGAN KELUAR / REFRESH!</h4>
+      <p className="text-xs font-mono leading-tight mt-1">
+        Tiket ini bersifat sementara. Jika Anda kembali atau reload, tiket akan <span className="underline font-bold">HILANG</span>.
+      </p>
+    </div>
+  </motion.div>
+);
+
+// --- KOMPONEN LOCKED STYLE DASHBOARD ---
 const LockedDashboardCard = ({ targetDate, onComplete }: { targetDate: number, onComplete: () => void }) => {
   const [timeString, setTimeString] = useState("CALCULATING...");
 
@@ -55,7 +69,7 @@ const LockedDashboardCard = ({ targetDate, onComplete }: { targetDate: number, o
   );
 };
 
-// --- 2. TIMEOUT OVERLAY ---
+// --- TIMEOUT OVERLAY ---
 const TimeoutOverlay = ({ onRefresh }: { onRefresh: () => void }) => (
   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm rounded-xl">
     <div className="bg-[#FFD23F] border-4 border-black p-6 rounded-xl text-center shadow-[6px_6px_0px_0px_black]">
@@ -67,7 +81,7 @@ const TimeoutOverlay = ({ onRefresh }: { onRefresh: () => void }) => (
   </motion.div>
 );
 
-// --- 3. SUCCESS VIEW ---
+// --- SUCCESS VIEW ---
 const SuccessScannedView = () => (
   <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md">
     <div className="bg-[#2c9f45] border-4 border-black rounded-xl p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-center text-white relative overflow-hidden">
@@ -108,12 +122,27 @@ export default function GenerateQrPage() {
     }
   }, []);
 
+  // --- LOGIC PROTEKSI RELOAD / CLOSE TAB (BARU) ---
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Jika tiket sudah ada TAPI belum discan & belum timeout, cegah user keluar
+      if (ticketData && !isScanned && !isTimeout) {
+        e.preventDefault();
+        e.returnValue = ''; // Wajib untuk Chrome lama
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [ticketData, isScanned, isTimeout]);
+
+
   // --- CEK STATUS API ---
   const checkStatus = useCallback(async (isFinalCheck = false) => {
     if (!ticketData) return;
     try {
       setIsChecking(true);
-      const mockIsScanned = false;
+      const mockIsScanned = false; // Ganti dengan API call
       if (mockIsScanned) {
         setIsScanned(true);
       } else if (isFinalCheck) {
@@ -148,12 +177,34 @@ export default function GenerateQrPage() {
 
   // HANDLERS
   const handleRefreshToken = () => { setIsTimeout(false); handleGenerateToken(); };
+
   const handleGenerateToken = async () => {
-    setIsLoading(true); setIsTimeout(false); setIsScanned(false); setTimeLeft(30);
+    setIsLoading(true);
+    setIsTimeout(false);
+    setIsScanned(false);
+    setTimeLeft(30);
+
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
-      setTicketData({ token: `VOTE-${Math.random()}`, name: "Raihan", nim: "12114" });
-    } finally { setIsLoading(false); }
+
+      const rawDataArray = [
+        "125140125",
+        "Raihan Tri Rizqi Wibowo",
+        `VOTE-${Math.random()}`,
+        Date.now()
+      ];
+
+      const arrayString = JSON.stringify(rawDataArray);
+
+      setTicketData({
+        token: arrayString,
+        name: "Raihan Tri Rizqi Wibowo",
+        nim: "125140125"
+      });
+
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isClient) return null;
@@ -163,20 +214,32 @@ export default function GenerateQrPage() {
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none"></div>
 
-      {/* --- 2. TOMBOL KEMBALI KE DASHBOARD --- */}
-      <Link href="/dashboard" className="absolute top-4 left-4 md:top-8 md:left-8 z-50">
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="bg-white border-2 border-black px-4 py-2 rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center gap-2 cursor-pointer"
-        >
-          <span className="text-xl">⬅️</span>
-          <span className="font-retro text-xs font-bold hidden md:inline text-black">DASHBOARD</span>
-        </motion.div>
-      </Link>
+      {/* --- TOMBOL KEMBALI KE DASHBOARD --- */}
+      {/* Kita sembunyikan tombol kembali jika sedang ada tiket aktif agar user tidak salah pencet */}
+      {(!ticketData || isScanned || isTimeout) && (
+        <Link href="/dashboard" className="absolute top-4 left-4 md:top-8 md:left-8 z-50 group">
+          <div className="relative h-10 w-10 md:w-auto md:h-10 md:px-6 flex items-center justify-center">
+            {/* Layer Bayangan (Hitam) */}
+            <div className="absolute inset-0 bg-black rounded-lg translate-x-1 translate-y-1 transition-transform group-hover:translate-x-0 group-hover:translate-y-0"></div>
+            {/* Layer Utama (Putih) */}
+            <div className="absolute inset-0 bg-white border-2 border-black rounded-lg flex items-center justify-center md:justify-start md:px-4 z-10 transition-transform group-active:translate-x-1 group-active:translate-y-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={3}
+                stroke="currentColor"
+                className="w-5 h-5 text-black transition-transform duration-300 group-hover:-translate-x-1"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
+            </div>
+          </div>
+        </Link>
+      )}
 
       {/* Header */}
-      <div className="text-center mb-10 z-10 pt-10 md:pt-0"> {/* Tambah pt-10 agar tidak nabrak tombol di mobile */}
+      <div className="text-center mb-10 z-10 pt-10 md:pt-0">
         <h1 className="font-roster text-4xl md:text-5xl mb-3 text-black">BILIK SUARA</h1>
         <div className={`font-mono border-2 border-black inline-flex items-center gap-2 px-4 py-1 text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors duration-500 rounded-full ${isVotingOpen ? 'bg-[#2c9f45] text-white' : 'bg-white text-gray-600'}`}>
           <div className={`w-2 h-2 rounded-full ${isVotingOpen ? 'bg-white animate-pulse' : 'bg-red-500'}`}></div>
@@ -200,10 +263,14 @@ export default function GenerateQrPage() {
               <GeneratorCard onClick={handleGenerateToken} isLoading={isLoading} />
             )}
 
-            {/* 2. QR Code */}
+            {/* 2. QR Code (Active Session) */}
             {ticketData && !isScanned && (
-              <motion.div key="qr" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="w-full max-w-sm relative">
-                <div className="mb-4">
+              <motion.div key="qr" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="w-full max-w-sm flex flex-col items-center relative">
+
+                {/* --- WARNING BANNER (Hanya muncul jika belum timeout & belum discan) --- */}
+                {!isTimeout && <WarningBanner />}
+
+                <div className="w-full mb-4">
                   <div className="flex justify-between font-mono text-xs font-bold mb-1">
                     <span className={isTimeout ? "text-gray-400" : "text-red-500 animate-pulse"}>
                       {timeLeft === 0 && isChecking ? "FINAL CHECKING..." : isTimeout ? "SESI HABIS" : "AUTO REFRESH"}
@@ -215,7 +282,7 @@ export default function GenerateQrPage() {
                   </div>
                 </div>
 
-                <div className={`transition-all ${isTimeout ? 'blur-sm grayscale opacity-50' : ''}`}>
+                <div className={`transition-all w-full ${isTimeout ? 'blur-sm grayscale opacity-50' : ''}`}>
                   <VotingTokenCard tokenString={ticketData.token} userName={ticketData.name} userNIM={ticketData.nim} />
                 </div>
 

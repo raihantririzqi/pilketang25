@@ -1,7 +1,7 @@
 // middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose"; 
+import { jwtVerify } from "jose";
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
@@ -9,12 +9,12 @@ export async function middleware(request: NextRequest) {
 
   // --- 1. KONFIGURASI ROUTE ---
   const authRoutes = ["/login"];
-  
+
   // Halaman untuk User Biasa
-  const userRoutes = ["/dashboard", "/qr_generate"]; 
-  
+  const userRoutes = ["/dashboard", "/qr_generate"];
+
   // Halaman Khusus Admin (Scan, Attendance, Admin Panel)
-  const adminRoutes = ["/admin", "/scan", "/attendance"]; 
+  const adminRoutes = ["/admin", "/scan", "/attendance"];
 
   // --- 2. LOGIC REDIRECT (Auth) ---
   // Jika user sudah login tapi buka /login, lempar ke dashboard
@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
 
   // --- 3. LOGIC PROTEKSI (Login Check) ---
   // Gabungkan semua route yang butuh login
-  const isProtectedRoute = [...userRoutes, ...adminRoutes].some(route => 
+  const isProtectedRoute = [...userRoutes, ...adminRoutes].some(route =>
     pathname.startsWith(route)
   );
 
@@ -41,16 +41,16 @@ export async function middleware(request: NextRequest) {
     try {
       const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       const { payload } = await jwtVerify(token, secret);
-      
+
       // Asumsi role di database/token adalah "user" atau "admin"
-      const userRole = payload.role as string; 
+      const userRole = payload.role as string;
 
       // Cek apakah rute yang dituju adalah Rute Admin
       const isTryingAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
 
       // JIKA masuk rute admin TAPI role bukan admin -> Tendang ke Dashboard User
       if (isTryingAdminRoute && userRole !== "admin") {
-         return NextResponse.redirect(new URL("/dashboard", request.url));
+        return NextResponse.redirect(new URL("/dashboard", request.url));
       }
 
     } catch (error) {

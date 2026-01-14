@@ -1,25 +1,36 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // Arahkan ke Proxy Next.js
-  baseURL: '/api', 
-  
+  baseURL: '/api',
   headers: {
     "Content-Type": "application/json",
   },
-  // Wajib true agar Cookie Access Token terbawa saat request ke /api
-  withCredentials: true, 
+  withCredentials: true,
 });
 
-// Handle Logout jika token expired (401)
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Cek apakah ada response error
     if (error.response?.status === 401) {
-      if (typeof window !== 'undefined') {
-         window.location.href = '/login';
+
+      // --- LOGIC PENCEGAH LOOP ---
+
+      // 1. Cek URL Request-nya.
+      // Jika error 401 datang dari endpoint '/auth/refresh', JANGAN redirect.
+      // Karena itu artinya user memang belum login (Guest), biarkan AuthProvider yang handle state-nya.
+      const requestUrl = error.config?.url || '';
+      if (requestUrl.includes('/auth/refresh')) {
+        return Promise.reject(error);
+      }
+
+      // 2. Cek Posisi Halaman.
+      // Jika user SUDAH di halaman login, jangan redirect lagi (biar gak refresh halaman).
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.href = '/login';
       }
     }
+
     return Promise.reject(error);
   }
 );

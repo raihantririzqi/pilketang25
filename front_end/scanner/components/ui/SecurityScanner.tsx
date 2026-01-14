@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // 1. Import Router
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Tipe data simulasi untuk hasil scan
 interface ScannedUser {
     token: string;
     name: string;
@@ -15,10 +14,10 @@ interface ScannedUser {
 }
 
 const SecurityScanner = () => {
-    const router = useRouter(); // 2. Init Router
+    const router = useRouter();
     const [scanResult, setScanResult] = useState<ScannedUser | null>(null);
     const [isScanning, setIsScanning] = useState(true);
-    const [isRedirecting, setIsRedirecting] = useState(false); // 3. State untuk animasi loading redirect
+    const [isRedirecting, setIsRedirecting] = useState(false);
     const [logs, setLogs] = useState<string[]>(["> System initialized...", "> Camera Module loaded [OK]"]);
 
     const addLog = (message: string) => {
@@ -26,74 +25,95 @@ const SecurityScanner = () => {
         setLogs(prev => [`[${time}] ${message}`, ...prev].slice(0, 8));
     };
 
+    // --- MODIFIKASI DI SINI ---
     const handleScan = (detectedCodes: any) => {
         if (detectedCodes && detectedCodes.length > 0 && isScanning) {
             const rawValue = detectedCodes[0].rawValue;
 
             if (rawValue) {
-                // Hentikan scanning
+                // 1. Hentikan Scanning agar tidak spam
                 setIsScanning(false);
-                addLog(`Token detected: ${rawValue.substring(0, 8)}...`);
-                addLog("Verifying identity hash...");
+                addLog(`Raw Data detected...`);
 
-                // SIMULASI BACKEND VALIDATION
-                setTimeout(() => {
-                    const mockUser: ScannedUser = {
-                        token: rawValue,
-                        name: "RAIHAN TRI RIZQI", 
-                        nim: "123456789",         
-                        status: 'VERIFIED',
-                        timestamp: new Date().toLocaleString()
-                    };
+                try {
+                    // 2. CONVERT STRING KE ARRAY
+                    // Format Array dr Generator: ["NIM", "NAMA", "TOKEN", "TIMESTAMP"]
+                    const parsedData = JSON.parse(rawValue);
 
-                    setScanResult(mockUser);
-                    addLog(`ACCESS GRANTED: ${mockUser.name}`);
-                    
-                    // 4. MULAI PROSES REDIRECT
-                    startRedirection(mockUser);
+                    // Validasi apakah hasil parse benar-benar Array
+                    if (Array.isArray(parsedData) && parsedData.length >= 3) {
 
-                }, 800);
+                        const extractedNIM = parsedData[0];
+                        const extractedName = parsedData[1];
+                        const extractedToken = parsedData[2];
+
+                        addLog("Array format recognized [OK]");
+                        addLog(`Extracting ID: ${extractedNIM}`);
+                        addLog("Verifying identity hash...");
+
+                        // 3. SIMULASI PROSES VALIDASI
+                        setTimeout(() => {
+                            const user: ScannedUser = {
+                                nim: extractedNIM,
+                                name: extractedName,
+                                token: extractedToken,
+                                status: 'VERIFIED',
+                                timestamp: new Date().toLocaleString()
+                            };
+
+                            setScanResult(user);
+                            addLog(`ACCESS GRANTED: ${user.name}`);
+
+                            // Lanjut ke Redirect
+                            startRedirection(user);
+
+                        }, 800);
+
+                    } else {
+                        throw new Error("Invalid Data Structure");
+                    }
+
+                } catch (error) {
+                    // Jika QR bukan format JSON Array yang valid
+                    addLog("[ERROR] Invalid QR Format or Corrupted Data");
+                    addLog("Resetting scanner...");
+
+                    // Reset scanner otomatis jika gagal
+                    setTimeout(() => {
+                        setIsScanning(true);
+                    }, 2000);
+                }
             }
         }
     };
+    // ---------------------------
 
-    // Fungsi Khusus Redirect
     const startRedirection = (user: ScannedUser) => {
         setIsRedirecting(true);
         addLog("Initiating Voting Protocol...");
         addLog("Redirecting in 3s...");
 
-        // Delay 3 detik agar user sempat lihat foto/namanya
         setTimeout(() => {
-            // Arahkan ke halaman voting
-            // Opsional: Bawa token/nim via query param
-            router.push(`/voting?token=${user.token}`); 
+            // Redirect membawa token hasil parse array tadi
+            router.push(`/voting?token=${user.token}`);
         }, 3000);
-    };
-
-    const handleReset = () => {
-        setScanResult(null);
-        setIsScanning(true);
-        setIsRedirecting(false);
-        addLog("Ready for next scan...");
     };
 
     const handleError = (error: any) => {
         console.error(error);
     };
 
+    // ... (SISA KODE UI KE BAWAH SAMA PERSIS SEPERTI SEBELUMNYA)
     return (
         <div className="w-full max-w-6xl mx-auto p-4 md:p-8">
-            
-            {/* HEADER (Sama seperti sebelumnya) */}
+            {/* ... Header Component ... */}
             <div className="flex justify-between items-end mb-4 border-b-2 border-black pb-2">
                 <div>
-                    <h1 className="font-roster text-3xl md:text-4xl text-black">GATE_CONTROL_V1</h1>
+                    <h1 className="font-roster text-3xl md:text-4xl text-black">GATE_CONTROL</h1>
                     <p className="font-mono text-xs md:text-sm text-gray-600">PEMIKET SECURITY PROTOCOL // INFORMATIKA 2025</p>
                 </div>
                 <div className="flex gap-4 font-mono text-xs">
                     <div className="flex items-center gap-2">
-                        {/* Indikator Status Sistem */}
                         <span className={`w-3 h-3 rounded-full ${isRedirecting ? 'bg-blue-500 animate-ping' : isScanning ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`}></span>
                         <span>{isRedirecting ? 'REDIRECTING...' : isScanning ? 'SYSTEM READY' : 'PROCESSING'}</span>
                     </div>
@@ -112,11 +132,11 @@ const SecurityScanner = () => {
                     </div>
 
                     <div className="relative flex-1 bg-gray-800 w-full h-full overflow-hidden">
-                        <Scanner 
-                            onScan={handleScan} 
+                        <Scanner
+                            onScan={handleScan}
                             onError={handleError}
                             components={{ finder: false }}
-                            styles={{ 
+                            styles={{
                                 container: { width: '100%', height: '100%' },
                                 video: { objectFit: 'cover', width: '100%', height: '100%' }
                             }}
@@ -125,7 +145,7 @@ const SecurityScanner = () => {
                         {/* Overlay Camera UI */}
                         <div className="absolute inset-0 pointer-events-none">
                             <div className="w-full h-full opacity-20 bg-[linear-gradient(rgba(0,255,0,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.1)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-                            
+
                             {/* Focus Brackets */}
                             <div className="absolute top-4 left-4 w-16 h-16 border-l-4 border-t-4 border-white/50"></div>
                             <div className="absolute top-4 right-4 w-16 h-16 border-r-4 border-t-4 border-white/50"></div>
@@ -151,7 +171,7 @@ const SecurityScanner = () => {
                                             <div className="text-blue-400 font-mono text-xl animate-pulse">INITIATING VOTING SEQUENCE...</div>
                                             {/* Loading Bar */}
                                             <div className="w-64 h-2 bg-gray-700 rounded overflow-hidden">
-                                                <motion.div 
+                                                <motion.div
                                                     className="h-full bg-blue-500"
                                                     initial={{ width: 0 }}
                                                     animate={{ width: "100%" }}
@@ -181,7 +201,7 @@ const SecurityScanner = () => {
 
                         <AnimatePresence mode='wait'>
                             {scanResult ? (
-                                <motion.div 
+                                <motion.div
                                     key="result"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -222,7 +242,7 @@ const SecurityScanner = () => {
                                     </div>
                                 </motion.div>
                             ) : (
-                                <motion.div 
+                                <motion.div
                                     key="waiting"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}

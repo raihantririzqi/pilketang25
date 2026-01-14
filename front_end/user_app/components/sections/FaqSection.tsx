@@ -88,7 +88,7 @@ const FaqSection = () => {
               <ol className="list-decimal list-inside mt-2 space-y-1">
                 <li>Login menggunakan akun Google Itera/Mahasiswa kamu.</li>
                 <li>Masuk ke Dashboard dan klik <strong>Generate Ticket</strong> untuk dapat QR Code.</li>
-                <li>Bawa HP-mu ke <strong>Bilik Suara</strong> dan minta panitia men-scan QR tersebut.</li>
+                <li>Bawa HP-mu ke <strong>Bilik Suara</strong> dan arahkan qr ke laptop yang tersedia.</li>
                 <li>Lakukan pencoblosan kandidat pada <strong>Laptop/Layar yang tersedia</strong> di bilik.</li>
               </ol>
             </AccordionContent>
@@ -101,7 +101,7 @@ const FaqSection = () => {
             </AccordionTrigger>
             <AccordionContent className="font-mono text-gray-600 leading-relaxed">
               <strong>100% Aman.</strong> Kami menggunakan sistem <em>One-Time-Token</em> di mana QR Code hanya berlaku sekali scan
-              dan akan hangus otomatis dalam 30 detik. Data suara disimpan secara <strong>Anonim (Hashing)</strong> di database,
+              dan akan hangus otomatis dalam 30 detik. Data suara disimpan secara <strong>Anonim</strong> di database,
               sehingga siapapun tidak bisa melacak pilihanmu.
             </AccordionContent>
           </AccordionItem>

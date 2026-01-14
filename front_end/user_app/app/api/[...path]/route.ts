@@ -3,40 +3,68 @@ import { cookies } from "next/headers";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
-async function proxyRequest(request: Request, { params }: { params: { path: string[] } }) {
-  // 1. Baca Access Token dari Cookie (yang diset saat login tadi)
+// Interface untuk params (Next.js 15 mengharuskan Promise, Next.js 14 bisa langsung)
+type Props = {
+  params: Promise<{ path: string[] }> | { path: string[] };
+};
+
+async function proxyRequest(request: Request, { params }: Props) {
+  // 1. Handle params (support Next.js 15 & 14)
+  const resolvedParams = await Promise.resolve(params);
+  const pathString = resolvedParams.path.join("/");
+
+  // 2. Baca Token
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
-  // 2. Siapkan URL Backend Golang
-  const path = params.path.join("/"); // misal: "users/me"
-  const queryString = request.url.split("?")[1] || "";
-  const url = `${BACKEND_URL}/${path}${queryString ? "?" + queryString : ""}`;
+  // 3. Siapkan URL
+  const url = new URL(request.url);
+  const queryString = url.search; // Ambil query param (?page=1&limit=10)
+  const targetUrl = `${BACKEND_URL}/${pathString}${queryString}`;
 
-  // 3. KONVERSI: Cookie -> Header Bearer
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-  };
+  // 4. Siapkan Headers
+  const headers = new Headers();
 
+  // A. Copy Content-Type dari request asli (PENTING untuk Upload File!)
+  // Kalau JSON, dia copy application/json. Kalau Upload, dia copy multipart/form-data.
+  const contentType = request.headers.get("Content-Type");
+  if (contentType) {
+    headers.set("Content-Type", contentType);
+  }
+
+  // B. Inject Authorization Bearer
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`; // Backend Golang senang nerima ini!
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
   try {
-    const body = request.method !== "GET" && request.method !== "HEAD" ? await request.text() : undefined;
+    // 5. Forward Request
+    // Gunakan arrayBuffer() agar aman untuk file/gambar maupun JSON
+    const body = request.method !== "GET" && request.method !== "HEAD"
+      ? await request.arrayBuffer()
+      : undefined;
 
-    const res = await fetch(url, {
+    const res = await fetch(targetUrl, {
       method: request.method,
       headers: headers,
       body: body,
-      cache: "no-store",
+      cache: "no-store", // Jangan cache API request
     });
 
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    // 6. Handle Response (Hati-hati, backend tidak selalu return JSON)
+    const resBody = await res.arrayBuffer(); // Baca sebagai buffer mentah dulu
+
+    // Return response apa adanya (bisa JSON, bisa file, bisa text)
+    return new NextResponse(resBody, {
+      status: res.status,
+      headers: {
+        "Content-Type": res.headers.get("Content-Type") || "application/json",
+      },
+    });
 
   } catch (error) {
-    return NextResponse.json({ message: "Proxy Error" }, { status: 500 });
+    console.error("Proxy Error:", error);
+    return NextResponse.json({ message: "Internal Server Error (Proxy)" }, { status: 500 });
   }
 }
 
