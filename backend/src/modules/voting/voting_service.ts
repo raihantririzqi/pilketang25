@@ -1,6 +1,9 @@
 import { PrismaClient } from "../../generated/prisma/client";
 import { v4 as uuidv4 } from "uuid";
-import { QRValidationResult, SubmitVoteResult } from "./voting_type";
+import {
+  QRValidationResult,
+  SubmitVoteResult,
+} from "./voting_type";
 import {
   ConflictError,
   NotFoundError,
@@ -12,7 +15,9 @@ import {
  * QR code generation, token validation, and anonymous vote submission.
  */
 export class VotingService {
-  public constructor(private readonly prisma: PrismaClient) { }
+  public constructor(
+    private readonly prisma: PrismaClient,
+  ) {}
 
   /**
    * Validates a scanned QR code token and initiates a temporary voting session.
@@ -27,13 +32,16 @@ export class VotingService {
   public validate_qr = async (
     qr_token: string,
   ): Promise<QRValidationResult> => {
-    const existing_qr_code = await this.prisma.qRCode.findUnique({
-      where: { token: qr_token },
-      include: { session: true },
-    });
+    const existing_qr_code =
+      await this.prisma.qRCode.findUnique({
+        where: { token: qr_token },
+        include: { session: true },
+      });
 
     if (!existing_qr_code)
-      throw new NotFoundError("QR Code not found in our records");
+      throw new NotFoundError(
+        "QR Code not found in our records",
+      );
 
     if (existing_qr_code.is_used)
       throw new ConflictError(
@@ -50,10 +58,8 @@ export class VotingService {
         "The voting session is currently closed or has ended",
       );
 
-    // Atomically create the attendance record and the temporary session
-    const new_temporary_voting_session = await this.prisma.$transaction(
-      async (tx) => {
-        // Ensure an attendance record exists, marking the user as "present"
+    const new_temporary_voting_session =
+      await this.prisma.$transaction(async (tx) => {
         await tx.attendanceRecord.upsert({
           where: {
             user_id_session_id: {
@@ -61,7 +67,7 @@ export class VotingService {
               session_id: existing_qr_code.session_id,
             },
           },
-          update: {}, // Nothing to update if it exists
+          update: {},
           create: {
             user_id: existing_qr_code.user_id,
             session_id: existing_qr_code.session_id,
@@ -70,27 +76,37 @@ export class VotingService {
         });
 
         const temp_expires_at = new Date();
-        temp_expires_at.setMinutes(temp_expires_at.getMinutes() + 2);
+        temp_expires_at.setMinutes(
+          temp_expires_at.getMinutes() + 2,
+        );
 
-        const temp_session = await tx.temporaryVotingSession.create({
-          data: {
-            voting_token: uuidv4(),
-            qr_token,
-            session_id: existing_qr_code.session_id,
-            expires_at: temp_expires_at,
-          },
-        });
+        const temp_session =
+          await tx.temporaryVotingSession.create({
+            data: {
+              voting_token: uuidv4(),
+              qr_token,
+              session_id: existing_qr_code.session_id,
+              expires_at: temp_expires_at,
+            },
+          });
 
         return temp_session;
+      });
+
+    const candidates = await this.prisma.candidate.findMany(
+      {
+        select: {
+          id: true,
+          name: true,
+          vision: true,
+          mission: true,
+        },
       },
     );
 
-    const candidates = await this.prisma.candidate.findMany({
-      select: { id: true, name: true, vision: true, mission: true },
-    });
-
     return {
-      voting_token: new_temporary_voting_session.voting_token,
+      voting_token:
+        new_temporary_voting_session.voting_token,
       session_id: new_temporary_voting_session.session_id,
       candidates,
       expires_in:
@@ -124,14 +140,18 @@ export class VotingService {
           });
 
         if (!existing_temporary_session)
-          throw new NotFoundError("Voting session token not found");
+          throw new NotFoundError(
+            "Voting session token not found",
+          );
 
         if (existing_temporary_session.is_used)
           throw new ConflictError(
             "This voting token has already been used",
           );
 
-        if (existing_temporary_session.expires_at < new Date())
+        if (
+          existing_temporary_session.expires_at < new Date()
+        )
           throw new ValidationError(
             "Voting session has expired. Please re-scan your QR",
           );
@@ -139,7 +159,8 @@ export class VotingService {
         const new_vote_record = await tx.voteRecord.create({
           data: {
             id: uuidv4(),
-            session_id: existing_temporary_session.session_id,
+            session_id:
+              existing_temporary_session.session_id,
             candidate_id: candidate_id,
             qr_token: existing_temporary_session.qr_token,
             voting_token: voting_token,
@@ -152,15 +173,19 @@ export class VotingService {
         });
 
         await tx.qRCode.update({
-          where: { token: existing_temporary_session.qr_token },
+          where: {
+            token: existing_temporary_session.qr_token,
+          },
           data: { is_used: true },
         });
 
         await tx.attendanceRecord.update({
           where: {
             user_id_session_id: {
-              user_id: existing_temporary_session.qr_code.user_id,
-              session_id: existing_temporary_session.session_id,
+              user_id:
+                existing_temporary_session.qr_code.user_id,
+              session_id:
+                existing_temporary_session.session_id,
             },
           },
           data: { has_voted: true },
