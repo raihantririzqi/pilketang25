@@ -7,6 +7,7 @@ import {
   GoogleCallbackResult,
   UserProfile,
 } from "./auth_type";
+import { errorMiddleware } from "../../shared/middlewares/error_middleware";
 
 /**
  * Controller providing HTTP endpoints for the Authentication module.
@@ -37,11 +38,12 @@ export class AuthController {
    */
   public register = () =>
     new Elysia({ prefix: this.prefix })
+      .use(errorMiddleware)
       .use(
         jwt({
           name: "access_jwt",
           secret: process.env.JWT_SECRET!,
-          exp: '15m',
+          exp: '1m',
         }),
       )
       .use(
@@ -709,6 +711,14 @@ export class AuthController {
                               example:
                                 "2026-01-16T10:15:22.000Z",
                             },
+                            has_voted: {
+                              type: "boolean",
+                              example: false,
+                            },
+                            is_scanned: {
+                              type: "boolean",
+                              example: false,
+                            }
                           },
                         },
                       },

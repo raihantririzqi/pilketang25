@@ -104,7 +104,6 @@ model AttendanceRecord {
   user_id    String
   session_id String
   has_voted  Boolean  @default(false)
-  created_at DateTime @default(now())
 
   user    User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   session VotingSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
@@ -117,7 +116,6 @@ model VoteRecord {
   id           String   @id @default(uuid())
   session_id   String
   candidate_id String
-  voted_at     DateTime @default(now())
   qr_token     String
   voting_token String
 
@@ -126,7 +124,7 @@ model VoteRecord {
   qr_code      QRCode                 @relation(fields: [qr_token], references: [token], onDelete: Cascade)
   temp_session TemporaryVotingSession @relation(fields: [voting_token], references: [voting_token], onDelete: Cascade)
 
-  @@index([session_id, candidate_id, voted_at, qr_token, voting_token])
+  @@index([session_id, candidate_id, qr_token, voting_token])
 }
 
 model AuditLog {

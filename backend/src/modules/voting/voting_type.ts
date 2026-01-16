@@ -11,5 +11,4 @@ export type SubmitVoteResult = {
   receipt_id: string;
   session_id: string;
   candidate_id: string;
-  voted_at: Date;
 };

@@ -55,18 +55,17 @@ export class QRService {
     }
 
     // Check if user has already voted in this session
-    const hasVoted = await this.prisma.qRCode.findFirst({
+    const attendanceRecord = await this.prisma.attendanceRecord.findUnique({
       where: {
-        user_id,
-        session_id: activeSession.id,
-        is_used: true,
+        user_id_session_id: {
+          user_id,
+          session_id: activeSession.id,
+        },
       },
     });
 
-    if (hasVoted) {
-      throw new ConflictError(
-        "You have already voted in this session",
-      );
+    if (attendanceRecord?.has_voted) {
+      throw new ConflictError("You have already voted in this session");
     }
 
     // Delete any existing expired/unused QR codes for this user and session
@@ -178,5 +177,19 @@ export class QRService {
       created_at: new_qr_code.created_at,
       expires_at: new_qr_code.expires_at.getSeconds(),
     };
+  };
+
+  public get_qr_status = async (token: string): Promise<{ is_used: boolean }> => {
+    const qr_code = await this.prisma.qRCode.findUnique({
+      where: {
+        token: token,
+      },
+    });
+
+    if (!qr_code) {
+      throw new NotFoundError("QR code not found");
+    }
+
+    return { is_used: qr_code.is_used };
   };
 }

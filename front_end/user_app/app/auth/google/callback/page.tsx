@@ -47,6 +47,7 @@ export default function LoadingPage() {
           clearInterval(visualTimer);
           setProgress(100);
           setStatusText("BERHASIL! MENGALIHKAN...");
+          console.log("Login Success:", res);
 
           // User data akan di-fetch otomatis oleh AuthProvider via /api/auth/me
           setTimeout(() => {

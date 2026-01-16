@@ -45,17 +45,22 @@ export default function DashboardPage() {
     const [status, setStatus] = useState<"LOCKED" | "OPEN" | "VOTED">("LOCKED");
     const [timeLeft, setTimeLeft] = useState("");
 
-    const displayUser = user || { name: "User", nim: "000000000", image: "" };
+    const displayUser = user || { name: "User", nim: "000000000", profile_picture: "" };
 
     const TARGET_DATE = new Date("2026-01-04T09:49:00").getTime();
 
     useEffect(() => {
+        if (user?.has_voted) {
+            setStatus("VOTED");
+            return;
+        }
+
         const checkTime = () => {
             const now = new Date().getTime();
             const diff = TARGET_DATE - now;
 
             if (diff <= 0) {
-                if (status === "LOCKED") setStatus("OPEN");
+                setStatus("OPEN");
             } else {
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -69,7 +74,7 @@ export default function DashboardPage() {
         checkTime();
         const interval = setInterval(checkTime, 1000);
         return () => clearInterval(interval);
-    }, [status, TARGET_DATE]);
+    }, [user, TARGET_DATE]);
 
     const toggleDevMode = () => {
         if (status === "LOCKED") setStatus("OPEN");
@@ -123,7 +128,7 @@ export default function DashboardPage() {
                         <div className="w-32 h-32 mb-4 relative group">
                             <div className="absolute inset-0 bg-black translate-x-1 translate-y-1"></div>
                             <Avatar className="w-32 h-32 rounded-none border-4 border-black bg-[#92c3dd] relative z-10 transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1">
-                                <AvatarImage src={displayUser.image || ""} alt={displayUser.name} className="object-cover group-hover:scale-110 transition-transform duration-300" />
+                                <AvatarImage src={displayUser.profile_picture || ""} alt={displayUser.name} className="object-cover group-hover:scale-110 transition-transform duration-300" />
                                 <AvatarFallback className="rounded-none bg-[#92c3dd] font-retro text-5xl text-black uppercase">
                                     {displayUser.name.charAt(0)}
                                 </AvatarFallback>

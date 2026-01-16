@@ -12,7 +12,7 @@ import {
  * QR code generation, token validation, and anonymous vote submission.
  */
 export class VotingService {
-  public constructor(private readonly prisma: PrismaClient) {}
+  public constructor(private readonly prisma: PrismaClient) { }
 
   /**
    * Validates a scanned QR code token and initiates a temporary voting session.
@@ -50,18 +50,40 @@ export class VotingService {
         "The voting session is currently closed or has ended",
       );
 
-    const temp_expires_at = new Date();
-    temp_expires_at.setMinutes(temp_expires_at.getMinutes() + 2);
+    // Atomically create the attendance record and the temporary session
+    const new_temporary_voting_session = await this.prisma.$transaction(
+      async (tx) => {
+        // Ensure an attendance record exists, marking the user as "present"
+        await tx.attendanceRecord.upsert({
+          where: {
+            user_id_session_id: {
+              user_id: existing_qr_code.user_id,
+              session_id: existing_qr_code.session_id,
+            },
+          },
+          update: {}, // Nothing to update if it exists
+          create: {
+            user_id: existing_qr_code.user_id,
+            session_id: existing_qr_code.session_id,
+            has_voted: false,
+          },
+        });
 
-    const new_temporary_voting_session =
-      await this.prisma.temporaryVotingSession.create({
-        data: {
-          voting_token: uuidv4(),
-          qr_token,
-          session_id: existing_qr_code.session_id,
-          expires_at: temp_expires_at,
-        },
-      });
+        const temp_expires_at = new Date();
+        temp_expires_at.setMinutes(temp_expires_at.getMinutes() + 2);
+
+        const temp_session = await tx.temporaryVotingSession.create({
+          data: {
+            voting_token: uuidv4(),
+            qr_token,
+            session_id: existing_qr_code.session_id,
+            expires_at: temp_expires_at,
+          },
+        });
+
+        return temp_session;
+      },
+    );
 
     const candidates = await this.prisma.candidate.findMany({
       select: { id: true, name: true, vision: true, mission: true },
@@ -136,8 +158,10 @@ export class VotingService {
 
         await tx.attendanceRecord.update({
           where: {
-            user_id: existing_temporary_session.qr_code.user_id,
-            session_id: existing_temporary_session.session_id,
+            user_id_session_id: {
+              user_id: existing_temporary_session.qr_code.user_id,
+              session_id: existing_temporary_session.session_id,
+            },
           },
           data: { has_voted: true },
         });
@@ -148,6 +172,5 @@ export class VotingService {
         receipt_id: result.id,
         session_id: result.session_id,
         candidate_id: result.candidate_id,
-        voted_at: result.voted_at,
       }));
 }

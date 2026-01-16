@@ -10,6 +10,7 @@ import { QRController } from "./modules/qr/qr_controller";
 import { QRService } from "./modules/qr/qr_service";
 import { VotingController } from "./modules/voting/voting_controller";
 import { VotingService } from "./modules/voting/voting_service";
+import { errorMiddleware } from "./shared/middlewares/error_middleware";
 
 // Environment variables
 const PORT = process.env.PORT || 3000;
@@ -56,6 +57,7 @@ const app = new Elysia()
     }),
   )
   .use(openapi())
+  .use(errorMiddleware)
   .get("/", () => ({
     message: "Pilketang 2025 Backend API",
     version: "1.0",

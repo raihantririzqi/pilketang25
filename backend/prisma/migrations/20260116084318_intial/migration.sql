@@ -6,6 +6,7 @@ CREATE TABLE `User` (
     `email` VARCHAR(191) NOT NULL,
     `nim` VARCHAR(191) NOT NULL,
     `role` ENUM('ADMIN', 'COMMITTEE', 'PARTICIPANT') NOT NULL DEFAULT 'PARTICIPANT',
+    `profile_picture` VARCHAR(191) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -54,9 +55,8 @@ CREATE TABLE `QRCode` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `expires_at` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `QRCode_user_id_key`(`user_id`),
-    UNIQUE INDEX `QRCode_session_id_key`(`session_id`),
     INDEX `QRCode_user_id_session_id_is_used_expires_at_token_voting_to_idx`(`user_id`, `session_id`, `is_used`, `expires_at`, `token`, `voting_token`),
+    UNIQUE INDEX `QRCode_user_id_session_id_key`(`user_id`, `session_id`),
     PRIMARY KEY (`token`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -81,9 +81,8 @@ CREATE TABLE `AttendanceRecord` (
     `has_voted` BOOLEAN NOT NULL DEFAULT false,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    UNIQUE INDEX `AttendanceRecord_user_id_key`(`user_id`),
-    UNIQUE INDEX `AttendanceRecord_session_id_key`(`session_id`),
     INDEX `AttendanceRecord_user_id_session_id_has_voted_idx`(`user_id`, `session_id`, `has_voted`),
+    UNIQUE INDEX `AttendanceRecord_user_id_session_id_key`(`user_id`, `session_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

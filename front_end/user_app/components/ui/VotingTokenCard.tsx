@@ -1,75 +1,77 @@
-// components/ui/VotingTokenCard.tsx
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { motion } from 'framer-motion';
 
-interface VotingTokenProps {
-  tokenString: string; // String rahasia untuk QR
-  userName: string;
-  userNIM: string;
+interface TicketData {
+  token: string;
+  name: string;
+  nim: string;
 }
 
-const VotingTokenCard = ({ tokenString, userName, userNIM }: VotingTokenProps) => {
+interface VotingTokenProps {
+  ticket: TicketData;
+}
+
+const VotingTokenCard = ({ ticket }: VotingTokenProps) => {
   const [isRevealed, setIsRevealed] = useState(false);
+  const { token, name, nim } = ticket;
+
+  // --- LOGIKA JSON ARRAY UNTUK SCANNER ---
+  // Kita gunakan useMemo agar stringify hanya berjalan jika data berubah
+  const qrValue = useMemo(() => {
+    return JSON.stringify([nim, name, token]);
+  }, [nim, name, token]);
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      {/* Container Kartu */}
       <div className="relative bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
 
-        {/* Hiasan Bolongan Tiket (Kiri & Kanan) */}
+        {/* Hiasan Tiket */}
         <div className="absolute top-1/2 -left-4 w-8 h-8 bg-[#fdf8f4] rounded-full border-r-4 border-black transform -translate-y-1/2"></div>
         <div className="absolute top-1/2 -right-4 w-8 h-8 bg-[#fdf8f4] rounded-full border-l-4 border-black transform -translate-y-1/2"></div>
 
-        {/* Header Kartu */}
         <div className="border-b-4 border-black border-dashed pb-4 mb-6 text-center">
-          <h3 className="font-roster text-2xl uppercase">Voting Pass</h3>
-          <p className="font-mono text-xs text-gray-500">NORDBYTE ELECTION 2025</p>
+          <h3 className="font-roster text-2xl uppercase tracking-tighter">Voting Pass</h3>
+          <p className="font-mono text-[10px] text-gray-500">PEMIKET SYSTEM // ITERA 2026</p>
         </div>
 
-        {/* Area QR Code */}
         <div className="flex flex-col items-center gap-4">
-
-          {/* Wrapper QR dengan Fitur Blur (Privacy) */}
           <div
             className="relative group cursor-pointer"
             onClick={() => setIsRevealed(!isRevealed)}
           >
+            {/* QR Code dengan Value JSON String */}
             <div className={`transition-all duration-300 ${isRevealed ? 'blur-none' : 'blur-lg opacity-20'}`}>
               <QRCodeSVG
-                value={tokenString}
-                size={200}
-                level="H"
+                value={qrValue}
+                size={220}
+                level="M" // Level Medium cukup untuk data array pendek agar QR tidak terlalu rapat
                 includeMargin={true}
-                fgColor="#000000"
-                bgColor="#ffffff"
               />
             </div>
 
-            {/* Overlay jika belum di-reveal */}
             {!isRevealed && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-black text-white font-mono text-xs px-3 py-1 animate-pulse">
-                  [ CLICK TO REVEAL ]
+                <div className="bg-black text-white font-mono text-[10px] px-4 py-2 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] animate-pulse">
+                  TAP TO UNLOCK QR
                 </div>
               </div>
             )}
           </div>
 
-          <div className="text-center font-mono mt-2">
-            <p className="font-bold text-lg">{userName}</p>
-            <div className="bg-black text-white px-2 inline-block">
-              {userNIM}
+          <div className="text-center font-mono mt-2 w-full">
+            <p className="font-bold text-lg uppercase truncate px-2">{name}</p>
+            <div className="bg-black text-white px-3 py-0.5 inline-block text-sm">
+              {nim}
             </div>
           </div>
 
-          <p className="text-[10px] text-red-500 font-bold mt-2 border-2 border-red-500 px-2 py-1 uppercase">
-            Do not share this QR Code
-          </p>
-
+          <div className="w-full border-t-2 border-black border-dotted mt-2 pt-2">
+            <p className="text-[9px] text-center text-gray-400 font-mono">
+              TOKEN_ID: {token.substring(0, 8)}...
+            </p>
+          </div>
         </div>
-
       </div>
     </div>
   );

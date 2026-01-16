@@ -13,7 +13,7 @@ const adapter = new PrismaMariaDb({
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log("🌱 Seeding database...");
+  console.log("🌱 Deleting old candidates...");
 
   // 1. Create VotingSession (aktif)
   const session = await prisma.votingSession.upsert({
@@ -34,7 +34,7 @@ async function main() {
   // 2. Create Candidates
   const candidates = [
     {
-      id: `candidate_${uuidv4()}`,
+      id: uuidv4(),
       name: "Kandidat 1",
       nim: "120140001",
       vision: "Mewujudkan angkatan yang solid dan berprestasi",
@@ -42,7 +42,7 @@ async function main() {
         "1. Meningkatkan kebersamaan antar mahasiswa\n2. Mendorong prestasi akademik dan non-akademik\n3. Membangun komunikasi yang baik dengan dosen",
     },
     {
-      id: `candidate_${uuidv4()}`,
+      id: uuidv4(),
       name: "Kandidat 2",
       nim: "120140002",
       vision: "Membangun angkatan yang inovatif dan kreatif",
@@ -54,7 +54,12 @@ async function main() {
   for (const candidate of candidates) {
     const created = await prisma.candidate.upsert({
       where: { nim: candidate.nim },
-      update: {},
+      update: {
+        id: candidate.id,
+        name: candidate.name,
+        vision: candidate.vision,
+        mission: candidate.mission,
+      },
       create: candidate,
     });
     console.log("✅ Candidate created:", created.name);

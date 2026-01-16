@@ -94,11 +94,12 @@ export class AuthService {
       },
     });
 
+
     const token_payloads =
       await this.generate_token_payload(user.id, user.role);
 
     return {
-      user,
+      user: user,
       access_token: await sign_access_token(
         token_payloads.access_token_payload,
       ),
@@ -221,7 +222,36 @@ export class AuthService {
       where: { id: user_id },
     });
     if (!user) throw new NotFoundError("User not found");
-    return user;
+
+    const active_session = await this.prisma.votingSession.findFirst({
+        where: {
+            is_active: true
+        }
+    })
+
+    if(!active_session) {
+        return { ...user, has_voted: false, is_scanned: false };
+    }
+
+    const attendance = await this.prisma.attendanceRecord.findUnique({
+        where: {
+            user_id_session_id: {
+                user_id: user.id,
+                session_id: active_session.id
+            }
+        }
+    })
+
+    const qr_code = await this.prisma.qRCode.findUnique({
+        where: {
+            user_id_session_id: {
+                user_id: user.id,
+                session_id: active_session.id
+            }
+        }
+    })
+
+    return { ...user, has_voted: !!attendance?.has_voted, is_scanned: !!qr_code?.is_used };
   };
 
   /**

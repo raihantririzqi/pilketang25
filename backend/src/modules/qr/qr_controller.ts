@@ -4,6 +4,7 @@ import { QRService } from "./qr_service";
 import { SuccessResponse } from "../../shared/types/custom_types";
 import { AuthenticationMiddleware } from "../../shared/middlewares/authentication_middleware";
 import { GenerateQRResult, SimpleQRResult } from "./qr_type";
+import { errorMiddleware } from "../../shared/middlewares/error_middleware";
 
 export class QRController {
   public constructor(
@@ -14,6 +15,7 @@ export class QRController {
 
   public register = () =>
     new Elysia({ prefix: this.prefix })
+      .use(errorMiddleware)
       .use(new AuthenticationMiddleware(this.prisma).register())
       /**
        * POST /qr/generate
@@ -58,6 +60,29 @@ export class QRController {
         {
           body: t.Object({
             session_id: t.String(),
+          }),
+        },
+      )
+      /**
+       * GET /qr/status/:token
+       * Checks if a QR code has been used.
+       * @access Private (Authenticated User)
+       */
+      .get(
+        "/status/:token",
+        async ({ params, set }): Promise<SuccessResponse<{ is_used: boolean }>> => {
+          const { token } = params;
+          const result = await this.service.get_qr_status(token);
+          set.status = 200;
+          return {
+            code: 200,
+            message: "QR status retrieved successfully",
+            result: result,
+          };
+        },
+        {
+          params: t.Object({
+            token: t.String(),
           }),
         },
       );

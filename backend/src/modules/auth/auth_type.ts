@@ -54,4 +54,6 @@ export type UserProfile = {
   profile_picture: string | null;
   created_at: Date;
   updated_at: Date;
+  has_voted: boolean;
+  is_scanned: boolean;
 };

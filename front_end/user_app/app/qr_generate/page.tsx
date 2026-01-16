@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import VotingTokenCard from "@/components/ui/VotingTokenCard";
 import GeneratorCard from "@/components/ui/GeneratorCard";
-import axios from "@/lib/axios";
 import api from "@/lib/axios";
 
 // --- KOMPONEN BARU: WARNING BANNER ---
@@ -101,12 +100,33 @@ const SuccessScannedView = () => (
   </motion.div>
 );
 
+// --- ALREADY VOTED VIEW (BARU) ---
+const AlreadyVotedView = () => (
+  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md">
+    <div className="bg-[#fb8500] border-4 border-black rounded-xl p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-center text-white relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')]"></div>
+      <div className="w-20 h-20 bg-white rounded-full border-4 border-black flex items-center justify-center mx-auto mb-6 shadow-lg">
+        <span className="text-4xl">✅</span>
+      </div>
+      <h2 className="font-roster text-2xl md:text-3xl mb-2">ANDA SUDAH MEMILIH!</h2>
+      <div className="bg-black/20 p-4 rounded-lg border-2 border-black/10 text-sm font-mono mb-6">
+        <p className="font-bold mb-2">TERIMA KASIH ATAS PARTISIPASI ANDA</p>
+        <p className="leading-relaxed">Anda telah menggunakan hak suara Anda. Tidak perlu membuat tiket lagi.</p>
+      </div>
+      <Link href="/dashboard" className="mt-6 text-xs underline hover:text-black transition-colors">Kembali ke Dashboard</Link>
+    </div>
+  </motion.div>
+);
+
+
 // --- MAIN PAGE ---
 export default function GenerateQrPage() {
   const [isVotingOpen, setIsVotingOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [ticketData, setTicketData] = useState<{ token: string, name: string, nim: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [alreadyVoted, setAlreadyVoted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // LOGIC STATES
   const [timeLeft, setTimeLeft] = useState(30);
@@ -127,10 +147,9 @@ export default function GenerateQrPage() {
   // --- LOGIC PROTEKSI RELOAD / CLOSE TAB (BARU) ---
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Jika tiket sudah ada TAPI belum discan & belum timeout, cegah user keluar
       if (ticketData && !isScanned && !isTimeout) {
         e.preventDefault();
-        e.returnValue = ''; // Wajib untuk Chrome lama
+        e.returnValue = '';
       }
     };
 
@@ -144,8 +163,8 @@ export default function GenerateQrPage() {
     if (!ticketData) return;
     try {
       setIsChecking(true);
-      const mockIsScanned = false; // Ganti dengan API call
-      if (mockIsScanned) {
+      const res = await api.get(`/qr/status/${ticketData.token}`);
+      if (res.data.result.is_used) {
         setIsScanned(true);
       } else if (isFinalCheck) {
         setIsTimeout(true);
@@ -180,19 +199,17 @@ export default function GenerateQrPage() {
   // HANDLERS
   const handleRefreshToken = () => { setIsTimeout(false); handleGenerateToken(); };
 
-  // Di dalam export default function GenerateQrPage() ...
-
   const handleGenerateToken = async () => {
     setIsLoading(true);
     setIsTimeout(false);
     setIsScanned(false);
     setTimeLeft(30);
+    setTicketData(null);
+    setAlreadyVoted(false);
+    setErrorMessage(null);
 
     try {
-      // Memanggil proxy: /api/qr/generate (auto-detect active session)
       const res = await api.post("/qr/generate");
-
-      // Sesuai dengan interface ticketData kamu
       if (res.data.result) {
         setTicketData({
           token: res.data.result.token,
@@ -201,33 +218,32 @@ export default function GenerateQrPage() {
         });
       }
     } catch (error: any) {
-      // Proxy kamu mengembalikan JSON { message: "..." } jika terjadi error
-      const errorMessage = error.response?.data?.message || "Gagal mendapatkan tiket";
-
-      // Tampilkan error secara visual (bisa pakai toast atau state statusText)
-      console.error("Voting Error:", errorMessage);
-      alert(`ERROR: ${errorMessage.toUpperCase()}`);
+      const backendMessage = error.response?.data?.message || "Gagal mendapatkan tiket";
+      
+      if (error.response?.status === 409) {
+        setAlreadyVoted(true);
+      } else {
+        setErrorMessage(backendMessage);
+        console.error("QR Generation Error:", backendMessage);
+        alert(`ERROR: ${backendMessage.toUpperCase()}`);
+      }
 
       setTicketData(null);
     } finally {
       setIsLoading(false);
     }
   };
+
   if (!isClient) return null;
 
   return (
     <div className="min-h-screen bg-[#fdf8f4] py-20 px-4 flex flex-col items-center relative overflow-hidden">
-      {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none"></div>
 
-      {/* --- TOMBOL KEMBALI KE DASHBOARD --- */}
-      {/* Kita sembunyikan tombol kembali jika sedang ada tiket aktif agar user tidak salah pencet */}
-      {(!ticketData || isScanned || isTimeout) && (
+      {(!ticketData || isScanned || isTimeout || alreadyVoted) && (
         <Link href="/dashboard" className="absolute top-4 left-4 md:top-8 md:left-8 z-50 group">
           <div className="relative h-10 w-10 md:w-auto md:h-10 md:px-6 flex items-center justify-center">
-            {/* Layer Bayangan (Hitam) */}
             <div className="absolute inset-0 bg-black rounded-lg translate-x-1 translate-y-1 transition-transform group-hover:translate-x-0 group-hover:translate-y-0"></div>
-            {/* Layer Utama (Putih) */}
             <div className="absolute inset-0 bg-white border-2 border-black rounded-lg flex items-center justify-center md:justify-start md:px-4 z-10 transition-transform group-active:translate-x-1 group-active:translate-y-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -244,7 +260,6 @@ export default function GenerateQrPage() {
         </Link>
       )}
 
-      {/* Header */}
       <div className="text-center mb-10 z-10 pt-10 md:pt-0">
         <h1 className="font-roster text-4xl md:text-5xl mb-3 text-black">BILIK SUARA</h1>
         <div className={`font-mono border-2 border-black inline-flex items-center gap-2 px-4 py-1 text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors duration-500 rounded-full ${isVotingOpen ? 'bg-[#2c9f45] text-white' : 'bg-white text-gray-600'}`}>
@@ -255,25 +270,24 @@ export default function GenerateQrPage() {
 
       <AnimatePresence mode="wait">
 
-        {/* VIEW: LOCKED */}
         {!isVotingOpen && (
           <LockedDashboardCard key="locked" targetDate={TARGET_DATE} onComplete={() => setIsVotingOpen(true)} />
         )}
 
-        {/* VIEW: OPEN */}
         {isVotingOpen && (
           <motion.div key="open" className="w-full flex flex-col items-center z-10">
 
-            {/* 1. Generate */}
-            {!ticketData && (
+            {alreadyVoted && (
+              <AlreadyVotedView />
+            )}
+
+            {!ticketData && !alreadyVoted && (
               <GeneratorCard onClick={handleGenerateToken} isLoading={isLoading} />
             )}
 
-            {/* 2. QR Code (Active Session) */}
             {ticketData && !isScanned && (
               <motion.div key="qr" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="w-full max-w-sm flex flex-col items-center relative">
 
-                {/* --- WARNING BANNER (Hanya muncul jika belum timeout & belum discan) --- */}
                 {!isTimeout && <WarningBanner />}
 
                 <div className="w-full mb-4">
@@ -289,14 +303,13 @@ export default function GenerateQrPage() {
                 </div>
 
                 <div className={`transition-all w-full ${isTimeout ? 'blur-sm grayscale opacity-50' : ''}`}>
-                  <VotingTokenCard tokenString={ticketData.token} userName={ticketData.name} userNIM={ticketData.nim} />
+                  <VotingTokenCard ticket={ticketData} />
                 </div>
 
                 {isTimeout && <TimeoutOverlay onRefresh={handleRefreshToken} />}
               </motion.div>
             )}
 
-            {/* 3. Success */}
             {isScanned && <SuccessScannedView />}
 
           </motion.div>

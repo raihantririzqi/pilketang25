@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 // Pastikan ini sesuai dengan port Elysia kamu
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3001";
 // Interface untuk params (Next.js 15 mengharuskan Promise, Next.js 14 bisa langsung)
 type Props = {
   params: Promise<{ path: string[] }> | { path: string[] };

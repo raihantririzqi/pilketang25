@@ -7,18 +7,18 @@ async function tryRefreshToken(request: NextRequest): Promise<string | null> {
   if (!refreshToken) return null;
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const apiUrl = process.env.BACKEND_URL || "http://localhost:5000";
     const res = await fetch(`${apiUrl}/auth/refresh`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Cookie: `refresh_token_cookie=${refreshToken}`,
+        // Mengambil seluruh string cookie yang ada di request browser
+        "Cookie": request.headers.get("cookie") || "",
       },
     });
-
     if (!res.ok) return null;
     const data = await res.json();
-    return data.result?.signed_access_token || null;
+    return data.result?.access_token || null;
   } catch (err) {
     return null;
   }

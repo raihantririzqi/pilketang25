@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Code is required" }, { status: 400 });
     }
 
-    const backendRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/google/callback`, {
+    const backendRes = await fetch(`${process.env.BACKEND_URL}/auth/google/callback`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -45,13 +45,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const { signed_access_token, signed_refresh_token, user } = data.result;
+    console.log(data)
+
+    const { access_token, refresh_token, user } = data.result;
     const cookieStore = await cookies();
 
     // 1. UPDATE ACCESS TOKEN COOKIE (Sesuai testing: 1 Menit)
     cookieStore.set({
       name: "token",
-      value: signed_access_token,
+      value: access_token,
       httpOnly: true,
       path: "/",
       secure: process.env.NODE_ENV === "production",
@@ -59,10 +61,10 @@ export async function POST(request: Request) {
       maxAge: 60, // Ubah ke 60 detik (1 menit) sesuai durasi JWT di backend
     });
 
-    if (signed_refresh_token) {
+    if (refresh_token) {
       cookieStore.set({
         name: "refresh_token_cookie",
-        value: signed_refresh_token,
+        value: refresh_token,
         httpOnly: true,
         path: "/",
         secure: process.env.NODE_ENV === "production",
