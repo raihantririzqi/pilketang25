@@ -23,7 +23,7 @@ export class AuthService {
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly oauth2: OAuth2Client,
-  ) {}
+  ) { }
 
   /**
    * Processes the Google OAuth2 callback by exchanging the authorization code for user data

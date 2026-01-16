@@ -41,7 +41,7 @@ export class AuthController {
         jwt({
           name: "access_jwt",
           secret: process.env.JWT_SECRET!,
-          exp: '1m',
+          exp: '15m',
         }),
       )
       .use(
@@ -470,8 +470,8 @@ export class AuthController {
           ]?.replace("Bearer ", "");
           const refresh_token =
             refresh_token_cookie.value as
-              | string
-              | undefined;
+            | string
+            | undefined;
 
           const revoke = async (
             token: string | undefined,
