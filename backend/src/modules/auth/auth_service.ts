@@ -1,5 +1,4 @@
 import { err, ok, Result } from "neverthrow";
-import { PrismaClient } from "../../generated/prisma/client";
 import { OAuth2Client } from "google-auth-library";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -14,6 +13,7 @@ import {
   NotFoundError,
   ValidationError,
 } from "../../shared/utils/error_util";
+import { PrismaClient } from "../../generated/prisma/client";
 
 /**
  * Service handling core authentication logic, including Google OAuth2 callback,
@@ -23,7 +23,7 @@ export class AuthService {
   public constructor(
     private readonly prisma: PrismaClient,
     private readonly oauth2: OAuth2Client,
-  ) { }
+  ) {}
 
   /**
    * Processes the Google OAuth2 callback by exchanging the authorization code for user data
@@ -58,29 +58,29 @@ export class AuthService {
       });
 
     if (!tokens.id_token)
-      throw new AuthenticationError("Invalid ID token from Google");
+      throw new AuthenticationError(
+        "Invalid ID token from Google",
+      );
 
     const ticket = await this.oauth2.verifyIdToken({
       idToken: tokens.id_token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
 
-    // 1. Ambil payload mentah dari ticket
     const payload = ticket.getPayload();
-
-    // 2. Pastikan fungsi validate_google_payload kamu juga menangkap field 'picture'
     const validate = this.validate_google_payload(payload);
-    if (validate.isErr()) throw new ValidationError(validate.error);
+
+    if (validate.isErr())
+      throw new ValidationError(validate.error);
 
     const valid_data = validate.value;
-    // Ambil URL foto dari payload (biasanya ada di payload.picture)
     const profile_picture = payload?.picture;
 
     const user = await this.prisma.user.upsert({
       where: { google_id: valid_data.google_id },
       update: {
         name: valid_data.name,
-        image: profile_picture, // Update foto profil jika berubah
+        profile_picture,
         updated_at: new Date(),
       },
       create: {
@@ -88,23 +88,21 @@ export class AuthService {
         google_id: valid_data.google_id,
         name: valid_data.name,
         email: valid_data.email,
-        image: profile_picture, // Simpan foto saat pertama kali daftar
+        profile_picture,
         nim: valid_data.nim,
         role: "PARTICIPANT",
       },
     });
 
-    const token_payloads = await this.generate_token_payload(
-      user.id,
-      user.role,
-    );
+    const token_payloads =
+      await this.generate_token_payload(user.id, user.role);
 
     return {
       user,
-      signed_access_token: await sign_access_token(
+      access_token: await sign_access_token(
         token_payloads.access_token_payload,
       ),
-      signed_refresh_token: await sign_refresh_token(
+      refresh_token: await sign_refresh_token(
         token_payloads.refresh_token_payload,
       ),
     };
@@ -128,7 +126,9 @@ export class AuthService {
       });
 
     if (is_blacklisted)
-      throw new AuthenticationError("Refresh token has been revoked");
+      throw new AuthenticationError(
+        "Refresh token has been revoked",
+      );
 
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
@@ -181,14 +181,18 @@ export class AuthService {
     payload: any,
   ): Result<ValidateGooglePayloadResult, string> {
     if (!payload || !payload.email || !payload.name)
-      throw new ValidationError("Google profile data is incomplete");
+      throw new ValidationError(
+        "Google profile data is incomplete",
+      );
 
     if (!payload.email.endsWith("@student.itera.ac.id"))
       throw new ValidationError(
         "Must use student.itera.ac.id domain",
       );
 
-    const email_parts = payload.email.split("@")[0].split(".");
+    const email_parts = payload.email
+      .split("@")[0]
+      .split(".");
     const raw_nim = email_parts[email_parts.length - 1];
 
     if (!/^125140\d{3}$/.test(raw_nim))
@@ -210,14 +214,14 @@ export class AuthService {
    * @param user_id - The user ID from the JWT payload.
    * @returns The user profile data.
    */
-  public getMe = async (user_id: string): Promise<UserProfile> => {
+  public getMe = async (
+    user_id: string,
+  ): Promise<UserProfile> => {
     const user = await this.prisma.user.findUnique({
       where: { id: user_id },
     });
-
     if (!user) throw new NotFoundError("User not found");
-
-    return user as UserProfile;
+    return user;
   };
 
   /**
