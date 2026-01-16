@@ -12,9 +12,11 @@ import { VotingController } from "./modules/voting/voting_controller";
 import { VotingService } from "./modules/voting/voting_service";
 
 // Environment variables
-const PORT = process.env.PORT || 3001;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
-const SCANNER_URL = process.env.SCANNER_URL || "http://localhost:3002";
+const PORT = process.env.PORT || 3000;
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "http://localhost:3000";
+const SCANNER_URL =
+  process.env.SCANNER_URL || "http://localhost:3002";
 
 // Database setup
 const adapter = new PrismaMariaDb({
@@ -30,25 +32,28 @@ const prisma = new PrismaClient({ adapter });
 // Google OAuth setup
 const oauth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET
+  process.env.GOOGLE_CLIENT_SECRET,
 );
 
 // Services & Controllers
-const authService = new AuthService(prisma, oauth2Client);
-const authController = new AuthController(authService);
+const auth_service = new AuthService(prisma, oauth2Client);
+const auth_controller = new AuthController(auth_service);
 
-const qrService = new QRService(prisma);
-const qrController = new QRController(prisma, qrService);
+const qr_service = new QRService(prisma);
+const qr_controller = new QRController(prisma, qr_service);
 
-const votingService = new VotingService(prisma);
-const votingController = new VotingController(prisma, votingService);
+const voting_service = new VotingService(prisma);
+const voting_controller = new VotingController(
+  prisma,
+  voting_service,
+);
 
 const app = new Elysia()
   .use(
     cors({
       origin: [FRONTEND_URL, SCANNER_URL],
       credentials: true,
-    })
+    }),
   )
   .use(openapi())
   .get("/", () => ({
@@ -56,11 +61,11 @@ const app = new Elysia()
     version: "1.0",
     status: "healthy",
   }))
-  .use(authController.register())
-  .use(qrController.register())
-  .use(votingController.register())
+  .use(auth_controller.register())
+  .use(qr_controller.register())
+  .use(voting_controller.register())
   .listen(PORT);
 
 console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
+  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
 );

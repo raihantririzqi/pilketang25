@@ -1,6 +1,9 @@
 import { PrismaClient } from "../../generated/prisma/client";
 import { NotFoundError } from "../../shared/utils/error_util";
-import { CreateCandidate, UpdateCandidate } from "./candidate_type";
+import {
+  CreateCandidateRequest,
+  UpdateCandidateRequest,
+} from "./candidate_type";
 
 export class CandidateService {
   public constructor(private readonly prisma: PrismaClient) {}
@@ -8,6 +11,7 @@ export class CandidateService {
   public get_all_candidates = async () =>
     await this.prisma.candidate.findMany({
       select: {
+        id: true,
         name: true,
         nim: true,
         vision: true,
@@ -34,22 +38,34 @@ export class CandidateService {
     return existing_candidate;
   };
 
-  public create_candidate = async (data: CreateCandidate) =>
+  public create_candidate = async (data: CreateCandidateRequest) =>
     await this.prisma.candidate.create({ data });
 
-  public update_candidate = async (data: UpdateCandidate) => {
+  public update_candidate = async (
+    id: string,
+    data: UpdateCandidateRequest,
+  ) => {
     const existing_candidate = await this.prisma.candidate.findUnique(
-      { where: { id: data.id } },
+      { where: { id } },
     );
 
     if (!existing_candidate)
       throw new NotFoundError("Candidate not found");
 
-    const updated_candidate = await this.prisma.candidate.update({
-      where: { id: data.id },
+    return await this.prisma.candidate.update({
+      where: { id },
       data,
     });
+  };
 
-    return updated_candidate;
+  public delete_candidate = async (id: string) => {
+    const existing_candidate = await this.prisma.candidate.findUnique(
+      { where: { id } },
+    );
+
+    if (!existing_candidate)
+      throw new NotFoundError("Candidate not found");
+
+    return await this.prisma.candidate.delete({ where: { id } });
   };
 }

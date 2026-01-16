@@ -5,12 +5,13 @@ export type GoogleCallbackResult = {
     name: string;
     email: string;
     nim: string;
+    profile_picture: string | null;
     role: string;
     created_at: Date;
     updated_at: Date;
   };
-  signed_access_token: string;
-  signed_refresh_token: string;
+  access_token: string;
+  refresh_token: string;
 };
 
 export type RefreshResult = {
@@ -50,7 +51,7 @@ export type UserProfile = {
   email: string;
   nim: string;
   role: string;
-  image: string | null;
+  profile_picture: string | null;
   created_at: Date;
   updated_at: Date;
 };
