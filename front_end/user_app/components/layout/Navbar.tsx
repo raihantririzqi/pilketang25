@@ -111,7 +111,7 @@ const Navbar = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className="w-52 mt-3 rounded-none border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] font-retro p-0"
+                  className="w-52 mt-3 rounded-none border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] font-retro p-0 bg-background"
                 >
                   <DropdownMenuLabel className="bg-navy text-white p-3 text-xs uppercase border-b-4 border-black">
                     {user.name}
@@ -120,15 +120,12 @@ const Navbar = () => {
                   <div className="p-1">
                     <Link href="/dashboard">
                       <DropdownMenuItem className="focus:bg-magenta focus:text-white cursor-pointer font-bold py-2 px-3">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                      </DropdownMenuItem>
-                    </Link>
-
-                    <Link href="/profile">
-                      <DropdownMenuItem className="focus:bg-magenta focus:text-white cursor-pointer font-bold py-2 px-3">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
+                        <RetroButton
+                          text="Dashboard"
+                          icon={<LayoutDashboard size={18} />}
+                          colorClass="bg-magenta" // Sesuaikan warna dengan tema navbarmu
+                          className="w-40 h-11"    // Sesuaikan ukuran jika diperlukan
+                        />
                       </DropdownMenuItem>
                     </Link>
 
@@ -136,7 +133,7 @@ const Navbar = () => {
 
                     <DropdownMenuItem
                       onClick={() => logout()}
-                      className="focus:bg-red-500 focus:text-white cursor-pointer font-bold py-2 px-3 text-red-600"
+                      className="w-full py-2 flex items-center justify-center gap-2 text-red-600 font-bold border-2 border-red-600 hover:bg-red-50 transition-colors"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Logout</span>
@@ -186,8 +183,41 @@ const Navbar = () => {
           scrollToSection(id);
           setIsMenuOpen(false);
         }}
+        isAuthenticated={isAuthenticated}
+        user={user}
+        logout={logout}
       />
     </>
+  );
+};
+
+interface RetroButtonProps {
+  text: string;
+  colorClass: string;
+  onClick?: () => void;
+  className?: string;
+  icon?: React.ReactNode;
+}
+
+const RetroButton = ({
+  text,
+  colorClass,
+  onClick,
+  className = "w-32 h-12",
+  icon,
+}: RetroButtonProps) => {
+  return (
+    <div onClick={onClick} className={`relative cursor-pointer group ${className}`}>
+      <div className="absolute w-full h-full bg-black rounded-sm translate-x-1.5 translate-y-1.5"></div>
+      <div
+        className={`absolute w-full h-full ${colorClass} z-10 rounded-sm flex items-center justify-center gap-2 border-4 border-black transition-transform duration-200 group-hover:translate-x-1.5 group-hover:translate-y-1.5 group-active:translate-x-1.5 group-active:translate-y-1.5`}
+      >
+        {icon && <span className="text-white">{icon}</span>}
+        <span className="text-white font-bold font-retro text-xs md:text-sm tracking-widest uppercase">
+          {text}
+        </span>
+      </div>
+    </div>
   );
 };
 

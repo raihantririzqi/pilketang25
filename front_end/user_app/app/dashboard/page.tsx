@@ -5,46 +5,48 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/components/provider/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Home, LogOut } from "lucide-react";
 
 // --- KOMPONEN BUTTON REUSABLE ---
 interface RetroButtonProps {
-  text: string;
-  colorClass: string;
-  onClick?: () => void;
-  className?: string;
+    text: string;
+    colorClass: string;
+    onClick?: () => void;
+    className?: string;
+    icon?: React.ReactNode;
 }
 
 const RetroButton = ({
-  text,
-  colorClass,
-  onClick,
-  className = "w-32 h-12",
+    text,
+    colorClass,
+    onClick,
+    className = "w-32 h-12",
+    icon,
 }: RetroButtonProps) => {
-  return (
-    <div onClick={onClick} className={`relative cursor-pointer group ${className}`}>
-      <div className="absolute w-full h-full bg-black rounded-sm translate-x-1.5 translate-y-1.5"></div>
-      <div
-        className={`absolute w-full h-full ${colorClass} z-10 rounded-sm flex items-center justify-center border-4 border-black transition-transform duration-200 group-hover:translate-x-1.5 group-hover:translate-y-1.5 group-active:translate-x-1.5 group-active:translate-y-1.5`}
-      >
-        <span className="text-white font-bold font-retro text-xs md:text-sm tracking-widest">
-          {text}
-        </span>
-      </div>
-    </div>
-  );
+    return (
+        <div onClick={onClick} className={`relative cursor-pointer group ${className}`}>
+            <div className="absolute w-full h-full bg-black rounded-sm translate-x-1.5 translate-y-1.5"></div>
+            <div
+                className={`absolute w-full h-full ${colorClass} z-10 rounded-sm flex items-center justify-center gap-2 border-4 border-black transition-transform duration-200 group-hover:translate-x-1.5 group-hover:translate-y-1.5 group-active:translate-x-1.5 group-active:translate-y-1.5`}
+            >
+                {icon && <span className="text-white">{icon}</span>}
+                <span className="text-white font-bold font-retro text-xs md:text-sm tracking-widest uppercase">
+                    {text}
+                </span>
+            </div>
+        </div>
+    );
 };
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth();
+    const { user, logout } = useAuth();
 
-  // STATUS: 'LOCKED' | 'OPEN' | 'VOTED'
-  const [status, setStatus] = useState<"LOCKED" | "OPEN" | "VOTED">("LOCKED");
-  const [timeLeft, setTimeLeft] = useState("");
+    // STATUS: 'LOCKED' | 'OPEN' | 'VOTED'
+    const [status, setStatus] = useState<"LOCKED" | "OPEN" | "VOTED">("LOCKED");
+    const [timeLeft, setTimeLeft] = useState("");
 
-  // User data yang akan ditampilkan (langsung dari context, tidak perlu localStorage)
-  const displayUser = user || { name: "User", nim: "000000000", email: "", image: "" };
+    const displayUser = user || { name: "User", nim: "000000000", image: "" };
 
-    // --- TARGET DATE (Sesuaikan dengan jadwal asli) ---
     const TARGET_DATE = new Date("2026-01-04T09:49:00").getTime();
 
     useEffect(() => {
@@ -53,7 +55,7 @@ export default function DashboardPage() {
             const diff = TARGET_DATE - now;
 
             if (diff <= 0) {
-                if (status === 'LOCKED') setStatus('OPEN');
+                if (status === "LOCKED") setStatus("OPEN");
             } else {
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -70,25 +72,19 @@ export default function DashboardPage() {
     }, [status, TARGET_DATE]);
 
     const toggleDevMode = () => {
-        if (status === 'LOCKED') setStatus('OPEN');
-        else if (status === 'OPEN') setStatus('VOTED');
-        else setStatus('LOCKED');
-    };
-
-    const handleLogout = async () => {
-        await logout();
+        if (status === "LOCKED") setStatus("OPEN");
+        else if (status === "OPEN") setStatus("VOTED");
+        else setStatus("LOCKED");
     };
 
     const getBgColor = () => {
-        if (status === 'LOCKED') return '#cbd5e1';
-        if (status === 'VOTED') return '#92c3dd';
-        return '#eab308';
+        if (status === "LOCKED") return "#cbd5e1";
+        if (status === "VOTED") return "#92c3dd";
+        return "#eab308";
     };
 
     return (
         <div className="min-h-screen bg-[#efe8e0] p-4 md:p-8 font-mono relative overflow-hidden text-[#000000]">
-
-            {/* BACKGROUND DECOR */}
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none"></div>
 
             {/* HEADER */}
@@ -102,27 +98,32 @@ export default function DashboardPage() {
                         <p className="text-xs text-[#2b5ca6] font-bold tracking-widest font-retro">SYSTEM_V.2.0</p>
                     </div>
                 </div>
-                <RetroButton text="[LOGOUT]" colorClass="bg-red" onClick={handleLogout} className="w-32 h-12" />
+
+                <div className="flex gap-4">
+                    <Link href="/">
+                        <RetroButton text="HOME" colorClass="bg-[#2b5ca6]" icon={<Home size={16} />} className="w-28 md:w-32 h-12" />
+                    </Link>
+                    <RetroButton text="[LOGOUT]" colorClass="bg-red" onClick={() => logout()} className="w-32 h-12" />
+                </div>
             </header>
 
             {/* MAIN CONTENT */}
             <main className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 relative z-10 items-start">
 
-                {/* 1. PROFILE CARD */}
-                <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} className="md:col-span-5 bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_black] relative">
-                    <div className="absolute top-0 right-0 bg-[#65a30d] text-white text-[10px] font-retro px-2 py-1 border-l-4 border-b-4 border-black">VERIFIED_USER</div>
+                {/* 1. PROFILE CARD (KEMBALI KE ORIGINAL) */}
+                <motion.div
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="md:col-span-5 bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_black] relative"
+                >
+                    <div className="absolute top-0 right-0 bg-[#65a30d] text-white text-[10px] font-retro px-2 py-1 border-l-4 border-b-4 border-black">
+                        VERIFIED_USER
+                    </div>
                     <div className="flex flex-col items-center text-center mt-4">
                         <div className="w-32 h-32 mb-4 relative group">
-                            {/* Layer Bayangan (Shadow) */}
                             <div className="absolute inset-0 bg-black translate-x-1 translate-y-1"></div>
-
-                            {/* Layer Utama Avatar */}
                             <Avatar className="w-32 h-32 rounded-none border-4 border-black bg-[#92c3dd] relative z-10 transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1">
-                                <AvatarImage
-                                    src={displayUser.image || ""}
-                                    alt={displayUser.name}
-                                    className="object-cover group-hover:scale-110 transition-transform duration-300"
-                                />
+                                <AvatarImage src={displayUser.image || ""} alt={displayUser.name} className="object-cover group-hover:scale-110 transition-transform duration-300" />
                                 <AvatarFallback className="rounded-none bg-[#92c3dd] font-retro text-5xl text-black uppercase">
                                     {displayUser.name.charAt(0)}
                                 </AvatarFallback>
@@ -141,7 +142,7 @@ export default function DashboardPage() {
                     </div>
                 </motion.div>
 
-                {/* 2. STATUS CARD (ANIMATED) */}
+                {/* 2. STATUS CARD */}
                 <motion.div
                     animate={{ backgroundColor: getBgColor() }}
                     transition={{ duration: 0.5 }}
@@ -150,47 +151,23 @@ export default function DashboardPage() {
                     className="md:col-span-7 border-4 border-black p-8 shadow-[8px_8px_0px_0px_black] flex flex-col justify-center items-center text-center relative overflow-hidden min-h-[400px]"
                 >
                     <AnimatePresence mode="wait">
-
-                        {/* KONDISI 1: LOCKED */}
-                        {status === 'LOCKED' && (
-                            <motion.div
-                                key="locked"
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                transition={{ duration: 0.3 }}
-                                className="relative z-10 w-full flex flex-col items-center"
-                            >
+                        {status === "LOCKED" && (
+                            <motion.div key="locked" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative z-10 w-full flex flex-col items-center">
                                 <div className="w-20 h-20 bg-gray-500 text-white border-4 border-black flex items-center justify-center text-4xl shadow-[4px_4px_0px_0px_black] mx-auto mb-4">
                                     <span className="font-retro">🔒</span>
                                 </div>
                                 <h2 className="font-roster text-3xl md:text-5xl mb-2 text-gray-700">ACCESS LOCKED</h2>
-
-                                {/* --- UPDATE TEKS DI SINI --- */}
                                 <p className="font-retro text-xs text-black/60 max-w-md mx-auto mb-8 leading-relaxed">
                                     Sabar dong! biliknya aja belum di buka
                                 </p>
-
                                 <div className="bg-black text-white px-6 py-3 border-4 border-gray-500 shadow-[4px_4px_0px_0px_white] font-retro text-sm animate-pulse">
                                     OPENS IN: {timeLeft || "Checking..."}
                                 </div>
                             </motion.div>
                         )}
 
-                        {/* KONDISI 2: OPEN */}
-                        {status === 'OPEN' && (
-                            <motion.div
-                                key="open"
-                                initial={{ opacity: 0, scale: 0.5, rotate: -5 }}
-                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                className="relative z-10 w-full flex flex-col items-center"
-                            >
-                                <motion.div
-                                    initial={{ scale: 0 }} animate={{ scale: 1.5, opacity: 0 }} transition={{ duration: 0.5 }}
-                                    className="absolute inset-0 bg-white/30 rounded-full blur-xl z-[-1]"
-                                />
+                        {status === "OPEN" && (
+                            <motion.div key="open" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 w-full flex flex-col items-center">
                                 <h2 className="font-roster text-3xl md:text-5xl mb-2">READY TO VOTE?</h2>
                                 <p className="font-retro text-xs text-black/80 max-w-md mx-auto mb-8 leading-relaxed">
                                     Bilik suara telah dibuka. Generate tiket voting kamu dan scan di lokasi.
@@ -202,15 +179,8 @@ export default function DashboardPage() {
                             </motion.div>
                         )}
 
-                        {/* KONDISI 3: VOTED */}
-                        {status === 'VOTED' && (
-                            <motion.div
-                                key="voted"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.4 }}
-                                className="relative z-10"
-                            >
+                        {status === "VOTED" && (
+                            <motion.div key="voted" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
                                 <div className="w-20 h-20 bg-[#65a30d] text-white border-4 border-black flex items-center justify-center text-4xl shadow-[4px_4px_0px_0px_black] mx-auto mb-4">
                                     <span className="font-retro">OK</span>
                                 </div>
@@ -223,22 +193,14 @@ export default function DashboardPage() {
                                 </div>
                             </motion.div>
                         )}
-
                     </AnimatePresence>
                 </motion.div>
-
             </main>
 
             {/* DEV BUTTON */}
             <div className="fixed bottom-4 right-4 z-50">
-                <RetroButton
-                    text={`DEV: ${status}`}
-                    colorClass="bg-black"
-                    onClick={toggleDevMode}
-                    className="w-32 h-10"
-                />
+                <RetroButton text={`DEV: ${status}`} colorClass="bg-black" onClick={toggleDevMode} className="w-32 h-10" />
             </div>
-
         </div>
     );
 }

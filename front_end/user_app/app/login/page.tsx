@@ -83,7 +83,7 @@ export default function LoginPage() {
                     {/* Footer Kecil */}
                     <div className="mt-8 pt-6 border-t-2 border-dashed border-gray-300 w-full">
                         <p className="font-retro text-xs text-gray-400">
-                            Pilketang &copy; 2025 - Peduli Hati
+                            Pemiket &copy; 2025 - Peduli Hati
                         </p>
                     </div>
 

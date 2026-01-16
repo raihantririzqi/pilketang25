@@ -8,8 +8,7 @@ import { GenerateQRResult, SimpleQRResult } from "./qr_type";
 import { v4 as uuidv4 } from "uuid";
 
 export class QRService {
-  public constructor(private readonly prisma: PrismaClient) {}
-
+  public constructor(private readonly prisma: PrismaClient) { }
   /**
    * Generates a simple QR token for a user by auto-detecting active session.
    * This is a simplified version for the kiosk voting flow.

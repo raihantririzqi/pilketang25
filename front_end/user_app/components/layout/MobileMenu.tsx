@@ -1,12 +1,20 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { User, LayoutDashboard, LogOut } from "lucide-react";
 
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
   onNavigate: (target: string) => void;
+  // Tambahkan props ini agar sinkron dengan Navbar
+  isAuthenticated: boolean;
+  user: any;
+  logout: () => void;
 }
 
-const MobileMenu = ({ isOpen, onClose, onNavigate }: MobileMenuProps) => {
+const MobileMenu = ({ isOpen, onClose, onNavigate, isAuthenticated, user, logout }: MobileMenuProps) => {
   const menuItems = [
     { label: "Home", target: "hero-section" },
     { label: "Kandidat", target: "kandidat-section" },
@@ -22,48 +30,72 @@ const MobileMenu = ({ isOpen, onClose, onNavigate }: MobileMenuProps) => {
     >
       {/* HEADER */}
       <div className="w-full px-6 flex justify-between items-center mb-4">
-        <div className="font-roster font-bold text-xl">NordByte</div>
+        <div className="font-roster font-bold text-xl uppercase tracking-wider">NordByte</div>
         <button className="p-2" onClick={onClose}>
-          <svg
-            className="w-8 h-8 text-black"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
+          <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      {/* MENU */}
-      <div className="flex flex-col items-center gap-6 font-retro text-xl w-full">
+      {/* NAV LINKS */}
+      <div className="flex flex-col items-center gap-4 font-retro text-xl w-full border-b-4 border-black pb-6">
         {menuItems.map((item) => (
           <button
             key={item.label}
-            className="w-full text-center py-2 hover:bg-gray-100/50 transition-colors"
-            onClick={() => onNavigate(item.target)}
+            className="w-full text-center py-1 hover:bg-magenta hover:text-white transition-colors uppercase"
+            onClick={() => {
+              onNavigate(item.target);
+              onClose();
+            }}
           >
             {item.label}
           </button>
         ))}
+      </div>
 
-        {/* LOGIN */}
-        <Link href={"/href"}>
-          <div
-            className="relative w-40 h-12 cursor-pointer group mt-2"
-            onClick={onClose}
-          >
-            <div className="absolute w-40 h-12 bg-black rounded-sm"></div>
-            <div className="absolute w-40 h-12 bg-navy z-10 -translate-x-1 -translate-y-1 rounded-sm flex items-center justify-center border-4 border-black transition-transform active:translate-x-0 active:translate-y-0">
-              <span className="text-white font-bold text-xl">Login</span>
+      {/* AUTH SECTION */}
+      <div className="w-full px-6 flex flex-col items-center gap-4 font-retro">
+        {isAuthenticated && user ? (
+          /* TAMPILAN SUDAH LOGIN */
+          <div className="w-full flex flex-col items-center gap-3">
+            {/* User Label (Seperti Header Dropdown) */}
+            <div className="bg-navy text-white w-full py-2 px-4 text-center text-sm border-2 border-black shadow-[4px_4px_0px_0px_black] mb-2">
+              <span className="opacity-70 text-[10px] block">LOGGED IN AS</span>
+              <span className="font-bold">{user.name}</span>
             </div>
+
+            {/* Dashboard Button */}
+            <Link href="/dashboard" className="w-full" onClick={onClose}>
+              <div className="relative h-12 w-full group">
+                <div className="absolute inset-0 bg-black rounded-sm"></div>
+                <div className="relative h-full bg-magenta -translate-x-1 -translate-y-1 border-4 border-black flex items-center justify-center gap-2 group-active:translate-x-0 group-active:translate-y-0 transition-transform">
+                  <LayoutDashboard size={20} className="text-white" />
+                  <span className="text-white font-bold">DASHBOARD</span>
+                </div>
+              </div>
+            </Link>
+
+            {/* Logout Button */}
+            <button
+              onClick={() => { logout(); onClose(); }}
+              className="w-full py-2 flex items-center justify-center gap-2 text-red-600 font-bold border-2 border-red-600 hover:bg-red-50 transition-colors"
+            >
+              <LogOut size={18} />
+              <span>LOGOUT</span>
+            </button>
           </div>
-        </Link>
+        ) : (
+          /* TAMPILAN BELUM LOGIN */
+          <Link href="/login" className="w-full" onClick={onClose}>
+            <div className="relative h-14 w-full group">
+              <div className="absolute inset-0 bg-black rounded-sm"></div>
+              <div className="relative h-full bg-navy -translate-x-1.5 -translate-y-1.5 border-4 border-black flex items-center justify-center group-active:translate-x-0 group-active:translate-y-0 transition-transform">
+                <span className="text-white font-bold text-2xl uppercase">Login</span>
+              </div>
+            </div>
+          </Link>
+        )}
       </div>
     </div>
   );

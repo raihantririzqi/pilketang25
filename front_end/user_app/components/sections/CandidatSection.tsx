@@ -13,29 +13,31 @@ const easeOut = [0.16, 1, 0.3, 1];
 ================================ */
 const candidatesData = [
   {
-    name: "Raihan Tri rizqi Wibowo",
-    nim: "125140125",
+    name: "Musbar Ramadhan",
+    nim: "125140051",
     base_color: "red",
     kandidat_number: 1,
-    vision: "Menjadikan angkatan yang solid, aktif, dan berdampak positif bagi lingkungan kampus.",
+    vision: "Mewujudkan nortbyte'25 sebagai angkatan yang kolaboratif, seling menghargai perbedaan, serta bertumbuh bersama tanpa menghilangkan karakter masing masing",
     imageSrc: "images/kandidat/1.jpg",
     missions: [
-      "Meningkatkan solidaritas antar mahasiswa",
-      "Mewadahi aspirasi dan kreativitas angkatan",
-      "Membangun komunikasi yang transparan",
+      "N: Nyata dalam kolaborasi (mendorong kolaborasi yang nyata baik akademik dan non akademik tanpa memandang latar belakang ataupun kemapuan)",
+      "O: open space untuk semua karakter (menciptakan ruangan yang terbuka dan inklusif dengan beragam minat dan karakter) ",
+      "R: Ringan tapi rutin (interaksi sederhana namun menumbuhkan keakraban angkatan tanpa memberatkan) ",
+      "T: Tumbuh bareng, bukan saling membandingkan",
+      "H: Harmoni dalam perbedaan(menjaga keharmonisan dan komunikasi yang sehat ditengah perbedaan, kemampuan, dan karakter tanpa adanya diskriminasi terhadap individu tertentu)",
     ],
   },
   {
-    name: "Calon Ketua Kedua",
-    nim: "125140126",
+    name: "Seysar Rizky Sujadi",
+    nim: "125140148",
     base_color: "navy",
     kandidat_number: 2,
-    vision: "Mewujudkan angkatan yang kolaboratif dan adaptif terhadap perubahan.",
+    vision: "menjadikan NordByte sebagai wadah untuk berkembang di bidang akademik maupun non akademik dengan tujuan menggali potensi diri dari masing-masing individu anggota Nordbyte.",
     imageSrc: "images/kandidat/2.jpg",
     missions: [
-      "Mendorong budaya diskusi terbuka",
-      "Menguatkan peran akademik dan non-akademik",
-      "Menjadi jembatan aspirasi mahasiswa",
+      "Menyediakan sebuah forum khusus untuk masing-masing bidang minat dan bakat.",
+      "Membangun komunikasi yang aktif dan terbuka dengan tujuan memperkuat hubungan antara anggota.",
+      "Membentuk BPA (Badan Pengurus Angkatan) dengan tujuan agar kedepannya dapat bekerjasama untuk menyukseskan berbagai prokja angkatan.",
     ],
   },
 ];

@@ -48,6 +48,7 @@ export async function POST(request: Request) {
     const { signed_access_token, signed_refresh_token, user } = data.result;
     const cookieStore = await cookies();
 
+    // 1. UPDATE ACCESS TOKEN COOKIE (Sesuai testing: 1 Menit)
     cookieStore.set({
       name: "token",
       value: signed_access_token,
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
       path: "/",
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 30 * 60,
+      maxAge: 60, // Ubah ke 60 detik (1 menit) sesuai durasi JWT di backend
     });
 
     if (signed_refresh_token) {
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
         path: "/",
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60,
+        maxAge: 7 * 24 * 60 * 60, // Refresh token biarkan lama (7 hari)
       });
     }
 
