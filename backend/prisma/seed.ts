@@ -3,13 +3,12 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { v4 as uuidv4 } from "uuid";
 
 const adapter = new PrismaMariaDb({
-  host: "localhost",
-  port: 3306,
-  user: "root",
-  password: "root123",
-  database: "pilketang25",
+  host: process.env.DB_HOST || "localhost",
+  port: Number(process.env.DB_PORT) || 3306,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
-
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
