@@ -11,11 +11,13 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 // Database setup
 const adapter = new PrismaMariaDb({
-  host: "localhost",
+  host: process.env.DB_HOST || "localhost",
   port: 3306,
-  user: "root",
-  password: "root123",
-  database: "pilketang25",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "root123",
+  database: process.env.DB_NAME || "pilketang25",
+  connectionLimit: 50,
+  acquireTimeout: 30000,
 });
 
 const prisma = new PrismaClient({ adapter });
