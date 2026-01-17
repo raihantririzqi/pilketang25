@@ -1,29 +1,45 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import { cookies } from "next/dist/server/request/cookies";
 
-async function tryRefreshToken(request: NextRequest): Promise<string | null> {
-  const refreshToken = request.cookies.get("refresh_token_cookie")?.value;
-  if (!refreshToken) return null;
+const BACKEND_URL = process.env.BACKEND_URL || "http://127.0.0.1:3001";
 
+async function tryRefreshToken() {
   try {
-    const apiUrl = process.env.BACKEND_URL || "http://localhost:5000";
-    const res = await fetch(`${apiUrl}/api/auth/refresh`, {
+    const cookieStore = await cookies();
+
+    // 1. EARLY RETURN: Cek spesifik apakah refresh_token ada sebelum fetch
+    const hasRefreshToken = cookieStore.has("refresh_token_cookie");
+    if (!hasRefreshToken) {
+      console.log("⚠️ Proxy: No refresh token found, skipping refresh attempt.");
+      return { accessToken: null, setCookieHeader: null };
+    }
+
+    // 2. Gunakan toString() untuk meneruskan semua cookie dengan format yang benar
+    const allCookies = cookieStore.toString();
+
+    const res = await fetch(`${BACKEND_URL}/api/auth/refresh`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Mengambil seluruh string cookie yang ada di request browser
-        "Cookie": request.headers.get("cookie") || "",
+        "Cookie": allCookies,
       },
     });
-    if (!res.ok) return null;
+
+    if (!res.ok) return { accessToken: null, setCookieHeader: null };
+
     const data = await res.json();
-    return data.result?.access_token || null;
+    const setCookie = res.headers.get("set-cookie");
+
+    return {
+      accessToken: data.result?.access_token || null,
+      setCookieHeader: setCookie
+    };
   } catch (err) {
-    return null;
+    return { accessToken: null, setCookieHeader: null };
   }
 }
-
 export async function middleware(request: NextRequest) {
   let token = request.cookies.get("token")?.value;
   const refreshToken = request.cookies.get("refresh_token_cookie")?.value;
@@ -54,10 +70,10 @@ export async function middleware(request: NextRequest) {
   // 2. Global Refresh: Jika token mati tapi ada refresh_token, tarik token baru
   // Ini akan berjalan bahkan di landing page (/)
   if (!token && refreshToken) {
-    newAccessToken = await tryRefreshToken(request);
-    if (newAccessToken) {
+    const refreshResult = await tryRefreshToken();
+    if (refreshResult.accessToken) {
       try {
-        const { payload: verifiedPayload } = await jwtVerify(newAccessToken, secret);
+        const { payload: verifiedPayload } = await jwtVerify(refreshResult.accessToken, secret);
         payload = verifiedPayload;
       } catch (e) {
         payload = null;
