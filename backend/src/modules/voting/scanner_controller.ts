@@ -8,9 +8,10 @@ export class ScannerController {
     private readonly prisma: PrismaClient,
     private readonly service: VotingService,
     private readonly prefix = "/voting/scanner",
-  ) { }
+  ) {}
+
   public register = () =>
-    new Elysia()
+    new Elysia({ prefix: this.prefix })
       .post(
         "/validate-qr",
         async ({ body, headers }) => {
