@@ -19,7 +19,7 @@ export class SessionController {
         ).register(),
       )
       /**
-       * @endpoint POST /api/v1/sessions/:id/publish
+       * @endpoint POST /api/sessions/:id/publish
        * @desc Publish voting results for a session with OTP verification
        */
       .post(
@@ -190,7 +190,7 @@ export class SessionController {
         },
       )
       /**
-       * @endpoint GET /api/v1/sessions/:id/results
+       * @endpoint GET /api/sessions/:id/results
        * @desc Get voting results for a specific session
        */
       .get(
