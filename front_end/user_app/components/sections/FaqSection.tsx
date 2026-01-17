@@ -67,7 +67,7 @@ const FaqSection = () => {
         <Accordion type="single" collapsible className="w-full">
           {/* FAQ 1: TENTANG ACARA (Updated) */}
           <AccordionItem value="item-1">
-            <AccordionTrigger className="font-roster text-lg uppercase">
+            <AccordionTrigger className="font-roster text-lg uppercase tracking-widest">
               Apa itu PEDULI HATI?
             </AccordionTrigger>
             <AccordionContent className="font-mono text-gray-600 leading-relaxed">
@@ -80,7 +80,7 @@ const FaqSection = () => {
 
           {/* FAQ 2: ALUR VOTING */}
           <AccordionItem value="item-2">
-            <AccordionTrigger className="font-roster text-lg uppercase">
+            <AccordionTrigger className="font-roster text-lg uppercase tracking-widest">
               Bagaimana cara memilih?
             </AccordionTrigger>
             <AccordionContent className="font-mono text-gray-600 leading-relaxed">
@@ -96,7 +96,7 @@ const FaqSection = () => {
 
           {/* FAQ 3: KEAMANAN */}
           <AccordionItem value="item-3">
-            <AccordionTrigger className="font-roster text-lg uppercase">
+            <AccordionTrigger className="font-roster text-lg uppercase tracking-widest">
               Apakah data saya aman?
             </AccordionTrigger>
             <AccordionContent className="font-mono text-gray-600 leading-relaxed">

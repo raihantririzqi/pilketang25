@@ -83,7 +83,7 @@ const Navbar = () => {
               <button
                 key={item.label}
                 onClick={() => scrollToSection(item.target)}
-                className="cursor-pointer font-bold hover:underline"
+                className="cursor-pointer font-bold hover:underline tracking-wider"
               >
                 {item.label}
               </button>
@@ -94,49 +94,51 @@ const Navbar = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="relative h-10 cursor-pointer group font-retro w-fit">
-                    {/* Bayangan Hitam di Belakang (Shadow Layer) */}
+                    {/* Bayangan Hitam */}
                     <div className="absolute inset-0 bg-black rounded-sm w-full h-full"></div>
 
-                    {/* Kotak Utama (Top Layer) */}
-                    <div className="relative h-full px-4 bg-magenta z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center gap-2 border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0">
-                      {/* Icon User */}
+                    {/* Kotak Utama */}
+                    <div className="relative h-full px-4 bg-magenta z-10 -translate-x-1 -translate-y-1 rounded-sm flex items-center gap-3 border-4 border-black transition-all group-hover:translate-x-0 group-hover:translate-y-0 active:scale-95">
                       <User size={18} className="text-white stroke-[3px]" />
-
-                      {/* Display Name (Hanya nama depan agar tidak terlalu panjang) */}
-                      <span className="text-white font-bold text-sm uppercase whitespace-nowrap">
+                      <span className="text-white font-bold text-sm uppercase whitespace-nowrap tracking-wider">
                         {user.name?.split(" ")[0] || "User"}
                       </span>
                     </div>
                   </div>
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent
                   align="end"
-                  className="w-52 mt-3 rounded-none border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] font-retro p-0 bg-background"
+                  sideOffset={10}
+                  className="w-56 rounded-none border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] font-retro p-0 bg-white overflow-hidden"
                 >
-                  <DropdownMenuLabel className="bg-navy text-white p-3 text-xs uppercase border-b-4 border-black">
-                    {user.name}
+                  {/* Header Nama User */}
+                  <DropdownMenuLabel className="bg-navy text-white p-4 text-xs uppercase tracking-[0.15em] border-b-4 border-black">
+                    Hi, {user.name}
                   </DropdownMenuLabel>
 
-                  <div className="p-1">
-                    <Link href="/dashboard">
-                      <DropdownMenuItem className="focus:bg-magenta focus:text-white cursor-pointer font-bold py-2 px-3">
-                        <RetroButton
-                          text="Dashboard"
-                          icon={<LayoutDashboard size={18} />}
-                          colorClass="bg-magenta" // Sesuaikan warna dengan tema navbarmu
-                          className="w-40 h-11"    // Sesuaikan ukuran jika diperlukan
-                        />
+                  <div className="p-2 flex flex-col gap-1">
+                    {/* Dashboard Item */}
+                    <Link href="/dashboard" className="w-full">
+                      <DropdownMenuItem className="cursor-pointer font-bold uppercase text-xs tracking-widest py-3 px-3 border-2 border-transparent focus:bg-magenta focus:text-white focus:border-black transition-all">
+                        <div className="flex items-center gap-3">
+                          <LayoutDashboard size={18} />
+                          <span>Dashboard</span>
+                        </div>
                       </DropdownMenuItem>
                     </Link>
 
-                    <DropdownMenuSeparator className="bg-black h-[2px] my-1" />
+                    <DropdownMenuSeparator className="bg-black h-1 my-1" />
 
+                    {/* Logout Item */}
                     <DropdownMenuItem
                       onClick={() => logout()}
-                      className="w-full py-2 flex items-center justify-center gap-2 text-red-600 font-bold border-2 border-red-600 hover:bg-red-50 transition-colors"
+                      className="cursor-pointer font-bold uppercase text-xs tracking-widest py-3 px-3 text-red-600 focus:bg-red-500 focus:text-white border-2 border-transparent focus:border-black transition-all"
                     >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Logout</span>
+                      <div className="flex items-center gap-3">
+                        <LogOut size={18} />
+                        <span>Keluar / Logout</span>
+                      </div>
                     </DropdownMenuItem>
                   </div>
                 </DropdownMenuContent>

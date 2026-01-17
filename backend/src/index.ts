@@ -15,7 +15,6 @@ const adapter = new PrismaMariaDb({
   database: process.env.DB_NAME,
 });
 
-// 2. Masukkan adapter sebagai argumen (Ini memperbaiki error TS2554)
 const prisma = new PrismaClient({ adapter });
 
 // --- BAGIAN DEBUG ---

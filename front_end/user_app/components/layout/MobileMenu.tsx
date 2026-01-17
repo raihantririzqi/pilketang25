@@ -43,7 +43,7 @@ const MobileMenu = ({ isOpen, onClose, onNavigate, isAuthenticated, user, logout
         {menuItems.map((item) => (
           <button
             key={item.label}
-            className="w-full text-center py-1 hover:bg-magenta hover:text-white transition-colors uppercase"
+            className="w-full text-center py-1 hover:bg-magenta hover:text-white transition-colors uppercase tracking-widest"
             onClick={() => {
               onNavigate(item.target);
               onClose();
@@ -62,7 +62,7 @@ const MobileMenu = ({ isOpen, onClose, onNavigate, isAuthenticated, user, logout
             {/* User Label (Seperti Header Dropdown) */}
             <div className="bg-navy text-white w-full py-2 px-4 text-center text-sm border-2 border-black shadow-[4px_4px_0px_0px_black] mb-2">
               <span className="opacity-70 text-[10px] block">LOGGED IN AS</span>
-              <span className="font-bold">{user.name}</span>
+              <span className="font-bold">HI, {user.name}</span>
             </div>
 
             {/* Dashboard Button */}
