@@ -11,8 +11,7 @@ module.exports = {
             name: "backend-api",
             cwd: "./backend",
             script: "bun",
-            args: "run start", // atau "run index.ts" sesuai file utama backendmu
-            interpreter: "none",
+            args: "src/index.ts",
             env: {
                 PORT: 3001
             }
