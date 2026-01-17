@@ -3,7 +3,10 @@ import { VotingService } from "./voting_service";
 import { SuccessResponse } from "../../shared/types/custom_types";
 import { PrismaClient } from "../../generated/prisma/client";
 import { ScannerMiddleware } from "../../shared/middlewares/scanner_middleware";
-import { QRValidationResult, SubmitVoteResult } from "./voting_type";
+import {
+  QRValidationResult,
+  SubmitVoteResult,
+} from "./voting_type";
 
 /**
  * Controller handling HTTP endpoints for the voting process.
@@ -11,7 +14,6 @@ import { QRValidationResult, SubmitVoteResult } from "./voting_type";
  */
 export class VotingController {
   public constructor(
-    private readonly prisma: PrismaClient,
     private readonly service: VotingService,
     private readonly prefix = "/voting",
   ) {}
@@ -35,11 +37,12 @@ export class VotingController {
         async ({
           body,
           set,
-        }): Promise<SuccessResponse<QRValidationResult>> => {
+        }): Promise<
+          SuccessResponse<QRValidationResult>
+        > => {
           const result = await this.service.validate_qr(
             body.qr_token,
           );
-          set.status = 200;
           return {
             code: 200,
             message: "Validate QR successful",
@@ -67,8 +70,6 @@ export class VotingController {
             body.voting_token,
             body.candidate_id,
           );
-
-          set.status = 200;
           return {
             code: 200,
             message:
