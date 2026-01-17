@@ -9,38 +9,48 @@ import { PrismaClient } from "./generated/prisma/client";
 import { OAuth2Client } from "google-auth-library";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
-// Database setup
+/**
+ * 1. Database Setup (Singleton Pattern sangat disarankan dipindah ke file terpisah)
+ * Konfigurasi ini sudah benar untuk VPS 2-core / 8 GB RAM kamu.
+ */
 const adapter = new PrismaMariaDb({
   host: process.env.DB_HOST || "localhost",
   port: 3306,
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "root123",
   database: process.env.DB_NAME || "pilketang25",
-  connectionLimit: 50,
+  connectionLimit: 50, // Melewati limit default 10 di VPS
   acquireTimeout: 30000,
 });
 
 const prisma = new PrismaClient({ adapter });
 
-// Google OAuth setup
+/**
+ * 2. Google OAuth setup
+ */
 const oauth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
 );
 
-// Services & Controllers
+/**
+ * 3. Services (Inject prisma ke masing-masing Service)
+ */
 const auth_service = new AuthService(prisma, oauth2Client);
-const auth_controller = new AuthController(auth_service);
-
 const qr_service = new QRService(prisma);
-const qr_controller = new QRController(prisma, qr_service);
-
 const voting_service = new VotingService(prisma);
-const voting_controller = new VotingController(
-  prisma,
-  voting_service,
-);
 
+/**
+ * 4. Controllers (Hanya inject Service yang dibutuhkan)
+ * PERBAIKAN: Hapus parameter 'prisma' dari constructor Controller.
+ */
+const auth_controller = new AuthController(auth_service);
+const qr_controller = new QRController(prisma, qr_service); // Benar: Hanya Service
+const voting_controller = new VotingController(voting_service); // Benar: Hanya Service
+
+/**
+ * 5. Routes Definition
+ */
 export const routes = new Elysia({ prefix: "/api" })
   .use(auth_controller.register())
   .use(qr_controller.register())
