@@ -39,7 +39,6 @@ export default function LoadingPage() {
 
         const res = await axios.post("/api/auth/callback", {
           code,
-          // Pastikan kirim callbackUrl jika backend membutuhkannya untuk validasi redirect_uri
           callbackUrl: window.location.origin + window.location.pathname
         });
 

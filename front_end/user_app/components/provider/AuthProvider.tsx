@@ -18,6 +18,7 @@ interface User {
   nim: string;
   role: string;
   profile_picture: string | null;
+  has_voted: boolean;
 }
 
 // Type untuk Auth Context

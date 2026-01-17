@@ -1,16 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useVotingStore } from '@/store/useVotingStore';
 import api from '@/lib/axios';
+import Image from 'next/image';
+import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 
 interface ScannedUser {
     token: string;
     name: string;
     nim: string;
+    profile_picture: string;
     status: 'VERIFIED' | 'UNKNOWN';
     timestamp: string;
 }
@@ -29,6 +32,7 @@ const SecurityScanner = () => {
     const [scanResult, setScanResult] = useState<ScannedUser | null>(null);
     const [isRedirecting, setIsRedirecting] = useState(false);
     const [logs, setLogs] = useState<string[]>(["> System initialized...", "> Camera Module loaded [OK]"]);
+    const isProcessing = useRef(false); // <--- TAMBAHKAN INI SEBAGAI LOCK
 
     useEffect(() => {
         clearSession();
@@ -39,11 +43,17 @@ const SecurityScanner = () => {
         setLogs(prev => [`[${time}] ${message}`, ...prev].slice(0, 8));
     };
 
+
     const handleScan = async (detectedCodes: any) => {
+        if (isProcessing.current) return;
+
         if (detectedCodes && detectedCodes.length > 0 && !isLoading && !isRedirecting) {
             const rawValue = detectedCodes[0].rawValue;
 
             if (rawValue) {
+                // AKTIFKAN LOCK SEGERA
+                isProcessing.current = true;
+
                 setLoading(true);
                 setError(null);
                 setScanResult(null);
@@ -53,7 +63,7 @@ const SecurityScanner = () => {
                     const parsedData = JSON.parse(rawValue);
 
                     if (Array.isArray(parsedData) && parsedData.length >= 3) {
-                        const [extractedNIM, extractedName, extractedToken] = parsedData;
+                        const [extractedNIM, extractedName, extractedToken, extractedProfilePicture] = parsedData;
 
                         addLog(`Identity: ${extractedNIM}`);
                         addLog("Verifying with Gate Protocol...");
@@ -63,12 +73,12 @@ const SecurityScanner = () => {
                         });
 
                         const { voting_token, candidates } = response.data.result;
-
                         setSession(voting_token, candidates);
 
                         const user: ScannedUser = {
                             nim: extractedNIM,
                             name: extractedName,
+                            profile_picture: extractedProfilePicture,
                             token: extractedToken,
                             status: 'VERIFIED',
                             timestamp: new Date().toLocaleString()
@@ -77,6 +87,9 @@ const SecurityScanner = () => {
                         setScanResult(user);
                         addLog(`ACCESS GRANTED: ${user.name}`);
                         startRedirection();
+
+                        // Note: Jika sukses dan redirect, kita TIDAK membuka lock
+                        // agar tidak ada scan lagi selama proses pindah halaman.
 
                     } else {
                         throw new Error("Invalid QR Data Structure");
@@ -88,7 +101,10 @@ const SecurityScanner = () => {
                     addLog(`[ERROR] ${errorMsg.toUpperCase()}`);
                     addLog("Resetting scanner sequence...");
 
+                    // Jika error, buka kembali lock setelah delay agar bisa scan ulang
                     setTimeout(() => {
+                        isProcessing.current = false; // <--- BUKA LOCK SETELAH 3 DETIK
+                        setLoading(false);
                         clearSession();
                     }, 3000);
                 }
@@ -211,8 +227,12 @@ const SecurityScanner = () => {
                                 >
                                     <div className="w-32 h-32 bg-gray-200 border-4 border-black rounded-full overflow-hidden relative">
                                         <div className="w-full h-full bg-navy flex items-center justify-center text-white text-4xl font-bold">
-                                            {scanResult.name.charAt(0)}
-                                        </div>
+                                            <Avatar className="w-32 h-32 rounded-none border-4 border-black bg-[#92c3dd] relative z-10 transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1">
+                                                <AvatarImage src={scanResult.profile_picture || ""} alt={scanResult.name} className="object-cover group-hover:scale-110 transition-transform duration-300" />
+                                                <AvatarFallback className="rounded-none bg-[#92c3dd] font-retro text-5xl text-black uppercase">
+                                                    {scanResult.name.charAt(0)}
+                                                </AvatarFallback>
+                                            </Avatar>                                        </div>
                                         <div className="absolute bottom-0 w-full h-8 bg-green-500 flex items-center justify-center text-[10px] font-bold text-white uppercase">
                                             AUTHORIZED
                                         </div>

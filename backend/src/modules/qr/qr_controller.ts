@@ -11,7 +11,7 @@ export class QRController {
     private readonly prisma: PrismaClient,
     private readonly service: QRService,
     private readonly prefix = "/qr",
-  ) {}
+  ) { }
 
   public register = () =>
     new Elysia({ prefix: this.prefix })

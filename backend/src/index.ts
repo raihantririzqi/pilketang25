@@ -1,20 +1,8 @@
 import Elysia from "elysia";
 import { cors } from "@elysiajs/cors";
 import openapi from "@elysiajs/openapi";
-<<<<<<< HEAD
-import { PrismaClient } from "./generated/prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import { OAuth2Client } from "google-auth-library";
-import { AuthController } from "./modules/auth/auth_controller";
-import { AuthService } from "./modules/auth/auth_service";
-import { QRController } from "./modules/qr/qr_controller";
-import { QRService } from "./modules/qr/qr_service";
-import { VotingController } from "./modules/voting/voting_controller";
-import { VotingService } from "./modules/voting/voting_service";
-import { errorMiddleware } from "./shared/middlewares/error_middleware";
-=======
 import { routes } from "./routes";
->>>>>>> df7c941 (feat(voting): add scanner controller)
+import { errorMiddleware } from "./shared/middlewares/error_middleware";
 
 // Environment variables
 const PORT = process.env.PORT || 3000;

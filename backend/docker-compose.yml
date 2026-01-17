@@ -4,10 +4,10 @@ services:
     container_name: pilketang_mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_ROOT_PASSWORD: SabtuC3riaRt
       MYSQL_DATABASE: pilketang25
       MYSQL_USER: pilketang
-      MYSQL_PASSWORD: pilketang123
+      MYSQL_PASSWORD: S@btuK3ce312
     ports:
       - "3306:3306"
     volumes:

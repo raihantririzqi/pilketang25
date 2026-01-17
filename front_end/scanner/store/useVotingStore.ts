@@ -4,10 +4,11 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 export interface Candidate {
     id: string;
     name: string;
+    nim: string;
     vision: string;
     mission: string;
     // Assuming image_url might be part of the candidate data from the backend
-    image_url?: string; 
+    image_url?: string;
 }
 
 interface VotingSessionState {

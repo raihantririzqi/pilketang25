@@ -32,6 +32,7 @@
   --color-magenta: #e84797;
   --color-green: #65a30d;
   --color-yellow: #eab308;
+  --color-red: #dc2626;
 
   /* --- SHADOW --- */
   --shadow-retro: 4px 4px 0px 0px #000000;
@@ -50,9 +51,11 @@
       transform: scale(0);
       opacity: 0;
     }
+
     80% {
       transform: scale(1.05);
     }
+
     100% {
       transform: scale(1);
       opacity: 1;
@@ -64,6 +67,7 @@
       transform: translateY(20px);
       opacity: 0;
     }
+
     to {
       transform: translateY(0);
       opacity: 1;

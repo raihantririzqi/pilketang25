@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         headers["Cookie"] = `refresh_token_cookie=${refreshToken}`;
       }
 
-      await fetch(`${process.env.BACKEND_URL}/auth/logout`, {
+      await fetch(`${process.env.BACKEND_URL}/api/auth/logout`, {
         method: "POST",
         headers,
       });

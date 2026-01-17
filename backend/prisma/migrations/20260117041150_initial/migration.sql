@@ -21,8 +21,9 @@ CREATE TABLE `Candidate` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `nim` VARCHAR(191) NOT NULL,
-    `vision` VARCHAR(191) NOT NULL,
-    `mission` VARCHAR(191) NOT NULL,
+    `vision` TEXT NOT NULL,
+    `mission` TEXT NOT NULL,
+    `photo_url` VARCHAR(191) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -79,7 +80,6 @@ CREATE TABLE `AttendanceRecord` (
     `user_id` VARCHAR(191) NOT NULL,
     `session_id` VARCHAR(191) NOT NULL,
     `has_voted` BOOLEAN NOT NULL DEFAULT false,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     INDEX `AttendanceRecord_user_id_session_id_has_voted_idx`(`user_id`, `session_id`, `has_voted`),
     UNIQUE INDEX `AttendanceRecord_user_id_session_id_key`(`user_id`, `session_id`),
@@ -91,11 +91,10 @@ CREATE TABLE `VoteRecord` (
     `id` VARCHAR(191) NOT NULL,
     `session_id` VARCHAR(191) NOT NULL,
     `candidate_id` VARCHAR(191) NOT NULL,
-    `voted_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `qr_token` VARCHAR(191) NOT NULL,
     `voting_token` VARCHAR(191) NOT NULL,
 
-    INDEX `VoteRecord_session_id_candidate_id_voted_at_qr_token_voting__idx`(`session_id`, `candidate_id`, `voted_at`, `qr_token`, `voting_token`),
+    INDEX `VoteRecord_session_id_candidate_id_qr_token_voting_token_idx`(`session_id`, `candidate_id`, `qr_token`, `voting_token`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

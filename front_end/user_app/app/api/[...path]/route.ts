@@ -1,78 +1,111 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { cookies } from "next/headers";
 
-// Pastikan ini sesuai dengan port Elysia kamu
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3001";
-// Interface untuk params (Next.js 15 mengharuskan Promise, Next.js 14 bisa langsung)
-type Props = {
-  params: Promise<{ path: string[] }> | { path: string[] };
-};
 
-async function proxyRequest(request: Request, { params }: Props) {
-  console.log("--- PROXY INCOMING ---");
-  const resolvedParams = await Promise.resolve(params);
-  console.log("Target Path:", resolvedParams.path.join("/"));
-  // 1. Handle params (support Next.js 15 & 14)
+/**
+ * Fungsi untuk memanggil endpoint refresh di backend
+ */
+async function tryRefreshToken(originalRequest: Request): Promise<{ accessToken: string | null; setCookieHeader: string | null }> {
+  try {
+    const cookieStore = await cookies();
+    const allCookies = cookieStore.toString(); // Ambil semua cookie untuk diteruskan
+
+    const res = await fetch(`${BACKEND_URL}/api/auth/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Cookie": allCookies, // Kirim refresh_token_cookie ke backend
+      },
+    });
+
+    if (!res.ok) return { accessToken: null, setCookieHeader: null };
+
+    const data = await res.json();
+    const setCookie = res.headers.get("set-cookie"); // Ambil cookie baru jika ada
+
+    return {
+      accessToken: data.result?.access_token || null,
+      setCookieHeader: setCookie
+    };
+  } catch (err) {
+    return { accessToken: null, setCookieHeader: null };
+  }
+}
+
+async function proxyRequest(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const resolvedParams = await params;
   const pathString = resolvedParams.path.join("/");
-
-  // 2. Baca Token
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
-  // 3. Siapkan URL
   const url = new URL(request.url);
-  const queryString = url.search; // Ambil query param (?page=1&limit=10)
-  const targetUrl = `${BACKEND_URL}/${pathString}${queryString}`;
-  console.log("🚀 Forwarding to:", targetUrl); // LIHAT INI DI TERMINAL
-  // 4. Siapkan Headers
-  const headers = new Headers();
+  const targetUrl = `${BACKEND_URL}/api/${pathString}${url.search}`;
 
-  // A. Copy Content-Type dari request asli (PENTING untuk Upload File!)
-  // Kalau JSON, dia copy application/json. Kalau Upload, dia copy multipart/form-data.
-  const contentType = request.headers.get("Content-Type");
-  if (contentType) {
-    headers.set("Content-Type", contentType);
-  }
+  const cookieStore = await cookies();
+  let token = cookieStore.get("token")?.value;
 
-  // B. Inject Authorization Bearer
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
+  const getHeaders = (tokenStr?: string) => {
+    const h = new Headers();
+    const contentType = request.headers.get("Content-Type");
+    if (contentType) h.set("Content-Type", contentType);
+    if (tokenStr) h.set("Authorization", `Bearer ${tokenStr}`);
+    return h;
+  };
 
   try {
-    // 5. Forward Request
-    // Gunakan arrayBuffer() agar aman untuk file/gambar maupun JSON
     const body = request.method !== "GET" && request.method !== "HEAD"
       ? await request.arrayBuffer()
       : undefined;
 
-    const res = await fetch(targetUrl, {
+    // --- REQUEST PERTAMA ---
+    let res = await fetch(targetUrl, {
       method: request.method,
-      headers: headers,
+      headers: getHeaders(token),
       body: body,
-      cache: "no-store", // Jangan cache API request
+      cache: "no-store",
     });
 
-    // 6. Handle Response (Hati-hati, backend tidak selalu return JSON)
-    const resBody = await res.arrayBuffer(); // Baca sebagai buffer mentah dulu
+    // --- LOGIC REFRESH TOKEN ---
+    // Jika 401 dan bukan sedang memanggil endpoint refresh/login
+    if (res.status === 401 && !pathString.includes("auth/refresh")) {
+      console.log("🔄 Access Token expired, attempting refresh...");
 
-    // Debug: Log response jika error
-    if (!res.ok) {
-      const decoder = new TextDecoder();
-      console.error("Backend Error Response:", decoder.decode(resBody));
+      const { accessToken, setCookieHeader } = await tryRefreshToken(request);
+
+      if (accessToken) {
+        console.log("✅ Refresh success, retrying original request");
+
+        // Retry request dengan token baru
+        res = await fetch(targetUrl, {
+          method: request.method,
+          headers: getHeaders(accessToken),
+          body: body,
+          cache: "no-store",
+        });
+
+        // Buat response baru agar kita bisa menyisipkan token baru ke client (opsional)
+        const resBody = await res.arrayBuffer();
+        const response = new NextResponse(resBody, {
+          status: res.status,
+          headers: { "Content-Type": res.headers.get("Content-Type") || "application/json" },
+        });
+
+        // Jika ada cookie baru (seperti refresh_token baru), teruskan ke browser
+        if (setCookieHeader) {
+          response.headers.append("Set-Cookie", setCookieHeader);
+        }
+
+        return response;
+      }
     }
 
-    // Return response apa adanya (bisa JSON, bisa file, bisa text)
+    // Response standar jika tidak 401 atau refresh gagal
+    const resBody = await res.arrayBuffer();
     return new NextResponse(resBody, {
       status: res.status,
-      headers: {
-        "Content-Type": res.headers.get("Content-Type") || "application/json",
-      },
+      headers: { "Content-Type": res.headers.get("Content-Type") || "application/json" },
     });
 
   } catch (error) {
-    console.error("Proxy Error:", error);
-    return NextResponse.json({ message: "Internal Server Error (Proxy)" }, { status: 500 });
+    return NextResponse.json({ message: "Proxy Error" }, { status: 500 });
   }
 }
 
@@ -80,4 +113,3 @@ export const GET = proxyRequest;
 export const POST = proxyRequest;
 export const PUT = proxyRequest;
 export const DELETE = proxyRequest;
-export const PATCH = proxyRequest;

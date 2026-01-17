@@ -10,8 +10,7 @@ export async function POST(request: Request) {
     if (!code) {
       return NextResponse.json({ message: "Code is required" }, { status: 400 });
     }
-
-    const backendRes = await fetch(`${process.env.BACKEND_URL}/auth/google/callback`, {
+    const backendRes = await fetch(`${process.env.BACKEND_URL}/api/auth/google/callback`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -19,6 +18,8 @@ export async function POST(request: Request) {
         redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI,
       }),
     });
+    console.log("Backend Response Status:", backendRes);
+
 
     // --- PERBAIKAN START ---
     const contentType = backendRes.headers.get("content-type");

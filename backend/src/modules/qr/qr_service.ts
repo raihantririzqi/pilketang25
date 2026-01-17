@@ -64,6 +64,7 @@ export class QRService {
       },
     });
 
+
     if (attendanceRecord?.has_voted) {
       throw new ConflictError("You have already voted in this session");
     }
@@ -95,6 +96,7 @@ export class QRService {
       token: new_qr.token,
       user_name: user.name,
       user_nim: user.nim,
+      profile_picture: user.profile_picture || undefined,
       expires_at: new_qr.expires_at,
     };
   };

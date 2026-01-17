@@ -8,7 +8,7 @@ async function tryRefreshToken(request: NextRequest): Promise<string | null> {
 
   try {
     const apiUrl = process.env.BACKEND_URL || "http://localhost:5000";
-    const res = await fetch(`${apiUrl}/auth/refresh`, {
+    const res = await fetch(`${apiUrl}/api/auth/refresh`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -17,7 +17,7 @@ import {
 export class VotingService {
   public constructor(
     private readonly prisma: PrismaClient,
-  ) {}
+  ) { }
 
   /**
    * Validates a scanned QR code token and initiates a temporary voting session.
@@ -32,85 +32,71 @@ export class VotingService {
   public validate_qr = async (
     qr_token: string,
   ): Promise<QRValidationResult> => {
-    const existing_qr_code =
-      await this.prisma.qRCode.findUnique({
-        where: { token: qr_token },
-        include: { session: true },
-      });
+    const existing_qr_code = await this.prisma.qRCode.findUnique({
+      where: { token: qr_token },
+      include: { session: true },
+    });
 
+    // --- VALIDASI AWAL ---
     if (!existing_qr_code)
-      throw new NotFoundError(
-        "QR Code not found in our records",
-      );
+      throw new NotFoundError("QR Code not found in our records");
 
     if (existing_qr_code.is_used)
-      throw new ConflictError(
-        "This QR Code has already been used to vote",
-      );
+      throw new ConflictError("This QR Code has already been used to vote");
 
     if (existing_qr_code.expires_at < new Date())
-      throw new ValidationError(
-        "The QR Code has expired. Please generate a new one",
-      );
+      throw new ValidationError("The QR Code has expired");
 
     if (!existing_qr_code.session.is_active)
-      throw new ValidationError(
-        "The voting session is currently closed or has ended",
-      );
+      throw new ValidationError("The voting session is currently closed");
 
-    const new_temporary_voting_session =
-      await this.prisma.$transaction(async (tx) => {
-        await tx.attendanceRecord.upsert({
-          where: {
-            user_id_session_id: {
-              user_id: existing_qr_code.user_id,
-              session_id: existing_qr_code.session_id,
-            },
-          },
-          update: {},
-          create: {
-            user_id: existing_qr_code.user_id,
-            session_id: existing_qr_code.session_id,
-            has_voted: false,
-          },
-        });
-
-        const temp_expires_at = new Date();
-        temp_expires_at.setMinutes(
-          temp_expires_at.getMinutes() + 2,
-        );
-
-        const temp_session =
-          await tx.temporaryVotingSession.create({
-            data: {
-              voting_token: uuidv4(),
-              qr_token,
-              session_id: existing_qr_code.session_id,
-              expires_at: temp_expires_at,
-            },
-          });
-
-        return temp_session;
+    // --- PROSES ATOMIK (TRANSACTION) ---
+    const new_temporary_voting_session = await this.prisma.$transaction(async (tx) => {
+      // 1. Update status QR menjadi terpakai
+      await tx.qRCode.update({
+        where: { token: qr_token },
+        data: { is_used: true },
       });
 
-    const candidates = await this.prisma.candidate.findMany(
-      {
-        select: {
-          id: true,
-          name: true,
-          vision: true,
-          mission: true,
+      // 2. Catat kehadiran (Attendance Record)
+      await tx.attendanceRecord.upsert({
+        where: {
+          user_id_session_id: {
+            user_id: existing_qr_code.user_id,
+            session_id: existing_qr_code.session_id,
+          },
         },
-      },
-    );
+        update: {},
+        create: {
+          user_id: existing_qr_code.user_id,
+          session_id: existing_qr_code.session_id,
+          has_voted: false,
+        },
+      });
+
+      // 3. Buat sesi voting sementara (berlaku 2 menit)
+      const temp_expires_at = new Date();
+      temp_expires_at.setMinutes(temp_expires_at.getMinutes() + 2);
+
+      return await tx.temporaryVotingSession.create({
+        data: {
+          voting_token: uuidv4(),
+          qr_token,
+          session_id: existing_qr_code.session_id,
+          expires_at: temp_expires_at,
+        },
+      });
+    });
+
+    const candidates = await this.prisma.candidate.findMany({
+      select: { id: true, name: true, nim: true, vision: true, mission: true },
+    });
 
     return {
-      voting_token:
-        new_temporary_voting_session.voting_token,
+      voting_token: new_temporary_voting_session.voting_token,
       session_id: new_temporary_voting_session.session_id,
       candidates,
-      expires_in:
-        new_temporary_voting_session.expires_at.getSeconds(),
+      expires_in: Math.max(0, Math.floor((new_temporary_voting_session.expires_at.getTime() - Date.now()) / 1000)),
     };
   };
 

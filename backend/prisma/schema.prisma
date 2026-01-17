@@ -41,8 +41,9 @@ model Candidate {
   id          String       @id @default(uuid())
   name        String
   nim         String       @unique
-  vision      String
-  mission     String
+  vision      String       @db.Text
+  mission     String       @db.Text
+  photo_url   String?
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
   voteRecords VoteRecord[]
@@ -100,10 +101,10 @@ model TemporaryVotingSession {
 }
 
 model AttendanceRecord {
-  id         String   @id @default(uuid())
+  id         String  @id @default(uuid())
   user_id    String
   session_id String
-  has_voted  Boolean  @default(false)
+  has_voted  Boolean @default(false)
 
   user    User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   session VotingSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
@@ -113,7 +114,7 @@ model AttendanceRecord {
 }
 
 model VoteRecord {
-  id           String   @id @default(uuid())
+  id           String @id @default(uuid())
   session_id   String
   candidate_id String
   qr_token     String

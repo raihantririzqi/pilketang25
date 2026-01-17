@@ -203,9 +203,9 @@ export default function DashboardPage() {
             </main>
 
             {/* DEV BUTTON */}
-            <div className="fixed bottom-4 right-4 z-50">
+            {/* <div className="fixed bottom-4 right-4 z-50">
                 <RetroButton text={`DEV: ${status}`} colorClass="bg-black" onClick={toggleDevMode} className="w-32 h-10" />
-            </div>
+            </div> */}
         </div>
     );
 }

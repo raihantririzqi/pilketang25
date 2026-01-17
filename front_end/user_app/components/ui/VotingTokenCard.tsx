@@ -6,6 +6,7 @@ interface TicketData {
   token: string;
   name: string;
   nim: string;
+  profile_picture?: string;
 }
 
 interface VotingTokenProps {
@@ -14,13 +15,13 @@ interface VotingTokenProps {
 
 const VotingTokenCard = ({ ticket }: VotingTokenProps) => {
   const [isRevealed, setIsRevealed] = useState(false);
-  const { token, name, nim } = ticket;
+  const { token, name, nim, profile_picture } = ticket;
 
   // --- LOGIKA JSON ARRAY UNTUK SCANNER ---
   // Kita gunakan useMemo agar stringify hanya berjalan jika data berubah
   const qrValue = useMemo(() => {
-    return JSON.stringify([nim, name, token]);
-  }, [nim, name, token]);
+    return JSON.stringify([nim, name, token, profile_picture]);
+  }, [nim, name, token, profile_picture]);
 
   return (
     <div className="w-full max-w-sm mx-auto">

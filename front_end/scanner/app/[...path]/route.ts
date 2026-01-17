@@ -18,7 +18,7 @@ async function proxyRequest(request: Request, { params }: Props) {
 
   // 3. Susun URL Target ke Backend
   const url = new URL(request.url);
-  const targetUrl = `${BACKEND_URL}/${cleanPath}${url.search}`;
+  const targetUrl = `${BACKEND_URL}/api/${cleanPath}${url.search}`;
 
   console.log("--- 🖥️ KIOSK PROXY ACTIVE ---");
   console.log(`📡 Inbound: /${pathString}`);

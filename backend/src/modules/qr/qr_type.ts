@@ -9,5 +9,6 @@ export type SimpleQRResult = {
   token: string;
   user_name: string;
   user_nim: string;
+  profile_picture?: string;
   expires_at: Date;
 };

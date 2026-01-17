@@ -133,7 +133,7 @@ const VotingPage = () => {
                     >
                         <CandidatCard
                             name={candidate.name}
-                            nim={""} // NIM is not available in the voting session
+                            nim={candidate.nim} // NIM is not available in the voting session
                             base_color={getCandidateStyling(index).color}
                             kandidat_number={getCandidateStyling(index).number}
                             vision={candidate.vision}
