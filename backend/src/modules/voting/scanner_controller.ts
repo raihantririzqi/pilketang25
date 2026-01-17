@@ -10,7 +10,7 @@ export class ScannerController {
     private readonly prefix = "/voting/scanner",
   ) { }
   public register = () =>
-    new Elysia()
+    new Elysia({ prefix: this.prefix })
       .post(
         "/validate-qr",
         async ({ body, headers }) => {
