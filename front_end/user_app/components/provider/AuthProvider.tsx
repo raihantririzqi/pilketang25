@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import api from "@/lib/axios";
@@ -51,6 +52,7 @@ export default function AuthProvider({
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
+  const isMountedRef = useRef(true);
 
   // Fetch user dari /api/auth/me dengan retry logic untuk handle race condition
   const fetchUser = useCallback(async (retries = 3, delay = 50) => {
@@ -69,7 +71,10 @@ export default function AuthProvider({
         if (process.env.NODE_ENV === "development") {
           console.log("[AuthProvider] User fetched successfully:", userData);
         }
-        setUser(userData);
+        // Hanya update state jika component masih mounted
+        if (isMountedRef.current) {
+          setUser(userData);
+        }
         return userData;
       } catch (error) {
         lastError = error;
@@ -92,7 +97,9 @@ export default function AuthProvider({
       console.error("[AuthProvider] All retries failed, setting user to null");
       console.error("Failed to fetch user after retries:", lastError);
     }
-    setUser(null);
+    if (isMountedRef.current) {
+      setUser(null);
+    }
     return null;
   }, []);
 
@@ -129,7 +136,9 @@ export default function AuthProvider({
         if (process.env.NODE_ENV === "development") {
           console.log("[AuthProvider] fetchUser completed (public route)");
         }
-        setIsLoading(false);
+        if (isMountedRef.current) {
+          setIsLoading(false);
+        }
       });
       return;
     }
@@ -142,9 +151,18 @@ export default function AuthProvider({
       if (process.env.NODE_ENV === "development") {
         console.log("[AuthProvider] fetchUser completed (protected route)");
       }
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     });
-  }, [pathname]); // Hanya trigger saat pathname berubah, tidak fetchUser
+  }, [pathname, fetchUser]); // Trigger saat pathname atau fetchUser berubah
+
+  // Cleanup: set isMounted ke false saat unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Loading state
   if (isLoading) {
