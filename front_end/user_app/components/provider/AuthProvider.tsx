@@ -107,7 +107,7 @@ export default function AuthProvider({
 
     // Langsung fetch dengan retry logic, tidak perlu delay manual
     fetchUser().finally(() => setIsLoading(false));
-  }, [pathname, fetchUser]); // Akan mentrigger fetchUser setiap kali pindah halaman
+  }, [pathname]); // Hanya trigger saat pathname berubah, bukan saat fetchUser berubah
 
   // Loading state
   if (isLoading) {
