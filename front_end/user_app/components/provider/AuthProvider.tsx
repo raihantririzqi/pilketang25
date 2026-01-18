@@ -55,7 +55,7 @@ export default function AuthProvider({
   const isMountedRef = useRef(true);
 
   // Fetch user dari /api/auth/me dengan retry logic untuk handle race condition
-  const fetchUser = useCallback(async (retries = 3, delay = 50) => {
+  const fetchUser = useCallback(async (retries = 5, delay = 100) => {
     let lastError: any = null;
     if (process.env.NODE_ENV === "development") {
       console.log("[AuthProvider] fetchUser called with retries:", retries);
@@ -76,18 +76,28 @@ export default function AuthProvider({
           setUser(userData);
         }
         return userData;
-      } catch (error) {
+      } catch (error: any) {
         lastError = error;
+        const status = error.response?.status;
+        const isRetryable = status === 500 || status === 502 || status === 503; // Server error, worth retrying
+
         if (process.env.NODE_ENV === "development") {
-          console.error(`[AuthProvider] Attempt ${attempt + 1} failed:`, error);
+          console.error(`[AuthProvider] Attempt ${attempt + 1} failed (${status}):`, error.message);
         }
-        // Exponential backoff: 50ms, 100ms, 200ms
-        if (attempt < retries - 1) {
+
+        // Hanya retry jika server error atau attempt belum habis
+        if (isRetryable && attempt < retries - 1) {
           const waitTime = delay * Math.pow(2, attempt);
           if (process.env.NODE_ENV === "development") {
-            console.log(`[AuthProvider] Retrying in ${waitTime}ms...`);
+            console.log(`[AuthProvider] Server error, retrying in ${waitTime}ms...`);
           }
           await new Promise((resolve) => setTimeout(resolve, waitTime));
+        } else if (!isRetryable) {
+          // Jika bukan server error (401, 403, dll), jangan retry
+          if (process.env.NODE_ENV === "development") {
+            console.error(`[AuthProvider] Non-retryable error (${status}), stopping retries`);
+          }
+          break;
         }
       }
     }
