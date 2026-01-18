@@ -70,8 +70,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Global Refresh: Jika token mati tapi ada refresh_token, tarik token baru
-  // Ini akan berjalan bahkan di landing page (/)
-  if (!token && refreshToken) {
+  // SKIP jika user sedang navigate ke /login (logout process)
+  if (!token && refreshToken && !isAuthRoute) {
     console.log(`[Middleware] Token missing/expired, attempting refresh...`);
     newAccessToken = await tryRefreshToken(request);
     if (newAccessToken) {

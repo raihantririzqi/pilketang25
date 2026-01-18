@@ -121,14 +121,17 @@ export default function AuthProvider({
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      // Clear user state
+      // Clear user state FIRST
       setUser(null);
-      // Clear all cookies by setting them with maxAge=0
-      document.cookie = 'token=; path=/; max-age=0';
-      document.cookie = 'refresh_token=; path=/; max-age=0';
-      document.cookie = 'refresh_token_cookie=; path=/; max-age=0';
-      document.cookie = 'access_token=; path=/; max-age=0';
-      // Redirect to login
+
+      // Clear all cookies by setting them with maxAge=0 dan SameSite
+      // Perlu tambah SameSite untuk memastikan middleware juga hapus cookies
+      document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
+      document.cookie = 'refresh_token=; path=/; max-age=0; SameSite=Lax';
+      document.cookie = 'refresh_token_cookie=; path=/; max-age=0; SameSite=Lax';
+      document.cookie = 'access_token=; path=/; max-age=0; SameSite=Lax';
+
+      // Redirect to login - middleware akan melihat tidak ada token/refresh_token
       router.push("/login");
     }
   }, [router]);
