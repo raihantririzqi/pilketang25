@@ -42,7 +42,7 @@ async function main() {
       name: "SEYSAR RIZKY SUJADI",
       nim: "125140148",
       vision: "menjadikan NordByte sebagai wadah untuk berkembang di bidang akademik maupun non akademik dengan tujuan menggali potensi diri dari masing-masing individu anggota Nordbyte.",
-      mission: "1. Menyediakan sebuah forum khusus untuk masing-masing bidang minat dan bakat.\n2. Membangun komunikasi yang aktif dan terbuka dengan tujuan memperkuat hubungan antara anggota.\n3. Membentuk BPA (Badan Pengurus Angkatan) dengan tujuan agar kedepannya dapat bekerjasama untuk menyukseskan berbagai prokja angkatan."
+      mission: "Menyediakan sebuah forum khusus untuk masing-masing bidang minat dan bakat.\nMembangun komunikasi yang aktif dan terbuka dengan tujuan memperkuat hubungan antara anggota.\nMembentuk BPA (Badan Pengurus Angkatan) dengan tujuan agar kedepannya dapat bekerjasama untuk menyukseskan berbagai prokja angkatan."
     },
   ];
 
