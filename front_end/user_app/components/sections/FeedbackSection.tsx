@@ -6,26 +6,54 @@ import { useState } from "react";
 const FeedbackSection = () => {
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [showModal, setShowModal] = useState(false);
-    const [isAnonymous, setIsAnonymous] = useState(false); // State untuk anonim
+    const [isAnonymous, setIsAnonymous] = useState(false);
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setStatus("loading");
+        setErrors({}); // Reset error setiap kali submit
 
         const formData = new FormData(e.currentTarget);
-        const nameInput = formData.get("name") as string;
-        const emailInput = formData.get("email") as string;
-        const messageInput = formData.get("message") as string;
+        const nameInput = (formData.get("name") as string).trim();
+        const emailInput = (formData.get("email") as string).trim();
+        const messageInput = (formData.get("message") as string).trim();
 
-        // Logika Identitas (Sama seperti sebelumnya)
+        // --- LOGIKA VALIDASI ---
+        const newErrors: { [key: string]: string } = {};
+
+        // 1. Validasi Pesan (Wajib & Minimal 5 karakter agar tidak spam)
+        if (!messageInput || messageInput.length < 5) {
+            newErrors.message = "Isi aspirasi minimal 5 karakter ya!";
+        }
+
+        // 2. Validasi Nama & Email (Hanya jika TIDAK anonim)
+        if (!isAnonymous) {
+            if (!nameInput) {
+                newErrors.name = "Nama wajib diisi kalau tidak anonim.";
+            }
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailInput || !emailPattern.test(emailInput)) {
+                newErrors.email = "Format email sepertinya salah.";
+            }
+        }
+
+        // Jika ada error, hentikan proses dan tampilkan di UI
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        // --- PROSES KIRIM ---
+        setStatus("loading");
+
         const payload = {
-            name: isAnonymous ? "Anonim" : (nameInput || "Tanpa Nama"),
-            email: isAnonymous ? "Rahasia" : (emailInput || "Tanpa Kontak"),
+            name: isAnonymous ? "Anonim" : nameInput,
+            email: isAnonymous ? "Rahasia" : emailInput,
             message: messageInput,
         };
 
         try {
-            // MEMANGGIL API INTERNAL (AMAN)
+            // Memanggil API internal Next.js (Lebih aman untuk Token Bot)
             const response = await fetch("/api/send-feedback", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -89,16 +117,30 @@ const FeedbackSection = () => {
                 </h2>
 
                 <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">
-                    {/* Input Nama & Email */}
-                    <div className={`flex flex-col gap-6 transition-opacity duration-300 ${isAnonymous ? "opacity-30 pointer-events-none" : "opacity-100"}`}>
+                    {/* Input Nama & Email (Fade out jika anonim) */}
+                    <div className={`flex flex-col gap-6 transition-all duration-300 ${isAnonymous ? "opacity-30 pointer-events-none grayscale" : "opacity-100"}`}>
                         <div className="flex flex-col gap-2 font-retro">
                             <label htmlFor="name" className="font-bold text-lg italic uppercase">Nama_Lengkap</label>
-                            <input name="name" type="text" id="name" placeholder="Masukkan nama..." className="w-full bg-transparent border-4 border-black p-4 font-mono focus:outline-none focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all" />
+                            <input
+                                name="name"
+                                type="text"
+                                id="name"
+                                placeholder="Masukkan nama..."
+                                className={`w-full bg-transparent border-4 p-4 font-mono focus:outline-none transition-all ${errors.name ? 'border-red-500 bg-red-50' : 'border-black focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'}`}
+                            />
+                            {errors.name && <span className="text-red-600 font-mono text-xs font-bold italic">⚠️ {errors.name}</span>}
                         </div>
 
                         <div className="flex flex-col gap-2 font-retro">
                             <label htmlFor="email" className="font-bold text-lg italic uppercase">Email_atau_Kelas</label>
-                            <input name="email" type="text" id="email" placeholder="contoh@itera.ac.id" className="w-full bg-transparent border-4 border-black p-4 font-mono focus:outline-none focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all" />
+                            <input
+                                name="email"
+                                type="text"
+                                id="email"
+                                placeholder="contoh@itera.ac.id"
+                                className={`w-full bg-transparent border-4 p-4 font-mono focus:outline-none transition-all ${errors.email ? 'border-red-500 bg-red-50' : 'border-black focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'}`}
+                            />
+                            {errors.email && <span className="text-red-600 font-mono text-xs font-bold italic">⚠️ {errors.email}</span>}
                         </div>
                     </div>
 
@@ -111,12 +153,12 @@ const FeedbackSection = () => {
                             name="message"
                             id="message"
                             rows={4}
-                            required
-                            // Update placeholder di bawah ini
                             placeholder="Jangan dipendam sendiri, kasih saran atau aspirasi kamu buat panitia di sini ya..."
-                            className="w-full bg-transparent border-4 border-black p-4 font-mono focus:outline-none focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all resize-none"
+                            className={`w-full bg-transparent border-4 p-4 font-mono focus:outline-none transition-all resize-none ${errors.message ? 'border-red-500 bg-red-50' : 'border-black focus:bg-white focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'}`}
                         ></textarea>
+                        {errors.message && <span className="text-red-600 font-mono text-xs font-bold italic">⚠️ {errors.message}</span>}
                     </div>
+
                     {/* Checkbox Anonim & Tombol Kirim */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6 mt-4">
                         <label className="flex items-center gap-3 cursor-pointer group">
@@ -136,7 +178,7 @@ const FeedbackSection = () => {
 
                         <button type="submit" disabled={status === "loading"} className="relative w-32 h-12 cursor-pointer group bg-transparent border-none p-0 disabled:opacity-50">
                             <div className="absolute w-full h-full bg-black rounded-sm"></div>
-                            <div className="absolute w-full h-full bg-navy z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center justify-center border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0">
+                            <div className="absolute w-full h-full bg-[#001f3f] z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center justify-center border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0">
                                 <span className="text-white font-bold font-retro text-lg">{status === "loading" ? "..." : "Kirim"}</span>
                             </div>
                         </button>
