@@ -204,12 +204,12 @@ const FaqSection = () => {
             <div className="flex items-center gap-2">
               <span>📞</span>
               <a
-                href="https://wa.me/6281298911597"
+                href="https://wa.me/+6285163201507"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-yellow-300 transition-colors hover:underline"
               >
-                +62 812-9891-1597
+                +62 851-6320-1507
               </a>
             </div>
 

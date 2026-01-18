@@ -17,7 +17,8 @@ const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${
 
 export default function LoginPage() {
     return (
-        <section className="min-h-screen w-full bg-white flex flex-col items-center justify-center relative overflow-hidden p-4">
+        <section className="min-h-screen w-full bg-background flex flex-col items-center justify-center relative overflow-hidden p-4">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none"></div>
 
             {/* --- TOMBOL NAVIGASI HOME --- */}
             <Link href="/" className="absolute top-6 left-6 z-50 group">
