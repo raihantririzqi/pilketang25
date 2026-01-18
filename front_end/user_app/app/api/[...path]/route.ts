@@ -49,7 +49,22 @@ async function proxyRequest(
     const cookieStore = await cookies();
     let token = cookieStore.get("token")?.value;
 
-    // Fallback: jika token tidak ada di cookieStore, coba ambil dari request Cookie header
+    // Jika token tidak ada tapi ada refresh_token, coba refresh dulu
+    if (!token) {
+      const refreshToken = cookieStore.get("refresh_token_cookie")?.value;
+      if (refreshToken) {
+        console.log(`[Proxy] Token missing, attempting refresh...`);
+        const { accessToken } = await tryRefreshToken();
+        if (accessToken) {
+          console.log(`[Proxy] Refresh successful, got new token`);
+          token = accessToken;
+        } else {
+          console.log(`[Proxy] Refresh failed, no new token`);
+        }
+      }
+    }
+
+    // Fallback: jika token masih tidak ada, coba ambil dari request Cookie header
     if (!token) {
       const cookieHeader = request.headers.get("cookie") || "";
       const tokenMatch = cookieHeader.match(/token=([^;]+)/);
