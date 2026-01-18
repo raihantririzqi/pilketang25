@@ -8,6 +8,29 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Request interceptor: Tambahkan token ke Authorization header
+api.interceptors.request.use(
+  (config) => {
+    // Token disimpan di cookie, dikirim otomatis via withCredentials
+    // Tapi kita juga perlu cek apakah ada token di cookie dan kirim di header
+    // untuk endpoint yang membutuhkan Bearer token
+
+    // Ambil token dari cookie jika ada
+    const token = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('token='))
+      ?.split('=')[1];
+
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor: Handle error responses
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -30,3 +53,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+
