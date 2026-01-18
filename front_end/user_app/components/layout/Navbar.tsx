@@ -132,7 +132,9 @@ const Navbar = () => {
 
                     {/* Logout Item */}
                     <DropdownMenuItem
-                      onClick={() => logout()}
+                      onClick={async () => {
+                        await logout();
+                      }}
                       className="cursor-pointer font-bold uppercase text-xs tracking-widest py-3 px-3 text-red-600 focus:bg-red-500 focus:text-white border-2 border-transparent focus:border-black transition-all"
                     >
                       <div className="flex items-center gap-3">

@@ -15,6 +15,10 @@ interface MobileMenuProps {
 }
 
 const MobileMenu = ({ isOpen, onClose, onNavigate, isAuthenticated, user, logout }: MobileMenuProps) => {
+  const handleLogout = async () => {
+    await logout();
+    onClose();
+  };
   const menuItems = [
     { label: "Home", target: "hero-section" },
     { label: "Kandidat", target: "kandidat-section" },
@@ -78,11 +82,14 @@ const MobileMenu = ({ isOpen, onClose, onNavigate, isAuthenticated, user, logout
 
             {/* Logout Button */}
             <button
-              onClick={() => { logout(); onClose(); }}
-              className="w-full py-2 flex items-center justify-center gap-2 text-red-600 font-bold border-2 border-red-600 hover:bg-red-50 transition-colors"
+              onClick={handleLogout}
+              className="w-full relative h-12 group font-retro"
             >
-              <LogOut size={18} />
-              <span>LOGOUT</span>
+              <div className="absolute inset-0 bg-black rounded-sm"></div>
+              <div className="relative h-full bg-red-500 -translate-x-1 -translate-y-1 border-4 border-black flex items-center justify-center gap-2 group-active:translate-x-0 group-active:translate-y-0 transition-transform">
+                <LogOut size={20} className="text-white" />
+                <span className="text-white font-bold uppercase text-sm tracking-wider">LOGOUT</span>
+              </div>
             </button>
           </div>
         ) : (

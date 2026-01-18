@@ -116,11 +116,19 @@ export default function AuthProvider({
   // Logout function
   const logout = useCallback(async () => {
     try {
+      // Call backend logout endpoint
       await api.post("/auth/logout");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
+      // Clear user state
       setUser(null);
+      // Clear all cookies by setting them with maxAge=0
+      document.cookie = 'token=; path=/; max-age=0';
+      document.cookie = 'refresh_token=; path=/; max-age=0';
+      document.cookie = 'refresh_token_cookie=; path=/; max-age=0';
+      document.cookie = 'access_token=; path=/; max-age=0';
+      // Redirect to login
       router.push("/login");
     }
   }, [router]);

@@ -108,7 +108,7 @@ export default function DashboardPage() {
                     <Link href="/">
                         <RetroButton text="HOME" colorClass="bg-[#2b5ca6]" icon={<Home size={16} />} className="w-28 md:w-32 h-12" />
                     </Link>
-                    <RetroButton text="[LOGOUT]" colorClass="bg-red" onClick={() => logout()} className="w-32 h-12" />
+                    <RetroButton text="[LOGOUT]" colorClass="bg-red" onClick={async () => await logout()} className="w-32 h-12" />
                 </div>
             </header>
 

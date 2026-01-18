@@ -46,7 +46,6 @@ export default function LoadingPage() {
           clearInterval(visualTimer);
           setProgress(100);
           setStatusText("BERHASIL! MENGALIHKAN...");
-          console.log("Login Success:", res);
 
           // User data akan di-fetch otomatis oleh AuthProvider via /api/auth/me
           setTimeout(() => {
@@ -62,7 +61,6 @@ export default function LoadingPage() {
         // Mengambil pesan error dari Proxy Next.js yang sudah kita perbaiki tadi
         const errorMessage = error.response?.data?.message || "Terjadi kesalahan sistem";
 
-        console.error("Login Error:", errorMessage);
         setStatusText(`GAGAL: ${errorMessage.toUpperCase()}`);
 
         // Jika error 500 (Internal Server Error), biasanya masalah di Backend/OAuth
