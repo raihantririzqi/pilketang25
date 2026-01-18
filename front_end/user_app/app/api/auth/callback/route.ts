@@ -56,18 +56,33 @@ export async function POST(request: Request) {
       user: user,
     });
 
-    // PENTING: Clear semua Set-Cookie dari backend
+    // Clear semua Set-Cookie dari backend
     response.headers.delete("set-cookie");
 
-    // Set cookies langsung via Set-Cookie header untuk full control
-    const tokenCookie = `token=${access_token}; Path=/; Max-Age=60; HttpOnly; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""
-      }`;
+    // Delete old cookies
+    response.cookies.delete("token");
+    response.cookies.delete("refresh_token");
+    response.cookies.delete("refresh_token_cookie");
+    response.cookies.delete("access_token");
 
-    const refreshCookie = `refresh_token_cookie=${refresh_token}; Path=/; Max-Age=${7 * 24 * 60 * 60}; HttpOnly; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""
-      }`;
+    // Set dengan httpOnly
+    response.cookies.set("token", access_token, {
+      httpOnly: true,
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60,
+    });
 
-    response.headers.append("Set-Cookie", tokenCookie);
-    response.headers.append("Set-Cookie", refreshCookie);
+    if (refresh_token) {
+      response.cookies.set("refresh_token_cookie", refresh_token, {
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60,
+      });
+    }
 
     return response;
 
