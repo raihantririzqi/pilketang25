@@ -118,7 +118,7 @@ export async function middleware(request: NextRequest) {
       value: newAccessToken,
       httpOnly: true,
       path: "/",
-      maxAge: 60,
+      maxAge: 60, // 60 detik - sesuai dengan backend JWT expiry
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });

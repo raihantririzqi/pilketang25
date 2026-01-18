@@ -132,7 +132,7 @@ async function proxyRequest(
           path: "/",
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
-          maxAge: 60 * 5, // 5 menit - lebih lama dari retry backoff window
+          maxAge: 60, // 60 detik - sesuai dengan backend JWT expiry
         });
 
         // Teruskan rotasi refresh_token jika ada

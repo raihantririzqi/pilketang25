@@ -55,7 +55,7 @@ export default function AuthProvider({
   const isMountedRef = useRef(true);
 
   // Fetch user dari /api/auth/me dengan retry logic untuk handle race condition
-  const fetchUser = useCallback(async (retries = 5, delay = 200) => {
+  const fetchUser = useCallback(async (retries = 3, delay = 100) => {
     let lastError: any = null;
     if (process.env.NODE_ENV === "development") {
       console.log("[AuthProvider] fetchUser called with retries:", retries);
