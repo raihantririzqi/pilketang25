@@ -4,10 +4,15 @@ import { jwtVerify } from "jose";
 
 async function tryRefreshToken(request: NextRequest): Promise<string | null> {
   const refreshToken = request.cookies.get("refresh_token_cookie")?.value;
-  if (!refreshToken) return null;
+  if (!refreshToken) {
+    console.log("[Middleware] No refresh token found");
+    return null;
+  }
 
   try {
     const apiUrl = process.env.BACKEND_URL || "http://localhost:5000";
+    console.log(`[Middleware] Attempting to refresh token from ${apiUrl}/api/auth/refresh`);
+
     const res = await fetch(`${apiUrl}/api/auth/refresh`, {
       method: "POST",
       headers: {
@@ -16,10 +21,18 @@ async function tryRefreshToken(request: NextRequest): Promise<string | null> {
         "Cookie": request.headers.get("cookie") || "",
       },
     });
-    if (!res.ok) return null;
+
+    if (!res.ok) {
+      console.log(`[Middleware] Refresh failed: ${res.status} ${res.statusText}`);
+      return null;
+    }
+
     const data = await res.json();
-    return data.result?.access_token || null;
+    const newToken = data.result?.access_token || null;
+    console.log(`[Middleware] Refresh success, new token: ${newToken ? "✓" : "✗"}`);
+    return newToken;
   } catch (err) {
+    console.error("[Middleware] Refresh error:", err);
     return null;
   }
 }
@@ -37,16 +50,21 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute = [...userRoutes, ...adminRoutes].some((route) => pathname.startsWith(route));
 
   // --- LOGIKA GLOBAL ---
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET || "");
   let payload: any = null;
   let newAccessToken: string | null = null;
+
+  console.log(`[Middleware] ${request.method} ${pathname}`);
+  console.log(`[Middleware] Token exists: ${!!token}, RefreshToken exists: ${!!refreshToken}`);
 
   // 1. Cek validitas token yang ada (di semua route)
   if (token) {
     try {
       const { payload: verifiedPayload } = await jwtVerify(token, secret);
       payload = verifiedPayload;
+      console.log(`[Middleware] Token valid, user: ${payload?.sub}`);
     } catch (e) {
+      console.log(`[Middleware] Token expired or invalid`);
       token = undefined; // Token expired
     }
   }
@@ -54,14 +72,19 @@ export async function middleware(request: NextRequest) {
   // 2. Global Refresh: Jika token mati tapi ada refresh_token, tarik token baru
   // Ini akan berjalan bahkan di landing page (/)
   if (!token && refreshToken) {
+    console.log(`[Middleware] Token missing/expired, attempting refresh...`);
     newAccessToken = await tryRefreshToken(request);
     if (newAccessToken) {
       try {
         const { payload: verifiedPayload } = await jwtVerify(newAccessToken, secret);
         payload = verifiedPayload;
+        console.log(`[Middleware] Token refreshed successfully, user: ${payload?.sub}`);
       } catch (e) {
+        console.error(`[Middleware] Refreshed token invalid:`, e);
         payload = null;
       }
+    } else {
+      console.log(`[Middleware] Refresh failed, no new token`);
     }
   }
 
