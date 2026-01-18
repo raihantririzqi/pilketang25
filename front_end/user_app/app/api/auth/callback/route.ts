@@ -49,35 +49,41 @@ export async function POST(request: Request) {
     console.log(data)
 
     const { access_token, refresh_token, user } = data.result;
-    const cookieStore = await cookies();
+    const response = NextResponse.json({
+      success: true,
+      user: user,
+    });
 
-    // 1. UPDATE ACCESS TOKEN COOKIE (Sesuai testing: 1 Menit)
-    cookieStore.set({
+    // Delete cookies yang mungkin dikirim backend tanpa httpOnly
+    response.cookies.delete("token");
+    response.cookies.delete("refresh_token");
+    response.cookies.delete("refresh_token_cookie");
+
+    // Set token dengan httpOnly (secure)
+    response.cookies.set({
       name: "token",
       value: access_token,
       httpOnly: true,
       path: "/",
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60, // Ubah ke 60 detik (1 menit) sesuai durasi JWT di backend
+      maxAge: 60,
     });
 
+    // Set refresh token dengan httpOnly (secure)
     if (refresh_token) {
-      cookieStore.set({
+      response.cookies.set({
         name: "refresh_token_cookie",
         value: refresh_token,
         httpOnly: true,
         path: "/",
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60, // Refresh token biarkan lama (7 hari)
+        maxAge: 7 * 24 * 60 * 60,
       });
     }
 
-    return NextResponse.json({
-      success: true,
-      user: user, // Gunakan data user dari backend, bukan string "user"
-    });
+    return response;
 
   } catch (error: any) {
     console.error("Proxy Error Details:", error.message);
