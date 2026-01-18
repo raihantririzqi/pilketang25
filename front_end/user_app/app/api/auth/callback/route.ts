@@ -54,10 +54,14 @@ export async function POST(request: Request) {
       user: user,
     });
 
+    // PENTING: Delete semua Set-Cookie header dari backend
+    response.headers.delete("set-cookie");
+
     // Delete cookies yang mungkin dikirim backend tanpa httpOnly
     response.cookies.delete("token");
     response.cookies.delete("refresh_token");
     response.cookies.delete("refresh_token_cookie");
+    response.cookies.delete("access_token");
 
     // Set token dengan httpOnly (secure)
     response.cookies.set({
