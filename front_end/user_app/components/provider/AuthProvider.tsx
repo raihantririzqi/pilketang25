@@ -52,17 +52,30 @@ export default function AuthProvider({
   const pathname = usePathname();
   const router = useRouter();
 
-  // Fetch user dari /api/auth/me
-  const fetchUser = useCallback(async () => {
-    try {
-      const res = await api.get("/auth/me");
-      const userData = res.data.result;
-      setUser(userData);
-      return userData;
-    } catch (error) {
-      setUser(null);
-      return null;
+  // Fetch user dari /api/auth/me dengan retry logic untuk handle race condition
+  const fetchUser = useCallback(async (retries = 3, delay = 50) => {
+    let lastError: any = null;
+
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        const res = await api.get("/auth/me");
+        const userData = res.data.result;
+        setUser(userData);
+        return userData;
+      } catch (error) {
+        lastError = error;
+        // Exponential backoff: 50ms, 100ms, 200ms
+        if (attempt < retries - 1) {
+          const waitTime = delay * Math.pow(2, attempt);
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
+        }
+      }
     }
+
+    // Jika semua retry gagal
+    setUser(null);
+    console.error("Failed to fetch user after retries:", lastError);
+    return null;
   }, []);
 
   // Logout function
@@ -92,13 +105,9 @@ export default function AuthProvider({
       return;
     }
 
-    // Berikan jeda 100ms agar browser selesai menyimpan cookie dari Middleware
-    const timer = setTimeout(() => {
-      fetchUser().finally(() => setIsLoading(false));
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [pathname]); // Akan mentrigger fetchUser setiap kali pindah halaman
+    // Langsung fetch dengan retry logic, tidak perlu delay manual
+    fetchUser().finally(() => setIsLoading(false));
+  }, [pathname, fetchUser]); // Akan mentrigger fetchUser setiap kali pindah halaman
 
   // Loading state
   if (isLoading) {

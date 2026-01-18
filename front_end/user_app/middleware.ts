@@ -95,7 +95,7 @@ export async function middleware(request: NextRequest) {
       value: newAccessToken,
       httpOnly: true,
       path: "/",
-      maxAge: 60, // Sesuai testing 1 menit
+      maxAge: 60,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
