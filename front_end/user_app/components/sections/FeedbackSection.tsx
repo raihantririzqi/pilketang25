@@ -178,7 +178,7 @@ const FeedbackSection = () => {
 
                         <button type="submit" disabled={status === "loading"} className="relative w-32 h-12 cursor-pointer group bg-transparent border-none p-0 disabled:opacity-50">
                             <div className="absolute w-full h-full bg-black rounded-sm"></div>
-                            <div className="absolute w-full h-full bg-[#001f3f] z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center justify-center border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0">
+                            <div className="absolute w-full h-full bg-navy z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center justify-center border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0">
                                 <span className="text-white font-bold font-retro text-lg">{status === "loading" ? "..." : "Kirim"}</span>
                             </div>
                         </button>
