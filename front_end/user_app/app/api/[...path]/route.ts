@@ -47,6 +47,9 @@ async function proxyRequest(
   const cookieStore = await cookies();
   let token = cookieStore.get("token")?.value;
 
+  console.log(`[Proxy] ${request.method} ${pathString}`);
+  console.log(`[Proxy] Token exists: ${!!token}, Token value: ${token ? token.substring(0, 20) + "..." : "null"}`);
+
   const getHeaders = (tokenStr?: string) => {
     const h = new Headers();
     // Teruskan Content-Type asli dari client
@@ -54,7 +57,12 @@ async function proxyRequest(
     if (contentType) h.set("Content-Type", contentType);
 
     // Inject Authorization header jika token ada
-    if (tokenStr) h.set("Authorization", `Bearer ${tokenStr}`);
+    if (tokenStr) {
+      h.set("Authorization", `Bearer ${tokenStr}`);
+      console.log(`[Proxy] Authorization header set`);
+    } else {
+      console.log(`[Proxy] WARNING: No token available for Authorization header`);
+    }
     return h;
   };
 
