@@ -2,7 +2,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import AuthProvider from "@/components/provider/AuthProvider"; 
+import AuthProvider from "@/components/provider/AuthProvider";
+import { AuthDebugger } from "@/components/provider/AuthDebugger";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           {children}
+          {process.env.NODE_ENV === "development" && <AuthDebugger />}
         </AuthProvider>
       </body>
     </html>

@@ -218,40 +218,55 @@ export class AuthService {
   public getMe = async (
     user_id: string,
   ): Promise<UserProfile> => {
-    const user = await this.prisma.user.findUnique({
-      where: { id: user_id },
-    });
-    if (!user) throw new NotFoundError("User not found");
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: user_id },
+      });
+      if (!user) throw new NotFoundError("User not found");
 
-    const active_session = await this.prisma.votingSession.findFirst({
-      where: {
-        is_active: true
+      const active_session = await this.prisma.votingSession.findFirst({
+        where: {
+          is_active: true
+        }
+      })
+
+      if (!active_session) {
+        return { ...user, has_voted: false, is_scanned: false };
       }
-    })
 
-    if (!active_session) {
-      return { ...user, has_voted: false, is_scanned: false };
+      const attendance = await this.prisma.attendanceRecord.findUnique({
+        where: {
+          user_id_session_id: {
+            user_id: user.id,
+            session_id: active_session.id
+          }
+        }
+      }).catch(err => {
+        console.error("[Auth] Error fetching attendance:", err);
+        return null;
+      });
+
+      const qr_code = await this.prisma.qRCode.findUnique({
+        where: {
+          user_id_session_id: {
+            user_id: user.id,
+            session_id: active_session.id
+          }
+        }
+      }).catch(err => {
+        console.error("[Auth] Error fetching qr_code:", err);
+        return null;
+      });
+
+      return {
+        ...user,
+        has_voted: !!attendance?.has_voted,
+        is_scanned: !!qr_code?.is_used
+      };
+    } catch (error) {
+      console.error("[Auth] getMe error:", error);
+      throw error;
     }
-
-    const attendance = await this.prisma.attendanceRecord.findUnique({
-      where: {
-        user_id_session_id: {
-          user_id: user.id,
-          session_id: active_session.id
-        }
-      }
-    })
-
-    const qr_code = await this.prisma.qRCode.findUnique({
-      where: {
-        user_id_session_id: {
-          user_id: user.id,
-          session_id: active_session.id
-        }
-      }
-    })
-
-    return { ...user, has_voted: !!attendance?.has_voted, is_scanned: !!qr_code?.is_used };
   };
 
   /**

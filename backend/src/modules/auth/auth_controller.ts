@@ -608,31 +608,36 @@ export class AuthController {
           headers,
           access_jwt,
         }): Promise<SuccessResponse<UserProfile>> => {
-          const auth_header = headers[
-            "authorization"
-          ]?.replace("Bearer ", "");
+          try {
+            const auth_header = headers[
+              "authorization"
+            ]?.replace("Bearer ", "");
 
-          if (!auth_header)
-            throw new AuthenticationError(
-              "No token provided",
+            if (!auth_header)
+              throw new AuthenticationError(
+                "No token provided",
+              );
+
+            const payload =
+              await access_jwt.verify(auth_header);
+            if (!payload)
+              throw new AuthenticationError(
+                "Invalid or expired token",
+              );
+
+            const user = await this.service.getMe(
+              payload.sub as string,
             );
 
-          const payload =
-            await access_jwt.verify(auth_header);
-          if (!payload)
-            throw new AuthenticationError(
-              "Invalid or expired token",
-            );
-
-          const user = await this.service.getMe(
-            payload.sub as string,
-          );
-
-          return {
-            code: 200,
-            message: "User profile retrieved",
-            result: user,
-          };
+            return {
+              code: 200,
+              message: "User profile retrieved",
+              result: user,
+            };
+          } catch (error) {
+            console.error("[AuthController] GET /me error:", error);
+            throw error;
+          }
         },
         {
           detail: {
