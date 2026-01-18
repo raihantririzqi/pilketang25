@@ -47,8 +47,18 @@ async function proxyRequest(
   const cookieStore = await cookies();
   let token = cookieStore.get("token")?.value;
 
+  // Fallback: jika token tidak ada di cookieStore, coba ambil dari request Cookie header
+  if (!token) {
+    const cookieHeader = request.headers.get("cookie") || "";
+    const tokenMatch = cookieHeader.match(/token=([^;]+)/);
+    if (tokenMatch) {
+      token = tokenMatch[1];
+      console.log(`[Proxy] Token found in request Cookie header (fallback)`);
+    }
+  }
+
   console.log(`[Proxy] ${request.method} ${pathString}`);
-  console.log(`[Proxy] Token exists: ${!!token}, Token value: ${token ? token.substring(0, 20) + "..." : "null"}`);
+  console.log(`[Proxy] Token exists: ${!!token}, Token length: ${token ? token.length : 0}`);
 
   const getHeaders = (tokenStr?: string) => {
     const h = new Headers();
@@ -59,9 +69,9 @@ async function proxyRequest(
     // Inject Authorization header jika token ada
     if (tokenStr) {
       h.set("Authorization", `Bearer ${tokenStr}`);
-      console.log(`[Proxy] Authorization header set`);
+      console.log(`[Proxy] Authorization header SET for ${pathString}`);
     } else {
-      console.log(`[Proxy] WARNING: No token available for Authorization header`);
+      console.log(`[Proxy] ⚠️  NO TOKEN for ${pathString}`);
     }
     return h;
   };
