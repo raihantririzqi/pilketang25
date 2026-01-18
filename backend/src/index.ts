@@ -6,7 +6,7 @@ import { errorMiddleware } from "./shared/middlewares/error_middleware";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { PrismaClient } from "./generated/prisma/client";
 
-// 1. Inisialisasi Adapter (Wajib untuk Prisma dengan MariaDB/MySQL Driver)
+// 1. Inisialisasi Adapter & Prisma
 const adapter = new PrismaMariaDb({
   host: process.env.DB_HOST || "127.0.0.1",
   port: Number(process.env.DB_PORT) || 3306,
@@ -15,31 +15,36 @@ const adapter = new PrismaMariaDb({
   database: process.env.DB_NAME,
 });
 
-// 2. Masukkan adapter sebagai argumen (Ini memperbaiki error TS2554)
 const prisma = new PrismaClient({ adapter });
 
-// --- BAGIAN DEBUG ---
-async function debugConnection() {
-  console.log("-----------------------------------------");
-  console.log("🔍 DATABASE_URL:", process.env.DATABASE_URL ? "DITEMUKAN" : "KOSONG");
-  try {
-    await prisma.$connect();
-    console.log("✅ Database Berhasil Terhubung!");
-  } catch (err) {
-    console.error("❌ Database Gagal Terhubung:", err);
-  }
-}
-debugConnection();
-// --- END DEBUG ---
-
-const PORT = process.env.PORT || 3001;
+// --- CONFIG CORS ---
+// Ambil URL dari env dan masukkan ke dalam array
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.SCANNER_URL
+].filter(Boolean) as string[]; // filter(Boolean) untuk membuang nilai kosong jika env lupa diisi
 
 const app = new Elysia()
-  .use(cors())
+  .use(
+    cors({
+      // Mengizinkan origin dari array yang kita buat
+      origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+
+      // Wajib 'true' jika frontend mengirimkan cookie atau header Authorization
+      credentials: true,
+
+      // Header yang diizinkan
+      allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+
+      // Method yang diizinkan
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    })
+  )
   .use(openapi())
   .use(errorMiddleware)
   .get("/", () => ({ status: "healthy" }))
   .use(routes)
-  .listen(PORT);
+  .listen(process.env.PORT || 3001);
 
 console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
+console.log(`🌐 Allowed Origins: ${allowedOrigins.join(", ")}`);
