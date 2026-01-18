@@ -9,7 +9,7 @@ export class SessionController {
     private readonly prisma: PrismaClient,
     private readonly service: SessionService,
     private readonly prefix = "/sessions",
-  ) {}
+  ) { }
 
   public register = () =>
     new Elysia({ prefix: this.prefix })
@@ -197,7 +197,6 @@ export class SessionController {
         "/:id/results",
         async ({ params, user }) => {
           const is_committee = user.role === "COMMITTEE";
-          // if user is committee, show even if not published
           const result =
             await this.service.get_session_results(
               params.id,
