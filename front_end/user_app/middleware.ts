@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Global Refresh: Jika token mati tapi ada refresh_token, tarik token baru
-  // SKIP jika user sedang navigate ke /login (logout process)
+  // SKIP jika user sedang navigate ke /login (logout process) atau tidak ada refresh token
   if (!token && refreshToken && !isAuthRoute) {
     console.log(`[Middleware] Token missing/expired, attempting refresh...`);
     newAccessToken = await tryRefreshToken(request);
@@ -91,7 +91,10 @@ export async function middleware(request: NextRequest) {
   // --- LOGIKA REDIRECT & GUARD ---
 
   // A. Guest Guard: Jika sudah login (payload ada), dilarang ke /login
-  if (isAuthRoute && payload) {
+  // KECUALI cookies sudah dihapus (tidak ada token dan tidak ada refresh_token)
+  if (isAuthRoute && payload && token && refreshToken) {
+    // Hanya redirect jika BENAR-BENAR ada token dan refresh token
+    // Ini mencegah redirect saat cookies sedang dihapus di client
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -101,6 +104,7 @@ export async function middleware(request: NextRequest) {
     url.searchParams.set("callbackUrl", pathname);
     const response = NextResponse.redirect(url);
     response.cookies.delete("token");
+    response.cookies.delete("refresh_token_cookie");
     return response;
   }
 

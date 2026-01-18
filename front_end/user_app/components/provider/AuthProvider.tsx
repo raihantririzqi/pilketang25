@@ -121,15 +121,27 @@ export default function AuthProvider({
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
+      // Set a flag untuk mencegah auto-refresh di middleware/proxy
+      // Ini lebih robust daripada hanya delete cookies
+      if (typeof window !== 'undefined') {
+        // Store logout flag untuk middleware/proxy
+        sessionStorage.setItem('logging_out', 'true');
+      }
+
       // Clear user state FIRST
       setUser(null);
 
-      // Clear all cookies by setting them with maxAge=0 dan SameSite
-      // Perlu tambah SameSite untuk memastikan middleware juga hapus cookies
-      document.cookie = 'token=; path=/; max-age=0; SameSite=Lax';
-      document.cookie = 'refresh_token=; path=/; max-age=0; SameSite=Lax';
-      document.cookie = 'refresh_token_cookie=; path=/; max-age=0; SameSite=Lax';
-      document.cookie = 'access_token=; path=/; max-age=0; SameSite=Lax';
+      // Clear all cookies - gunakan multiple methods untuk ensure deletion
+      const cookiesToClear = ['token', 'refresh_token', 'refresh_token_cookie', 'access_token'];
+      cookiesToClear.forEach(cookieName => {
+        // Method 1: Set with max-age=0
+        document.cookie = `${cookieName}=; path=/; max-age=0; SameSite=Lax`;
+        // Method 2: Set with past date
+        document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax`;
+      });
+
+      // Wait a tick untuk ensure cookies dihapus sebelum redirect
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Redirect to login - middleware akan melihat tidak ada token/refresh_token
       router.push("/login");

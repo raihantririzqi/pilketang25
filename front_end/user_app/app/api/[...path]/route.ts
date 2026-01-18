@@ -50,9 +50,13 @@ async function proxyRequest(
     let token = cookieStore.get("token")?.value;
 
     // Jika token tidak ada tapi ada refresh_token, coba refresh dulu
+    // SKIP jika user sedang logout (tidak ada token dan request ke logout endpoint)
     if (!token) {
       const refreshToken = cookieStore.get("refresh_token_cookie")?.value;
-      if (refreshToken) {
+      const isLogoutEndpoint = pathString.includes("auth/logout");
+
+      // Jangan auto-refresh jika sedang logout
+      if (refreshToken && !isLogoutEndpoint) {
         console.log(`[Proxy] Token missing, attempting refresh...`);
         const { accessToken } = await tryRefreshToken();
         if (accessToken) {
@@ -86,7 +90,10 @@ async function proxyRequest(
   if (!token) {
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get("refresh_token_cookie")?.value;
-    if (refreshToken) {
+    const isLogoutEndpoint = pathString.includes("auth/logout");
+
+    // Jangan auto-refresh jika sedang logout
+    if (refreshToken && !isLogoutEndpoint) {
       console.log(`[Proxy] Token missing, attempting refresh...`);
       const { accessToken } = await tryRefreshToken();
       if (accessToken) {
