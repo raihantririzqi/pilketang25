@@ -49,43 +49,25 @@ export async function POST(request: Request) {
     console.log(data)
 
     const { access_token, refresh_token, user } = data.result;
+
+    // Buat response
     const response = NextResponse.json({
       success: true,
       user: user,
     });
 
-    // PENTING: Delete semua Set-Cookie header dari backend
+    // PENTING: Clear semua Set-Cookie dari backend
     response.headers.delete("set-cookie");
 
-    // Delete cookies yang mungkin dikirim backend tanpa httpOnly
-    response.cookies.delete("token");
-    response.cookies.delete("refresh_token");
-    response.cookies.delete("refresh_token_cookie");
-    response.cookies.delete("access_token");
+    // Set cookies langsung via Set-Cookie header untuk full control
+    const tokenCookie = `token=${access_token}; Path=/; Max-Age=60; HttpOnly; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""
+      }`;
 
-    // Set token dengan httpOnly (secure)
-    response.cookies.set({
-      name: "token",
-      value: access_token,
-      httpOnly: true,
-      path: "/",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60,
-    });
+    const refreshCookie = `refresh_token_cookie=${refresh_token}; Path=/; Max-Age=${7 * 24 * 60 * 60}; HttpOnly; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""
+      }`;
 
-    // Set refresh token dengan httpOnly (secure)
-    if (refresh_token) {
-      response.cookies.set({
-        name: "refresh_token_cookie",
-        value: refresh_token,
-        httpOnly: true,
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60,
-      });
-    }
+    response.headers.append("Set-Cookie", tokenCookie);
+    response.headers.append("Set-Cookie", refreshCookie);
 
     return response;
 
