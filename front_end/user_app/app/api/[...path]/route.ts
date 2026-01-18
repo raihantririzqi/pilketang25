@@ -44,20 +44,27 @@ async function proxyRequest(
   const url = new URL(request.url);
   const targetUrl = `${BACKEND_URL}/api/${pathString}${url.search}`;
 
-  const cookieStore = await cookies();
-  let token = cookieStore.get("token")?.value;
+  // Function untuk get fresh token (bisa di-call lagi untuk re-read)
+  const getFreshToken = async (): Promise<string | null> => {
+    const cookieStore = await cookies();
+    let token = cookieStore.get("token")?.value;
 
-  // Fallback: jika token tidak ada di cookieStore, coba ambil dari request Cookie header
-  if (!token) {
-    const cookieHeader = request.headers.get("cookie") || "";
-    const tokenMatch = cookieHeader.match(/token=([^;]+)/);
-    if (tokenMatch) {
-      token = tokenMatch[1];
-      console.log(`[Proxy] Token found in request Cookie header (fallback)`);
+    // Fallback: jika token tidak ada di cookieStore, coba ambil dari request Cookie header
+    if (!token) {
+      const cookieHeader = request.headers.get("cookie") || "";
+      const tokenMatch = cookieHeader.match(/token=([^;]+)/);
+      if (tokenMatch) {
+        token = tokenMatch[1];
+        console.log(`[Proxy] Token found in request Cookie header (fallback)`);
+      }
     }
-  }
+
+    return token || null;
+  };
 
   console.log(`[Proxy] ${request.method} ${pathString}`);
+
+  let token = await getFreshToken();
   console.log(`[Proxy] Token exists: ${!!token}, Token length: ${token ? token.length : 0}`);
 
   const getHeaders = (tokenStr?: string) => {
@@ -88,6 +95,10 @@ async function proxyRequest(
       body: body,
       cache: "no-store",
     });
+
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[Proxy] ${request.method} ${targetUrl} → ${res.status}`);
+    }
 
     // --- SILENT REFRESH LOGIC ---
     // Jika 401 dan bukan sedang di rute auth/refresh atau login
@@ -121,7 +132,7 @@ async function proxyRequest(
           path: "/",
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
-          maxAge: 60 * 15, // 15 menit, sesuaikan dengan backend
+          maxAge: 60 * 5, // 5 menit - lebih lama dari retry backoff window
         });
 
         // Teruskan rotasi refresh_token jika ada
