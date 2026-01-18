@@ -56,6 +56,8 @@ export async function middleware(request: NextRequest) {
 
   console.log(`[Middleware] ${request.method} ${pathname}`);
   console.log(`[Middleware] Token exists: ${!!token}, RefreshToken exists: ${!!refreshToken}`);
+  console.log("prod debug");
+  console.log(isAuthRoute, payload, token, refreshToken);
 
   // 1. Cek validitas token yang ada (di semua route)
   if (token) {

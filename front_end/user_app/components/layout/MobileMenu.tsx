@@ -15,10 +15,6 @@ interface MobileMenuProps {
 }
 
 const MobileMenu = ({ isOpen, onClose, onNavigate, isAuthenticated, user, logout }: MobileMenuProps) => {
-  const handleLogout = async () => {
-    await logout();
-    onClose();
-  };
   const menuItems = [
     { label: "Home", target: "hero-section" },
     { label: "Kandidat", target: "kandidat-section" },
@@ -81,8 +77,8 @@ const MobileMenu = ({ isOpen, onClose, onNavigate, isAuthenticated, user, logout
             </Link>
 
             {/* Logout Button */}
-            <button
-              onClick={handleLogout}
+            <div
+              onClick={async () => await logout()}
               className="w-full relative h-12 group font-retro"
             >
               <div className="absolute inset-0 bg-black rounded-sm"></div>
@@ -90,7 +86,7 @@ const MobileMenu = ({ isOpen, onClose, onNavigate, isAuthenticated, user, logout
                 <LogOut size={20} className="text-white" />
                 <span className="text-white font-bold uppercase text-sm tracking-wider">LOGOUT</span>
               </div>
-            </button>
+            </div>
           </div>
         ) : (
           /* TAMPILAN BELUM LOGIN */

@@ -113,40 +113,24 @@ export default function AuthProvider({
     return null;
   }, []);
 
-  // Logout function
   const logout = useCallback(async () => {
     try {
-      // Call backend logout endpoint
+      // 1. Panggil API logout untuk hapus cookie di sisi server
       await api.post("/auth/logout");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      // Set a flag untuk mencegah auto-refresh di middleware/proxy
-      // Ini lebih robust daripada hanya delete cookies
-      if (typeof window !== 'undefined') {
-        // Store logout flag untuk middleware/proxy
-        sessionStorage.setItem('logging_out', 'true');
-      }
-
-      // Clear user state FIRST
+      // 2. Hapus state user di client segera
       setUser(null);
 
-      // Clear all cookies - gunakan multiple methods untuk ensure deletion
-      const cookiesToClear = ['token', 'refresh_token', 'refresh_token_cookie', 'access_token'];
-      cookiesToClear.forEach(cookieName => {
-        // Method 1: Set with max-age=0
-        document.cookie = `${cookieName}=; path=/; max-age=0; SameSite=Lax`;
-        // Method 2: Set with past date
-        document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax`;
-      });
+      // 3. (Opsional) Hapus localStorage/sessionStorage jika ada data sensitif
+      // localStorage.clear(); 
 
-      // Wait a tick untuk ensure cookies dihapus sebelum redirect
-      await new Promise(resolve => setTimeout(resolve, 50));
-
-      // Redirect to login - middleware akan melihat tidak ada token/refresh_token
-      router.push("/login");
+      // 4. Hard Redirect ke login
+      // Ini akan memicu browser mengirim request bersih ke server
+      window.location.href = "/login";
     }
-  }, [router]);
+  }, []);
 
   // Refetch user (untuk dipanggil setelah login)
   const refetchUser = useCallback(async () => {
