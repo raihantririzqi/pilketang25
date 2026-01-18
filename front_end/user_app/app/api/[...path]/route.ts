@@ -80,6 +80,25 @@ async function proxyRequest(
   console.log(`[Proxy] ${request.method} ${pathString}`);
 
   let token = await getFreshToken();
+  let newAccessToken: string | null = null; // Untuk tracking jika refresh berhasil
+
+  // Jika token masih tidak ada, coba refresh
+  if (!token) {
+    const cookieStore = await cookies();
+    const refreshToken = cookieStore.get("refresh_token_cookie")?.value;
+    if (refreshToken) {
+      console.log(`[Proxy] Token missing, attempting refresh...`);
+      const { accessToken } = await tryRefreshToken();
+      if (accessToken) {
+        console.log(`[Proxy] Refresh successful in getFreshToken`);
+        token = accessToken;
+        newAccessToken = accessToken;
+      } else {
+        console.log(`[Proxy] Refresh failed, no new token`);
+      }
+    }
+  }
+
   console.log(`[Proxy] Token exists: ${!!token}, Token length: ${token ? token.length : 0}`);
 
   const getHeaders = (tokenStr?: string) => {
@@ -165,6 +184,20 @@ async function proxyRequest(
       status: res.status,
       headers: { "Content-Type": res.headers.get("Content-Type") || "application/json" },
     });
+
+    // Jika refresh berhasil di awal request, set cookie token baru
+    if (newAccessToken) {
+      finalResponse.cookies.set({
+        name: "token",
+        value: newAccessToken,
+        httpOnly: true,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60, // 60 detik - sesuai dengan backend JWT expiry
+      });
+      console.log(`[Proxy] Token cookie set in response`);
+    }
 
     return finalResponse;
 
