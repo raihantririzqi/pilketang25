@@ -45,7 +45,7 @@ async function proxyRequest(
   const targetUrl = `${BACKEND_URL}/api/${pathString}${url.search}`;
 
   // Function untuk get fresh token (bisa di-call lagi untuk re-read)
-  const getFreshToken = async (): Promise<string | null> => {
+  const getFreshToken = async (): Promise<string | undefined> => {
     const cookieStore = await cookies();
     let token = cookieStore.get("token")?.value;
 
@@ -59,7 +59,7 @@ async function proxyRequest(
       }
     }
 
-    return token || null;
+    return token;
   };
 
   console.log(`[Proxy] ${request.method} ${pathString}`);
