@@ -82,10 +82,9 @@ export async function middleware(request: NextRequest) {
   }
 
   // C. RBAC Check
-  if (adminRoutes.some(r => pathname.startsWith(r)) && payload?.role !== "admin") {
+  if (adminRoutes.some(r => pathname.startsWith(r)) && payload?.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
-
   // --- FINAL RESPONSE ---
   const response = NextResponse.next();
 

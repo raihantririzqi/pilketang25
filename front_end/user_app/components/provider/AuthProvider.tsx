@@ -82,23 +82,23 @@ export default function AuthProvider({
     await fetchUser();
   }, [fetchUser]);
 
+  // Di AuthProvider.tsx
   useEffect(() => {
-    // Skip auth check untuk public routes
-    const publicRoutes = ["/", "/login", "/register", "/auth/google/callback"];
-    const isPublicRoute = publicRoutes.some((route) =>
-      pathname.startsWith(route)
-    );
+    const publicRoutes = ["/", "/login", "/auth/google/callback"];
+    const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
 
     if (isPublicRoute) {
-      // Tetap coba fetch user untuk navbar (optional)
       fetchUser().finally(() => setIsLoading(false));
       return;
     }
 
-    // Fetch user dari backend
-    fetchUser().finally(() => setIsLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+    // Berikan jeda 100ms agar browser selesai menyimpan cookie dari Middleware
+    const timer = setTimeout(() => {
+      fetchUser().finally(() => setIsLoading(false));
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [pathname]); // Akan mentrigger fetchUser setiap kali pindah halaman
 
   // Loading state
   if (isLoading) {
