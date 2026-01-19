@@ -37,6 +37,15 @@ const triangleBounce = {
   },
 };
 
+// Mapping warna untuk Tailwind (harus explicit agar tidak di-purge)
+const colorMap: Record<string, { bg: string; borderLeft: string }> = {
+  red: { bg: "bg-red", borderLeft: "border-l-red" },
+  magenta: { bg: "bg-magenta", borderLeft: "border-l-magenta" },
+  navy: { bg: "bg-navy", borderLeft: "border-l-navy" },
+  green: { bg: "bg-green", borderLeft: "border-l-green" },
+  yellow: { bg: "bg-yellow", borderLeft: "border-l-yellow" },
+};
+
 const CandidateCard = ({
   name,
   nim,
@@ -47,6 +56,7 @@ const CandidateCard = ({
   imageSrc,
 }: CandidateCardProps) => {
   const [showVision, setShowVision] = useState(false);
+  const colors = colorMap[base_color] || colorMap.navy;
 
   return (
     <button
@@ -56,7 +66,7 @@ const CandidateCard = ({
     >
       {/* Background Decoration (Static CSS) */}
       <div
-        className={`absolute bg-${base_color} w-72 h-[30rem] lg:h-[35rem] lg:w-96 translate-x-4 translate-y-4 border-4`}
+        className={`absolute ${colors.bg} w-72 h-[30rem] lg:h-[35rem] lg:w-96 translate-x-4 translate-y-4 border-4`}
       />
       <div className="absolute bg-black w-72 h-[30rem] lg:h-[35rem] lg:w-96 translate-x-2 translate-y-2 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform group-active:translate-x-4 group-active:translate-y-4" />
 
@@ -66,7 +76,7 @@ const CandidateCard = ({
           /* ================= FRONT (KANDIDAT) ================= */
           <>
             {/* Header */}
-            <div className={`bg-${base_color} w-full h-24 border-b-4 flex items-center`}>
+            <div className={`${colors.bg} w-full h-24 border-b-4 flex items-center`}>
               <span className="text-white font-bold text-3xl ml-4 font-retro drop-shadow-md">
                 {kandidat_number}P
               </span>
@@ -118,12 +128,12 @@ const CandidateCard = ({
                   <div className="absolute w-full border-t-4 h-12 bottom-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10 shadow-lg">
                     
                     {/* --- ANIMASI SEGITIGA --- */}
-                    <motion.div 
-                        animate={triangleBounce} // Segitiga gerak kanan-kiri
-                        className={`mr-4 w-0 h-0 
-                        border-t-[10px] border-t-transparent 
-                        border-b-[10px] border-b-transparent 
-                        border-l-[15px] ${base_color === 'magenta' ? 'border-l-magenta' : base_color === 'navy' && 'border-l-navy'}`}
+                    <motion.div
+                        animate={triangleBounce}
+                        className={`mr-4 w-0 h-0
+                        border-t-[10px] border-t-transparent
+                        border-b-[10px] border-b-transparent
+                        border-l-[15px] ${colors.borderLeft}`}
                     >
                     </motion.div>
 
