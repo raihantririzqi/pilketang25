@@ -37,7 +37,7 @@ const Home = () => {
           
           {/* --- BACKGROUND PATTERN (Diterapkan Global) --- */}
           {/* Menggunakan h-full agar memanjang sampai bawah mengikuti konten */}
-          <div className="absolute inset-0 z-0 opacity-10 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none"></div>
+          <div className="absolute inset-0 z-0 opacity-10 bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[20px_20px] pointer-events-none"></div>
 
           {/* --- KONTEN HALAMAN (Z-10 agar di atas pattern) --- */}
           <div className="relative z-10">

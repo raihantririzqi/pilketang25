@@ -89,8 +89,8 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#efe8e0] p-4 md:p-8 font-mono relative overflow-hidden text-[#000000]">
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none"></div>
+        <div className="min-h-screen bg-background p-4 md:p-8 font-mono relative overflow-hidden text-foreground">
+            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[20px_20px] pointer-events-none"></div>
 
             {/* HEADER */}
             <header className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 mb-10 z-10 relative">
@@ -136,7 +136,7 @@ export default function DashboardPage() {
                         </div>
                         <h2 className="font-roster text-2xl mb-1 uppercase">{displayUser.name}</h2>
                         <div className="inline-block bg-black text-white px-3 py-1 font-retro text-xs mb-6">NIM: {displayUser.nim}</div>
-                        <div className="w-full bg-[#efe8e0] border-2 border-black p-4 text-left space-y-2 text-xs font-retro">
+                        <div className="w-full bg-background border-2 border-black p-4 text-left space-y-2 text-xs font-retro">
                             <div className="flex justify-between border-b-2 border-dashed border-gray-400 pb-2">
                                 <span className="text-gray-500">PRODI:</span><span className="font-bold">TEKNIK INFORMATIKA</span>
                             </div>

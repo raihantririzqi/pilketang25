@@ -8,7 +8,7 @@ import {
   useCallback,
   useRef,
 } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import api from "@/lib/axios";
 
 // Type untuk User
@@ -51,62 +51,46 @@ export default function AuthProvider({
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
-  const router = useRouter();
   const isMountedRef = useRef(true);
 
   // Fetch user dari /api/auth/me dengan retry logic untuk handle race condition
   const fetchUser = useCallback(async (retries = 3, delay = 100) => {
-    let lastError: any = null;
-    if (process.env.NODE_ENV === "development") {
-      console.log("[AuthProvider] fetchUser called with retries:", retries);
-    }
-
     for (let attempt = 0; attempt < retries; attempt++) {
       try {
-        if (process.env.NODE_ENV === "development") {
-          console.log(`[AuthProvider] Attempt ${attempt + 1}/${retries} to fetch user`);
-        }
         const res = await api.get("/auth/me");
         const userData = res.data.result;
-        if (process.env.NODE_ENV === "development") {
-          console.log("[AuthProvider] User fetched successfully:", userData);
-        }
+
         // Hanya update state jika component masih mounted
         if (isMountedRef.current) {
           setUser(userData);
         }
         return userData;
       } catch (error: any) {
-        lastError = error;
         const status = error.response?.status;
-        const isRetryable = status === 500 || status === 502 || status === 503; // Server error, worth retrying
 
-        if (process.env.NODE_ENV === "development") {
-          console.error(`[AuthProvider] Attempt ${attempt + 1} failed (${status}):`, error.message);
+        // 401/403 = User belum login, ini NORMAL bukan error
+        // Langsung return null tanpa retry dan tanpa log error
+        if (status === 401 || status === 403) {
+          if (isMountedRef.current) {
+            setUser(null);
+          }
+          return null;
         }
 
-        // Hanya retry jika server error atau attempt belum habis
+        // Server error (500, 502, 503) - worth retrying
+        const isRetryable = status === 500 || status === 502 || status === 503;
+
         if (isRetryable && attempt < retries - 1) {
           const waitTime = delay * Math.pow(2, attempt);
-          if (process.env.NODE_ENV === "development") {
-            console.log(`[AuthProvider] Server error, retrying in ${waitTime}ms...`);
-          }
           await new Promise((resolve) => setTimeout(resolve, waitTime));
         } else if (!isRetryable) {
-          // Jika bukan server error (401, 403, dll), jangan retry
-          if (process.env.NODE_ENV === "development") {
-            console.error(`[AuthProvider] Non-retryable error (${status}), stopping retries`);
-          }
+          // Error lain yang tidak perlu di-retry
           break;
         }
       }
     }
 
-    // Jika semua retry gagal
-    if (process.env.NODE_ENV === "development") {
-      console.error("[AuthProvider] All retries failed, setting user to null");
-      console.error("Failed to fetch user after retries:", lastError);
-    }
+    // Jika semua retry gagal, set user ke null tanpa error di console
     if (isMountedRef.current) {
       setUser(null);
     }
@@ -115,19 +99,11 @@ export default function AuthProvider({
 
   const logout = useCallback(async () => {
     try {
-      // 1. Panggil API logout untuk hapus cookie di sisi server
       await api.post("/auth/logout");
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch {
+      // Ignore logout errors - user akan tetap di-redirect
     } finally {
-      // 2. Hapus state user di client segera
       setUser(null);
-
-      // 3. (Opsional) Hapus localStorage/sessionStorage jika ada data sensitif
-      // localStorage.clear(); 
-
-      // 4. Hard Redirect ke login
-      // Ini akan memicu browser mengirim request bersih ke server
       window.location.href = "/login";
     }
   }, []);
@@ -137,42 +113,14 @@ export default function AuthProvider({
     await fetchUser();
   }, [fetchUser]);
 
-  // Di AuthProvider.tsx
+  // Fetch user saat pathname berubah
   useEffect(() => {
-    if (process.env.NODE_ENV === "development") {
-      console.log("[AuthProvider] useEffect triggered, pathname:", pathname);
-    }
-    const publicRoutes = ["/", "/login", "/auth/google/callback"];
-    const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
-
-    if (isPublicRoute) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("[AuthProvider] Public route detected, fetching user...");
-      }
-      fetchUser().finally(() => {
-        if (process.env.NODE_ENV === "development") {
-          console.log("[AuthProvider] fetchUser completed (public route)");
-        }
-        if (isMountedRef.current) {
-          setIsLoading(false);
-        }
-      });
-      return;
-    }
-
-    // Langsung fetch dengan retry logic, tidak perlu delay manual
-    if (process.env.NODE_ENV === "development") {
-      console.log("[AuthProvider] Protected route detected, fetching user...");
-    }
     fetchUser().finally(() => {
-      if (process.env.NODE_ENV === "development") {
-        console.log("[AuthProvider] fetchUser completed (protected route)");
-      }
       if (isMountedRef.current) {
         setIsLoading(false);
       }
     });
-  }, [pathname, fetchUser]); // Trigger saat pathname atau fetchUser berubah
+  }, [pathname, fetchUser]);
 
   // Cleanup: set isMounted ke false saat unmount
   useEffect(() => {

@@ -67,7 +67,7 @@ const NeoLoader = ({ onComplete }: NeoLoaderProps) => {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[9999] bg-[#FDFBF7] flex flex-col items-center justify-center font-retro overflow-hidden"
+      className="fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center font-retro overflow-hidden"
       initial={{ opacity: 1 }}
       exit={{ 
         y: "-100%", 
@@ -76,7 +76,7 @@ const NeoLoader = ({ onComplete }: NeoLoaderProps) => {
     >
       {/* --- BACKGROUND DECORATION --- */}
       {/* Bola-bola dihapus sesuai request, sisa pola titik halus saja */}
-      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none"></div>
+      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[20px_20px] pointer-events-none"></div>
       
       <div className="w-full max-w-md px-8 flex flex-col items-center gap-8 relative z-10">
         

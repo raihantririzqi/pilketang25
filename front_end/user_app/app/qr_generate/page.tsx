@@ -197,14 +197,15 @@ export default function GenerateQrPage() {
   const handleRefreshToken = () => { setIsTimeout(false); handleGenerateToken(); };
 
   if (!isClient || authLoading) return (
-    <div className="min-h-screen bg-[#fdf8f4] flex items-center justify-center font-retro text-sm animate-pulse">
-      MEMVERIFIKASI AKSES...
+    <div className="min-h-screen bg-background flex items-center justify-center font-retro text-sm animate-pulse relative">
+      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[20px_20px] pointer-events-none" />
+      <span className="relative z-10">MEMVERIFIKASI AKSES...</span>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#fdf8f4] py-20 px-4 flex flex-col items-center relative overflow-hidden">
-      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
+    <div className="min-h-screen bg-background py-20 px-4 flex flex-col items-center relative overflow-hidden">
+      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[20px_20px] pointer-events-none" />
 
       {/* Back Button */}
       {(!ticketData || isScanned || isTimeout || alreadyVoted) && (

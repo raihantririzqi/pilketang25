@@ -34,20 +34,32 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // Jika masih 401, berarti Proxy gagal melakukan refresh (Refresh Token mati/invalid)
-    if (error.response?.status === 401) {
-      const requestUrl = error.config?.url || '';
+    const status = error.response?.status;
+    const requestUrl = error.config?.url || '';
 
-      // Jangan redirect jika memang request ke refresh atau login
-      if (requestUrl.includes('/auth/refresh') || requestUrl.includes('/auth/google')) {
+    // Daftar halaman publik yang tidak perlu redirect
+    const publicPages = ['/', '/login', '/auth/google/callback'];
+    const isPublicPage = typeof window !== 'undefined' &&
+      publicPages.some(page => window.location.pathname === page || window.location.pathname.startsWith('/auth/'));
+
+    // 401/403 pada halaman publik = normal (user belum login)
+    // Jangan redirect, biarkan AuthProvider handle
+    if ((status === 401 || status === 403) && isPublicPage) {
+      return Promise.reject(error);
+    }
+
+    // 401 pada halaman protected = session expired, redirect ke login
+    if (status === 401) {
+      // Jangan redirect jika request ke auth endpoints
+      if (requestUrl.includes('/auth/refresh') || requestUrl.includes('/auth/google') || requestUrl.includes('/auth/me')) {
         return Promise.reject(error);
       }
 
       if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-        console.warn("Session completely expired. Redirecting to login.");
         window.location.href = '/login';
       }
     }
+
     return Promise.reject(error);
   }
 );
