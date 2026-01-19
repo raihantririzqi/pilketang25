@@ -244,108 +244,149 @@ const SecurityScanner = () => {
                     </div>
                 </div>
 
-                <div className="lg:col-span-1 flex flex-col gap-6">
-                    <div className="flex-1 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-4 relative overflow-hidden">
-                        <div className={`absolute top-0 left-0 w-full h-2 ${isRedirecting ? 'bg-blue-500' : error ? 'bg-red-500' : 'bg-magenta'}`}></div>
-                        <h2 className="font-bold font-retro text-xl mb-4 text-black border-b-2 border-gray-200 pb-2 uppercase tracking-tighter">
-                            IDENTITY_CHECK
-                        </h2>
+                <div className="lg:col-span-1 flex flex-col gap-4"> {/* Gap dikurangi dari 6 ke 4 agar lebih rapat */}
+                    {/* IDENTITY_CHECK CARD */}
+                    <div className="flex-1 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden">
+                        {/* Top Accent Bar */}
+                        <div className={`h-2 w-full ${isRedirecting ? 'bg-blue-500' : error ? 'bg-red-500' : 'bg-magenta'}`}></div>
 
-                        <AnimatePresence mode='wait'>
-                            {scanResult ? (
-                                <motion.div
-                                    key="result"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0 }}
-                                    className="flex flex-col items-center gap-4 h-full"
-                                >
-                                    <div className="w-32 h-32 bg-gray-200 border-4 border-black rounded-full overflow-hidden relative">
-                                        <div className="w-full h-full bg-navy flex items-center justify-center text-white text-4xl font-bold">
-                                            <Avatar className="w-32 h-32 rounded-none border-4 border-black bg-[#92c3dd] relative z-10 transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1">
-                                                <AvatarImage src={scanResult.profile_picture || ""} alt={scanResult.name} className="object-cover group-hover:scale-110 transition-transform duration-300" />
-                                                <AvatarFallback className="rounded-none bg-[#92c3dd] font-retro text-5xl text-black uppercase">
-                                                    {scanResult.name.charAt(0)}
-                                                </AvatarFallback>
-                                            </Avatar>                                        </div>
-                                        <div className="absolute bottom-0 w-full h-8 bg-green-500 flex items-center justify-center text-[10px] font-bold text-white uppercase">
-                                            AUTHORIZED
-                                        </div>
-                                    </div>
+                        <div className="p-4 flex flex-col h-full">
+                            <h2 className="font-bold font-retro text-xl mb-4 text-black border-b-2 border-black pb-1 uppercase tracking-tighter flex justify-between items-center">
+                                IDENTITY_CHECK
+                                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                            </h2>
 
-                                    <div className="text-center w-full">
-                                        <div className="text-gray-500 text-[10px] font-mono mb-1 uppercase tracking-widest">Name_Registry</div>
-                                        <div className="text-xl font-bold text-black uppercase leading-tight">{scanResult.name}</div>
-                                    </div>
-
-                                    <div className="text-center w-full">
-                                        <div className="text-gray-500 text-[10px] font-mono mb-1 uppercase tracking-widest">NIM_ID</div>
-                                        <div className="text-2xl text-magenta font-retro">{scanResult.nim}</div>
-                                    </div>
-
-                                    <div className="mt-auto w-full text-center">
-                                        {isRedirecting ? (
-                                            <div className="bg-blue-100 border-2 border-blue-500 text-blue-800 py-3 font-mono text-[10px] rounded animate-pulse uppercase">
-                                                Syncing Voting Booth...
-                                            </div>
-                                        ) : awaitingConfirmation ? (
-                                            <div className="flex flex-col gap-3">
-                                                <div className="bg-yellow-100 border-2 border-yellow-500 text-yellow-800 py-2 px-3 font-mono text-[10px] rounded uppercase">
-                                                    Menunggu Konfirmasi Koordinator
+                            <div className="flex-1 flex flex-col">
+                                <AnimatePresence mode='wait'>
+                                    {scanResult ? (
+                                        <motion.div
+                                            key="result"
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.95 }}
+                                            className="flex flex-col items-center justify-between h-full py-2 px-2"
+                                        >
+                                            {/* Profile Section */}
+                                            <div className="relative group">
+                                                <div className="w-28 h-28 bg-black border-4 border-black rounded-full overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative z-10">
+                                                    <Avatar className="w-full h-full rounded-none">
+                                                        <AvatarImage
+                                                            src={scanResult.profile_picture || ""}
+                                                            alt={scanResult.name}
+                                                            className="object-cover transition-all duration-300"
+                                                        />
+                                                        <AvatarFallback className="bg-[#92c3dd] font-retro text-4xl text-black">
+                                                            {scanResult.name.charAt(0)}
+                                                        </AvatarFallback>
+                                                    </Avatar>
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={handleRejectIdentity}
-                                                        className="flex-1 bg-red-500 text-white font-retro text-sm py-3 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all active:bg-red-600"
-                                                    >
-                                                        TOLAK
-                                                    </button>
-                                                    <button
-                                                        onClick={handleConfirmIdentity}
-                                                        className="flex-1 bg-green-500 text-white font-retro text-sm py-3 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all active:bg-green-600"
-                                                    >
-                                                        LANJUTKAN
-                                                    </button>
+                                                {/* Sticker-style Badge */}
+                                                <div className="absolute -bottom-2 -right-2 bg-green-500 border-2 border-black px-2 py-0.5 text-[10px] font-bold text-white uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] z-20 rotate-3">
+                                                    VERIFIED
                                                 </div>
                                             </div>
-                                        ) : (
-                                            <div className="text-green-600 font-bold text-xs font-mono uppercase">
-                                                ✓ Identity Confirmed
+
+                                            {/* Info Section */}
+                                            <div className="text-center w-full space-y-3 my-4">
+                                                <div className="space-y-0">
+                                                    <p className="text-gray-500 text-[10px] font-mono uppercase tracking-[0.2em]">Full_Name</p>
+                                                    <p className="text-lg font-bold text-black uppercase leading-tight break-words">
+                                                        {scanResult.name}
+                                                    </p>
+                                                </div>
+
+                                                <div className="space-y-0">
+                                                    <p className="text-gray-500 text-[10px] font-mono uppercase tracking-[0.2em]">Registry_ID</p>
+                                                    <p className="text-2xl text-magenta font-retro tabular-nums">
+                                                        {scanResult.nim}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        )}
-                                    </div>
-                                </motion.div>
-                            ) : (
-                                <motion.div
-                                    key="waiting"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="h-full flex flex-col items-center justify-center text-center text-gray-400 opacity-50 p-4"
-                                >
-                                    {error ? (
-                                        <div className="flex flex-col items-center text-red-500 opacity-100">
-                                            <svg className="w-20 h-20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
-                                            <span className="font-mono text-xs uppercase tracking-[0.3em]">{error}</span>
-                                        </div>
+
+                                            {/* Action Section */}
+                                            {/* Action Section - Tombol dengan Gaya Layered Brutalist */}
+                                            <div className="w-full text-center pt-2">
+                                                {isRedirecting ? (
+                                                    <div className="bg-blue-100 border-2 border-blue-500 text-blue-800 py-3 font-mono text-[10px] rounded animate-pulse uppercase">
+                                                        Syncing Voting Booth...
+                                                    </div>
+                                                ) : awaitingConfirmation ? (
+                                                    <div className="flex flex-col gap-4">
+                                                        {/* Status Bar */}
+                                                        <div className="bg-yellow-100 border-2 border-yellow-500 text-yellow-800 py-1.5 px-2 font-mono text-[9px] rounded uppercase font-bold">
+                                                            Awaiting Coordinator Confirmation
+                                                        </div>
+
+                                                        {/* Container Tombol */}
+                                                        <div className="flex gap-4 px-2">
+                                                            {/* Tombol TOLAK */}
+                                                            <div
+                                                                onClick={handleRejectIdentity}
+                                                                className="relative flex-1 h-12 cursor-pointer group"
+                                                            >
+                                                                {/* Layer Bayangan (Hitam) */}
+                                                                <div className="absolute inset-0 bg-black rounded-sm"></div>
+                                                                {/* Layer Atas */}
+                                                                <div className="absolute inset-0 bg-red-500 z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center justify-center border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0">
+                                                                    <span className="text-white font-bold font-retro text-sm uppercase">TOLAK</span>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Tombol LANJUTKAN */}
+                                                            <div
+                                                                onClick={handleConfirmIdentity}
+                                                                className="relative flex-1 h-12 cursor-pointer group"
+                                                            >
+                                                                {/* Layer Bayangan (Hitam) */}
+                                                                <div className="absolute inset-0 bg-black rounded-sm"></div>
+                                                                {/* Layer Atas */}
+                                                                <div className="absolute inset-0 bg-green-500 z-10 -translate-x-1.5 -translate-y-1.5 rounded-sm flex items-center justify-center border-4 border-black transition-transform group-hover:translate-x-0 group-hover:translate-y-0 active:translate-x-0 active:translate-y-0">
+                                                                    <span className="text-white font-bold font-retro text-sm uppercase">LANJUT</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="bg-green-50 border-2 border-green-600 text-green-700 py-2 font-bold text-[10px] font-mono uppercase rounded">
+                                                        ✓ Identity Confirmed
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </motion.div>
                                     ) : (
-                                        <>
-                                            <svg className="w-20 h-20 mb-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                                            </svg>
-                                            <span className="font-mono text-xs uppercase tracking-[0.3em]">Waiting for Feed...</span>
-                                        </>
+                                        <motion.div
+                                            key="waiting"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="h-full flex flex-col items-center justify-center text-center p-4"
+                                        >
+                                            {error ? (
+                                                <div className="text-red-500">
+                                                    <div className="text-4xl mb-2">×</div>
+                                                    <p className="font-mono text-xs uppercase font-bold">{error}</p>
+                                                </div>
+                                            ) : (
+                                                <div className="text-gray-300">
+                                                    <div className="w-16 h-16 border-4 border-dashed border-gray-200 rounded-full flex items-center justify-center mb-4 animate-spin-slow">
+                                                        <div className="w-8 h-8 bg-gray-100 rounded-full"></div>
+                                                    </div>
+                                                    <p className="font-mono text-[10px] uppercase tracking-[0.3em] animate-pulse">Scanning_Identity...</p>
+                                                </div>
+                                            )}
+                                        </motion.div>
                                     )}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                                </AnimatePresence>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="h-48 bg-black p-3 font-mono text-[10px] border-4 border-gray-700 shadow-inner overflow-hidden">
+                    {/* SYSTEM LOGS CARD */}
+                    <div className="h-44 bg-black p-3 font-mono text-[10px] border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
                         <div className="text-green-500 mb-2 border-b border-gray-800 pb-1 font-bold flex justify-between uppercase">
                             <span>{"> SYSTEM_LOGS.txt"}</span>
                             <span className="animate-pulse">_</span>
                         </div>
-                        <div className="flex flex-col gap-1 overflow-y-auto h-32 scrollbar-hide">
+                        <div className="flex flex-col gap-1 overflow-y-auto h-28 scrollbar-hide">
                             {logs.map((log, i) => (
                                 <div key={i} className={`${i === 0 ? 'text-white font-bold' : 'text-gray-500'} ${log.startsWith('[ERROR]') ? 'text-red-400' : ''}`}>
                                     {log}
@@ -353,7 +394,6 @@ const SecurityScanner = () => {
                             ))}
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
