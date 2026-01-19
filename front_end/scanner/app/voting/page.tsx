@@ -7,14 +7,32 @@ import api from '@/lib/axios';
 import CandidatCard from '@/components/ui/CandidatCard';
 import { motion } from 'framer-motion';
 
-// Helper to assign colors and numbers
-const getCandidateStyling = (index: number) => {
-    const styles = [
-        { color: 'magenta', number: 1 },
-        { color: 'navy', number: 2 },
-        // Add more if needed
-    ];
-    return styles[index % styles.length];
+// Mapping warna untuk Tailwind (harus explicit agar tidak di-purge)
+const colorMap: Record<string, string> = {
+    red: "bg-red",
+    magenta: "bg-magenta",
+    navy: "bg-navy",
+    green: "bg-green",
+    yellow: "bg-yellow",
+};
+
+// Mapping kandidat berdasarkan NIM (sesuai dengan user_app)
+const candidateStyleMap: Record<string, { color: string; number: number }> = {
+    "125140051": { color: "red", number: 1 },      // MUSBAR RAMADHAN
+    "125140148": { color: "navy", number: 2 },  // SEYSAR RIZKY SUJADI
+};
+
+// Helper to get styling based on candidate NIM
+const getCandidateStyling = (nim: string, fallbackIndex: number) => {
+    if (candidateStyleMap[nim]) {
+        return candidateStyleMap[nim];
+    }
+    // Fallback jika NIM tidak ditemukan
+    const fallbackColors = ["navy", "green", "yellow"];
+    return {
+        color: fallbackColors[fallbackIndex % fallbackColors.length],
+        number: fallbackIndex + 1
+    };
 };
 
 const VotingPage = () => {
@@ -22,7 +40,6 @@ const VotingPage = () => {
     const {
         votingToken,
         candidates,
-        isLoading,
         error,
         setLoading,
         setError,
@@ -36,8 +53,7 @@ const VotingPage = () => {
     useEffect(() => {
         // Protect route: if there's no token, redirect to home.
         if (!votingToken) {
-            console.log(candidates)
-            // router.replace('/');
+            router.replace('/');
         }
     }, [votingToken, router]);
 
@@ -136,32 +152,37 @@ const VotingPage = () => {
             )}
 
             <div className="flex flex-wrap items-center justify-center gap-10 relative z-10">
-                {candidates.map((candidate, index) => (
-                    <motion.div
-                        key={candidate.id}
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.4 + index * 0.1 }}
-                        className="flex flex-col items-center gap-6"
-                    >
-                        <CandidatCard
-                            name={candidate.name}
-                            nim={candidate.nim} // NIM is not available in the voting session
-                            base_color={getCandidateStyling(index).color}
-                            kandidat_number={getCandidateStyling(index).number}
-                            vision={candidate.vision}
-                            missions={candidate.mission.split('\n').filter(m => m.trim() !== '')} // Split mission string into array
-                            imageSrc={candidate.image_url || ''}
-                        />
-                        <button
-                            onClick={() => handleVoteClick(candidate)}
-                            disabled={isSubmitting}
-                            className={`w-full bg-${getCandidateStyling(index).color} text-white font-retro text-2xl py-4 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-transform active:translate-x-2 active:translate-y-2 disabled:opacity-50 disabled:cursor-not-allowed`}
+                {candidates.map((candidate, index) => {
+                    const styling = getCandidateStyling(candidate.nim, index);
+                    const bgClass = colorMap[styling.color] || "bg-navy";
+
+                    return (
+                        <motion.div
+                            key={candidate.id}
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.4 + index * 0.1 }}
+                            className="flex flex-col items-center gap-6"
                         >
-                            PILIH {candidate.name.split(' ')[0].toUpperCase()}
-                        </button>
-                    </motion.div>
-                ))}
+                            <CandidatCard
+                                name={candidate.name}
+                                nim={candidate.nim}
+                                base_color={styling.color}
+                                kandidat_number={styling.number}
+                                vision={candidate.vision}
+                                missions={candidate.mission.split('\n').filter(m => m.trim() !== '')}
+                                imageSrc={candidate.image_url || ''}
+                            />
+                            <button
+                                onClick={() => handleVoteClick(candidate)}
+                                disabled={isSubmitting}
+                                className={`w-full ${bgClass} text-white font-retro text-2xl py-4 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-transform active:translate-x-2 active:translate-y-2 disabled:opacity-50 disabled:cursor-not-allowed`}
+                            >
+                                PILIH {candidate.name.split(' ')[0].toUpperCase()}
+                            </button>
+                        </motion.div>
+                    );
+                })}
             </div>
 
             {/* Confirmation Modal */}

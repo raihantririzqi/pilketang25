@@ -47,9 +47,10 @@ export default function DashboardPage() {
 
     const displayUser = user || { name: "User", nim: "000000000", profile_picture: "" };
 
-    const TARGET_DATE = new Date("2026-01-04T09:49:00").getTime();
+    const TARGET_DATE = new Date("2026-01-19T21:36:00").getTime();
 
     useEffect(() => {
+        // Prioritas 1: Jika sudah voting, langsung set VOTED
         if (user?.has_voted) {
             setStatus("VOTED");
             return;
@@ -60,8 +61,11 @@ export default function DashboardPage() {
             const diff = TARGET_DATE - now;
 
             if (diff <= 0) {
+                // Waktu sudah lewat, bilik terbuka
                 setStatus("OPEN");
             } else {
+                // Waktu belum sampai, tetap LOCKED
+                setStatus("LOCKED");
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -156,46 +160,140 @@ export default function DashboardPage() {
                     className="md:col-span-7 border-4 border-black p-8 shadow-[8px_8px_0px_0px_black] flex flex-col justify-center items-center text-center relative overflow-hidden min-h-[400px]"
                 >
                     <AnimatePresence mode="wait">
+                        {/* ========== LOCKED STATE ========== */}
                         {status === "LOCKED" && (
-                            <motion.div key="locked" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative z-10 w-full flex flex-col items-center">
-                                <div className="w-20 h-20 bg-gray-500 text-white border-4 border-black flex items-center justify-center text-4xl shadow-[4px_4px_0px_0px_black] mx-auto mb-4">
-                                    <span className="font-retro">🔒</span>
-                                </div>
-                                <h2 className="font-roster text-3xl md:text-5xl mb-2 text-gray-700">ACCESS LOCKED</h2>
-                                <p className="font-retro text-xs text-black/60 max-w-md mx-auto mb-8 leading-relaxed">
-                                    Sabar dong! biliknya aja belum di buka
+                            <motion.div
+                                key="locked"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0, y: 20 }}
+                                transition={{ duration: 0.3 }}
+                                className="relative z-10 w-full flex flex-col items-center"
+                            >
+                                {/* Icon dengan animasi pulse */}
+                                <motion.div
+                                    animate={{ scale: [1, 1.05, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                    className="w-24 h-24 bg-gray-600 border-4 border-black rounded-2xl flex items-center justify-center shadow-[6px_6px_0px_0px_black] mb-6"
+                                >
+                                    <span className="text-5xl">🔒</span>
+                                </motion.div>
+
+                                <h2 className="font-roster text-3xl md:text-5xl mb-3 text-gray-700">BELUM WAKTUNYA</h2>
+
+                                <p className="font-retro text-xs text-black/60 max-w-xs mx-auto mb-8 leading-relaxed bg-white/50 px-4 py-2 border-2 border-dashed border-gray-400">
+                                    Ditunggu ya! Bilik suara akan segera dibuka sesuai jadwal.
                                 </p>
-                                <div className="bg-black text-white px-6 py-3 border-4 border-gray-500 shadow-[4px_4px_0px_0px_white] font-retro text-sm animate-pulse">
-                                    OPENS IN: {timeLeft || "Checking..."}
+
+                                {/* Timer Box */}
+                                <div className="bg-black border-4 border-gray-600 shadow-[6px_6px_0px_0px_rgba(255,255,255,0.5)] p-1">
+                                    <div className="bg-gray-900 px-6 py-4 border-2 border-gray-700">
+                                        <p className="text-gray-400 text-[10px] font-mono mb-1 tracking-widest">COUNTDOWN</p>
+                                        <p className="text-white font-retro text-lg md:text-xl tracking-wider animate-pulse">
+                                            {timeLeft || "CALCULATING..."}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Decorative dots */}
+                                <div className="flex gap-2 mt-6">
+                                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-pulse"></span>
+                                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{ animationDelay: "0.2s" }}></span>
+                                    <span className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" style={{ animationDelay: "0.4s" }}></span>
                                 </div>
                             </motion.div>
                         )}
 
+                        {/* ========== OPEN STATE ========== */}
                         {status === "OPEN" && (
-                            <motion.div key="open" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 w-full flex flex-col items-center">
+                            <motion.div
+                                key="open"
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                className="relative z-10 w-full flex flex-col items-center"
+                            >
+                                {/* Animated Icon */}
+                                <motion.div
+                                    animate={{ rotate: [0, -10, 10, -10, 0] }}
+                                    transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+                                    className="w-24 h-24 bg-white border-4 border-black rounded-full flex items-center justify-center shadow-[6px_6px_0px_0px_black] mb-6"
+                                >
+                                    <span className="text-5xl">🗳️</span>
+                                </motion.div>
+
                                 <h2 className="font-roster text-3xl md:text-5xl mb-2">READY TO VOTE?</h2>
-                                <p className="font-retro text-xs text-black/80 max-w-md mx-auto mb-8 leading-relaxed">
-                                    Bilik suara telah dibuka. Generate tiket voting kamu dan scan di lokasi.
+
+                                {/* Status Badge */}
+                                <div className="flex items-center gap-2 mb-6">
+                                    <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                                    <span className="font-mono text-xs text-black/70 uppercase tracking-widest">Bilik Suara Terbuka</span>
+                                </div>
+
+                                <p className="font-retro text-xs text-black/80 max-w-xs mx-auto mb-8 leading-relaxed">
+                                    Generate tiket voting kamu dan scan di lokasi pemilihan.
                                 </p>
+
+                                {/* CTA Button dengan glow effect */}
                                 <Link href="/qr_generate">
-                                    <RetroButton text="[ GENERATE TICKET ]" colorClass="bg-[#e84797]" className="w-56 h-16 md:w-64 md:h-16" />
+                                    <motion.div
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="relative"
+                                    >
+                                        {/* Glow effect */}
+                                        <div className="absolute inset-0 bg-magenta/30 blur-xl rounded-lg"></div>
+                                        <RetroButton text="GENERATE TICKET" colorClass="bg-magenta" className="w-56 h-14 md:w-64 md:h-16 relative" />
+                                    </motion.div>
                                 </Link>
-                                <p className="text-[10px] font-retro mt-6 text-black/50 border-t border-black/10 pt-2 inline-block">*TIKET BERSIFAT RAHASIA</p>
+
+                                {/* Warning text */}
+                                <div className="flex items-center gap-2 mt-6 text-[10px] font-retro text-black/50">
+                                    <span>🔐</span>
+                                    <span>TIKET BERSIFAT RAHASIA & SEKALI PAKAI</span>
+                                </div>
                             </motion.div>
                         )}
 
+                        {/* ========== VOTED STATE ========== */}
                         {status === "VOTED" && (
-                            <motion.div key="voted" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
-                                <div className="w-20 h-20 bg-[#65a30d] text-white border-4 border-black flex items-center justify-center text-4xl shadow-[4px_4px_0px_0px_black] mx-auto mb-4">
-                                    <span className="font-retro">OK</span>
-                                </div>
-                                <h2 className="font-roster text-3xl md:text-4xl mb-2">SUARA TERKIRIM!</h2>
-                                <p className="font-retro text-xs text-black/80 max-w-md mx-auto mb-6 leading-relaxed">
-                                    Terima kasih. Data suara Anda telah dienkripsi dan disimpan.
+                            <motion.div
+                                key="voted"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="relative z-10 w-full flex flex-col items-center"
+                            >
+                                {/* Success Icon dengan checkmark */}
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ type: "spring", bounce: 0.5 }}
+                                    className="w-28 h-28 bg-green border-4 border-black rounded-full flex items-center justify-center shadow-[6px_6px_0px_0px_black] mb-6 relative"
+                                >
+                                    <span className="text-white text-5xl font-bold">✓</span>
+                                    {/* Sparkle effects */}
+                                    <motion.span
+                                        animate={{ scale: [0, 1, 0], opacity: [0, 1, 0] }}
+                                        transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 1 }}
+                                        className="absolute -top-2 -right-2 text-2xl"
+                                    >✨</motion.span>
+                                </motion.div>
+
+                                <h2 className="font-roster text-3xl md:text-4xl mb-2 text-black">SUARA TERKIRIM!</h2>
+
+                                <p className="font-retro text-xs text-black/80 max-w-xs mx-auto mb-6 leading-relaxed">
+                                    Terima kasih atas partisipasi Anda dalam Pemilihan Ketua Angkatan 2025.
                                 </p>
-                                <div className="bg-white border-2 border-black p-3 inline-block text-[10px] font-retro text-gray-500">
-                                    HASH: 8x99-AB22-SECURE
+
+                                {/* Status Badge */}
+                                <div className="flex items-center gap-3 bg-white border-4 border-black shadow-[4px_4px_0px_0px_black] px-6 py-3">
+                                    <span className="w-3 h-3 bg-green rounded-full"></span>
+                                    <span className="font-mono text-sm font-bold text-black">TERVERIFIKASI</span>
                                 </div>
+
+                                <p className="text-[10px] font-retro text-black/50 mt-6">
+                                    Suara Anda telah tersimpan dengan aman
+                                </p>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -203,9 +301,9 @@ export default function DashboardPage() {
             </main>
 
             {/* DEV BUTTON */}
-            {/* <div className="fixed bottom-4 right-4 z-50">
+            <div className="fixed bottom-4 right-4 z-50">
                 <RetroButton text={`DEV: ${status}`} colorClass="bg-black" onClick={toggleDevMode} className="w-32 h-10" />
-            </div> */}
+            </div>
         </div>
     );
 }

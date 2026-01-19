@@ -21,6 +21,7 @@ interface ScannedUser {
 const SecurityScanner = () => {
     const router = useRouter();
     const {
+        votingToken,
         setSession,
         clearSession,
         setLoading,
@@ -32,11 +33,15 @@ const SecurityScanner = () => {
     const [scanResult, setScanResult] = useState<ScannedUser | null>(null);
     const [isRedirecting, setIsRedirecting] = useState(false);
     const [logs, setLogs] = useState<string[]>(["> System initialized...", "> Camera Module loaded [OK]"]);
-    const isProcessing = useRef(false); // <--- TAMBAHKAN INI SEBAGAI LOCK
+    const isProcessing = useRef(false);
 
+    // Jika sudah ada voting token, redirect ke halaman voting
+    // Ini mencegah user kembali ke scanner dan scan ulang
     useEffect(() => {
-        clearSession();
-    }, [clearSession]);
+        if (votingToken) {
+            router.replace('/voting');
+        }
+    }, [votingToken, router]);
 
     const addLog = (message: string) => {
         const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
