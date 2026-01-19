@@ -114,7 +114,8 @@ const VotingPage = () => {
                 <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center relative z-10">
                     {/* Success Icon */}
                     <div className="w-24 h-24 bg-white border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-                        <span className="text-5xl">✓</span>
+                        {/* Tambahkan text-black atau text-[#2c9f45] agar centang terlihat */}
+                        <span className="text-5xl text-black font-bold">✓</span>
                     </div>
                     <h1 className="text-5xl mb-4 font-roster">TERIMA KASIH!</h1>
                     <p className="text-xl font-mono">Suara Anda telah berhasil direkam.</p>
