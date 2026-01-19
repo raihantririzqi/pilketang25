@@ -32,6 +32,7 @@ const SecurityScanner = () => {
 
     const [scanResult, setScanResult] = useState<ScannedUser | null>(null);
     const [isRedirecting, setIsRedirecting] = useState(false);
+    const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
     const [logs, setLogs] = useState<string[]>(["> System initialized...", "> Camera Module loaded [OK]"]);
     const isProcessing = useRef(false);
 
@@ -91,10 +92,11 @@ const SecurityScanner = () => {
 
                         setScanResult(user);
                         addLog(`ACCESS GRANTED: ${user.name}`);
-                        startRedirection();
+                        addLog("Menunggu konfirmasi koordinator...");
+                        setAwaitingConfirmation(true);
+                        setLoading(false);
 
-                        // Note: Jika sukses dan redirect, kita TIDAK membuka lock
-                        // agar tidak ada scan lagi selama proses pindah halaman.
+                        // Note: Tidak langsung redirect, tunggu koordinator konfirmasi
 
                     } else {
                         throw new Error("Invalid QR Data Structure");
@@ -117,8 +119,11 @@ const SecurityScanner = () => {
         }
     };
 
-    const startRedirection = () => {
+    // Koordinator mengkonfirmasi identitas pemilih
+    const handleConfirmIdentity = () => {
+        setAwaitingConfirmation(false);
         setIsRedirecting(true);
+        addLog("Identitas dikonfirmasi koordinator");
         addLog("Syncing encrypted session data...");
         addLog("Redirecting to voting booth...");
 
@@ -127,6 +132,19 @@ const SecurityScanner = () => {
             setIsRedirecting(false);
             setScanResult(null);
         }, 2500);
+    };
+
+    // Koordinator menolak/membatalkan scan
+    const handleRejectIdentity = () => {
+        addLog("[REJECTED] Identitas ditolak koordinator");
+        addLog("Resetting scanner sequence...");
+        setAwaitingConfirmation(false);
+        setScanResult(null);
+        clearSession();
+
+        setTimeout(() => {
+            isProcessing.current = false;
+        }, 1000);
     };
 
     const handleError = (error: any) => {
@@ -145,8 +163,8 @@ const SecurityScanner = () => {
                 </div>
                 <div className="flex gap-4 font-mono text-xs">
                     <div className="flex items-center gap-2">
-                        <span className={`w-3 h-3 rounded-full ${isRedirecting ? 'bg-blue-500 animate-ping' : isLoading ? 'bg-yellow-500 animate-pulse' : error ? 'bg-red-500' : 'bg-green-500'}`}></span>
-                        <span>{isRedirecting ? 'REDIRECTING...' : isLoading ? 'PROCESSING...' : error ? 'ERROR' : 'SYSTEM READY'}</span>
+                        <span className={`w-3 h-3 rounded-full ${isRedirecting ? 'bg-blue-500 animate-ping' : awaitingConfirmation ? 'bg-yellow-500 animate-pulse' : isLoading ? 'bg-yellow-500 animate-pulse' : error ? 'bg-red-500' : 'bg-green-500'}`}></span>
+                        <span>{isRedirecting ? 'REDIRECTING...' : awaitingConfirmation ? 'AWAITING CONFIRMATION' : isLoading ? 'PROCESSING...' : error ? 'ERROR' : 'SYSTEM READY'}</span>
                     </div>
                 </div>
             </div>
@@ -186,7 +204,7 @@ const SecurityScanner = () => {
                                 )}
                             </div>
 
-                            {(isLoading || isRedirecting || error) && (
+                            {(isLoading || isRedirecting || awaitingConfirmation || error) && (
                                 <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-4 text-center p-4">
                                     {isRedirecting ? (
                                         <>
@@ -200,6 +218,16 @@ const SecurityScanner = () => {
                                                 />
                                             </div>
                                         </>
+                                    ) : awaitingConfirmation ? (
+                                        <div className="flex flex-col items-center gap-3">
+                                            <div className="text-yellow-400 font-mono text-xl animate-pulse">IDENTITY VERIFIED</div>
+                                            <div className="text-white font-mono text-sm">Menunggu konfirmasi koordinator lapangan...</div>
+                                            <div className="flex gap-2 mt-2">
+                                                <span className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"></span>
+                                                <span className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></span>
+                                                <span className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                                            </div>
+                                        </div>
                                     ) : isLoading ? (
                                         <div className="text-white font-mono text-xl animate-pulse">ANALYZING SIGNATURE...</div>
                                     ) : (
@@ -257,6 +285,26 @@ const SecurityScanner = () => {
                                         {isRedirecting ? (
                                             <div className="bg-blue-100 border-2 border-blue-500 text-blue-800 py-3 font-mono text-[10px] rounded animate-pulse uppercase">
                                                 Syncing Voting Booth...
+                                            </div>
+                                        ) : awaitingConfirmation ? (
+                                            <div className="flex flex-col gap-3">
+                                                <div className="bg-yellow-100 border-2 border-yellow-500 text-yellow-800 py-2 px-3 font-mono text-[10px] rounded uppercase">
+                                                    Menunggu Konfirmasi Koordinator
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={handleRejectIdentity}
+                                                        className="flex-1 bg-red-500 text-white font-retro text-sm py-3 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all active:bg-red-600"
+                                                    >
+                                                        TOLAK
+                                                    </button>
+                                                    <button
+                                                        onClick={handleConfirmIdentity}
+                                                        className="flex-1 bg-green-500 text-white font-retro text-sm py-3 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all active:bg-green-600"
+                                                    >
+                                                        LANJUTKAN
+                                                    </button>
+                                                </div>
                                             </div>
                                         ) : (
                                             <div className="text-green-600 font-bold text-xs font-mono uppercase">
