@@ -124,6 +124,18 @@ const VotingPage = () => {
         )
     }
 
+    if (!votingToken || !candidates || candidates.length === 0) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-[#fdf8f4] text-black font-mono relative">
+                <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[20px_20px] pointer-events-none" />
+                <div className="flex flex-col items-center gap-2 relative z-10">
+                    <span className="animate-pulse">VERIFYING_SESSION_ACCESS...</span>
+                    <span className="text-[10px] text-gray-400">UNAUTHORIZED ACCESS DETECTED</span>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <main className="min-h-screen bg-[#fdf8f4] flex flex-col items-center justify-center p-8 relative overflow-hidden">
             {/* Background Pattern */}

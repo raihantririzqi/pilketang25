@@ -33,11 +33,14 @@ const SecurityScanner = () => {
     const [scanResult, setScanResult] = useState<ScannedUser | null>(null);
     const [isRedirecting, setIsRedirecting] = useState(false);
     const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+
+    // Logic: Simpan data API di sini dulu, jangan di Store global agar /voting tidak bisa diakses manual
+    const [pendingSession, setPendingSession] = useState<{ voting_token: string; candidates: any[] } | null>(null);
+
     const [logs, setLogs] = useState<string[]>(["> System initialized...", "> Camera Module loaded [OK]"]);
     const isProcessing = useRef(false);
 
-    // Jika sudah ada voting token, redirect ke halaman voting
-    // Ini mencegah user kembali ke scanner dan scan ulang
+    // Mencegah scanner tetap terbuka jika sudah punya session aktif
     useEffect(() => {
         if (votingToken) {
             router.replace('/voting');
@@ -49,7 +52,6 @@ const SecurityScanner = () => {
         setLogs(prev => [`[${time}] ${message}`, ...prev].slice(0, 8));
     };
 
-
     const handleScan = async (detectedCodes: any) => {
         if (isProcessing.current) return;
 
@@ -57,9 +59,7 @@ const SecurityScanner = () => {
             const rawValue = detectedCodes[0].rawValue;
 
             if (rawValue) {
-                // AKTIFKAN LOCK SEGERA
                 isProcessing.current = true;
-
                 setLoading(true);
                 setError(null);
                 setScanResult(null);
@@ -78,8 +78,9 @@ const SecurityScanner = () => {
                             qr_token: extractedToken
                         });
 
+                        // LOGIKA BARU: Simpan ke state lokal dulu (pendingSession)
                         const { voting_token, candidates } = response.data.result;
-                        setSession(voting_token, candidates);
+                        setPendingSession({ voting_token, candidates });
 
                         const user: ScannedUser = {
                             nim: extractedNIM,
@@ -96,8 +97,6 @@ const SecurityScanner = () => {
                         setAwaitingConfirmation(true);
                         setLoading(false);
 
-                        // Note: Tidak langsung redirect, tunggu koordinator konfirmasi
-
                     } else {
                         throw new Error("Invalid QR Data Structure");
                     }
@@ -108,9 +107,8 @@ const SecurityScanner = () => {
                     addLog(`[ERROR] ${errorMsg.toUpperCase()}`);
                     addLog("Resetting scanner sequence...");
 
-                    // Jika error, buka kembali lock setelah delay agar bisa scan ulang
                     setTimeout(() => {
-                        isProcessing.current = false; // <--- BUKA LOCK SETELAH 3 DETIK
+                        isProcessing.current = false;
                         setLoading(false);
                         clearSession();
                     }, 3000);
@@ -119,8 +117,13 @@ const SecurityScanner = () => {
         }
     };
 
-    // Koordinator mengkonfirmasi identitas pemilih
+    // LOGIKA BARU: Session baru diset ke Store Global saat tombol diklik
     const handleConfirmIdentity = () => {
+        if (!pendingSession) return;
+
+        // Sekarang user resmi punya token, halaman /voting sekarang bisa diakses
+        setSession(pendingSession.voting_token, pendingSession.candidates);
+
         setAwaitingConfirmation(false);
         setIsRedirecting(true);
         addLog("Identitas dikonfirmasi koordinator");
@@ -129,17 +132,16 @@ const SecurityScanner = () => {
 
         setTimeout(() => {
             router.push(`/voting`);
-            setIsRedirecting(false);
-            setScanResult(null);
+            // setIsRedirecting(false); // Opsional karena akan pindah page
         }, 2500);
     };
 
-    // Koordinator menolak/membatalkan scan
     const handleRejectIdentity = () => {
         addLog("[REJECTED] Identitas ditolak koordinator");
         addLog("Resetting scanner sequence...");
         setAwaitingConfirmation(false);
         setScanResult(null);
+        setPendingSession(null); // Hapus data pending
         clearSession();
 
         setTimeout(() => {
