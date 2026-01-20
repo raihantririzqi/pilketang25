@@ -43,7 +43,7 @@ export class AuthController {
         jwt({
           name: "access_jwt",
           secret: process.env.JWT_SECRET!,
-          exp: '1m',
+          exp: '30m',
         }),
       )
       .use(

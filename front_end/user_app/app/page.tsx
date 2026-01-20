@@ -11,6 +11,8 @@ import FaqSection from "@/components/sections/FaqSection";
 import SectionDivider from "@/components/ui/SectionDivider";
 import RundownSection from "@/components/sections/RundownSection";
 import PixelLoader from "@/components/ui/NeoLoader";
+import FloatingHearts from "@/components/ui/FloatingHearts";
+import ScrollConfetti from "@/components/ui/ScrollConfetti";
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -38,6 +40,10 @@ const Home = () => {
           {/* --- BACKGROUND PATTERN (Diterapkan Global) --- */}
           {/* Menggunakan h-full agar memanjang sampai bawah mengikuti konten */}
           <div className="absolute inset-0 z-0 opacity-10 bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[20px_20px] pointer-events-none"></div>
+
+          {/* --- VALENTINE LOVE AURA --- */}
+          <FloatingHearts />
+          <ScrollConfetti targetId="kandidat-section" />
 
           {/* --- KONTEN HALAMAN (Z-10 agar di atas pattern) --- */}
           <div className="relative z-10">

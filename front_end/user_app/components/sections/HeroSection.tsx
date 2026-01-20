@@ -4,6 +4,9 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { containerVariants, fadeInUpVariants, floatingAnimation, neonBacklight, popUpVariants, slowFloatingAnimation } from "../common/animation";
 import Link from "next/link";
+import { useState, useCallback } from "react";
+import EasterEgg from "../ui/EasterEgg";
+import TypingText from "../ui/TypingText";
 
 // --- DEFINISI ANIMASI GLOW BARU ---
 const textGlowAnimation = {
@@ -20,7 +23,32 @@ const textGlowAnimation = {
     },
 };
 
+// --- ANIMASI LOVE PULSE ---
+const lovePulseAnimation = {
+    scale: [1, 1.1, 1],
+    opacity: [0.3, 0.6, 0.3],
+    transition: {
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut" as const,
+    },
+};
+
+// --- ANIMASI FLOATING HEART ---
+const heartFloatAnimation = {
+    y: [0, -10, 0],
+    rotate: [-5, 5, -5],
+    transition: {
+        duration: 3,
+        repeat: Infinity,
+        ease: "easeInOut" as const,
+    },
+};
+
 const HeroSection = () => {
+    const [clickCount, setClickCount] = useState(0);
+    const [showEasterEgg, setShowEasterEgg] = useState(false);
+
     const handleStartScroll = () => {
         const section = document.getElementById("kandidat-section");
         if (section) {
@@ -28,9 +56,77 @@ const HeroSection = () => {
         }
     };
 
+    // Easter egg: klik logo 5x
+    const handleLogoClick = useCallback(() => {
+        const newCount = clickCount + 1;
+        setClickCount(newCount);
+
+        if (newCount >= 5) {
+            setShowEasterEgg(true);
+            setClickCount(0);
+        }
+
+        // Reset count setelah 2 detik jika tidak mencapai 5
+        setTimeout(() => {
+            setClickCount((prev) => (prev === newCount ? 0 : prev));
+        }, 2000);
+    }, [clickCount]);
+
     return (
-        <section id="hero-section" className="flex flex-col min-h-screen container mx-auto py-10 items-center justify-center overflow-x-hidden pt-20">
+        <section id="hero-section" className="relative flex flex-col min-h-screen container mx-auto py-10 items-center justify-center overflow-x-hidden pt-20">
             {/* overflow-x-hidden: Mencegah scroll samping jika ada animasi yang lewat batas */}
+
+            {/* Easter Egg Component */}
+            <EasterEgg trigger={showEasterEgg} onComplete={() => setShowEasterEgg(false)} />
+
+            {/* === VALENTINE LOVE AURA DECORATIONS === */}
+            {/* Floating Hearts Around Logo */}
+            <motion.div
+                animate={heartFloatAnimation}
+                className="absolute top-32 left-10 lg:left-32 text-4xl lg:text-6xl text-pink-400/40 pointer-events-none"
+            >
+                ♥
+            </motion.div>
+            <motion.div
+                animate={{
+                    ...heartFloatAnimation,
+                    transition: { ...heartFloatAnimation.transition, delay: 0.5 },
+                }}
+                className="absolute top-48 right-10 lg:right-40 text-3xl lg:text-5xl text-magenta/30 pointer-events-none"
+            >
+                ♥
+            </motion.div>
+            <motion.div
+                animate={{
+                    ...heartFloatAnimation,
+                    transition: { ...heartFloatAnimation.transition, delay: 1 },
+                }}
+                className="absolute bottom-40 left-20 lg:left-48 text-2xl lg:text-4xl text-red-400/30 pointer-events-none"
+            >
+                ♥
+            </motion.div>
+            <motion.div
+                animate={{
+                    ...heartFloatAnimation,
+                    transition: { ...heartFloatAnimation.transition, delay: 1.5 },
+                }}
+                className="absolute bottom-60 right-16 lg:right-56 text-3xl lg:text-5xl text-pink-500/25 pointer-events-none"
+            >
+                ♥
+            </motion.div>
+
+            {/* Love Glow Background Orbs */}
+            <motion.div
+                animate={lovePulseAnimation}
+                className="absolute top-1/3 left-1/4 w-32 h-32 lg:w-64 lg:h-64 rounded-full bg-linear-to-r from-pink-400/20 to-magenta/20 blur-[60px] lg:blur-[100px] pointer-events-none"
+            />
+            <motion.div
+                animate={{
+                    ...lovePulseAnimation,
+                    transition: { ...lovePulseAnimation.transition, delay: 1 },
+                }}
+                className="absolute bottom-1/3 right-1/4 w-40 h-40 lg:w-72 lg:h-72 rounded-full bg-linear-to-l from-red-400/15 to-pink-500/20 blur-[70px] lg:blur-[120px] pointer-events-none"
+            />
 
             <motion.div
                 variants={containerVariants}
@@ -55,22 +151,35 @@ const HeroSection = () => {
                         // blur besar membuat efek pendaran cahaya lembut
                         />
 
-                        {/* === LOGO UTAMA (TETAP SAMA) === */}
+                        {/* === LOGO UTAMA (DENGAN EASTER EGG) === */}
                         <motion.div
                             animate={slowFloatingAnimation}
+                            onClick={handleLogoClick}
+                            whileTap={{ scale: 0.95 }}
                             // Tambahkan 'relative z-10' agar berada di atas layer glow
-                            className="relative z-10 bg-white rounded-full h-48 w-48 sm:h-64 sm:w-64 lg:h-80 lg:w-80 flex items-center justify-center border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] lg:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]"
+                            className="relative z-10 bg-white rounded-full h-48 w-48 sm:h-64 sm:w-64 lg:h-80 lg:w-80 flex items-center justify-center border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] lg:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] cursor-pointer select-none"
                         >
                             <Image
                                 src="/images/logo_pemiket.png"
                                 alt="Logo Pemiket"
                                 fill
-                                className="object-contain p-6 lg:p-10"
+                                className="object-contain p-6 lg:p-10 pointer-events-none"
                                 sizes="(max-width: 768px) 192px, 384px"
                                 priority
                             />
                             {/* Efek Kilau Stiker (Opsional) */}
                             <div className="absolute top-6 right-8 w-8 h-4 bg-white/50 rounded-full rotate-45 blur-[2px]"></div>
+
+                            {/* Click indicator (hint) */}
+                            {clickCount > 0 && clickCount < 5 && (
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-magenta text-white text-xs font-retro px-2 py-1 rounded-full"
+                                >
+                                    {clickCount}/5
+                                </motion.div>
+                            )}
                         </motion.div>
                     </motion.div>
 
@@ -84,7 +193,7 @@ const HeroSection = () => {
                                 {/* Star 2 */}
                                 <div className="absolute -right-2 -bottom-2 lg:left-1 lg:bottom-5 w-5 h-5 lg:translate-x-70.5 lg:translate-y-8 lg:w-8 lg:h-8 bg-blue-600 rotate-6 [clip-path:polygon(50%_0%,61%_35%,98%_35%,68%_57%,79%_91%,50%_70%,21%_91%,32%_57%,2%_35%,39%_35%)]"></div>
 
-                                {/* UPDATE 4: Font size badge diperkecil (text-sm) agar tidak kepotong di HP kecil */}
+                                {/* Badge */}
                                 <div className="bg-magenta px-3 py-1 lg:px-4 lg:py-2 rounded-lg text-sm lg:text-2xl shadow-lg border-2 border-black">
                                     <span className="text-white font-retro whitespace-nowrap">Satu Suara, Satu Angkatan!!</span>
                                 </div>
@@ -101,7 +210,14 @@ const HeroSection = () => {
                             <motion.div animate={textGlowAnimation} className="text-center">
                                 <div className="text-black">Selamat</div>
                                 <div className="text-black">Datang Di</div>
-                                <div className="text-magenta mt-1 lg:mt-2">Peduli Hati</div>
+                                <div className="text-magenta mt-1 lg:mt-2">
+                                    <TypingText
+                                        text="Peduli Hati"
+                                        speed={120}
+                                        delay={800}
+                                        showCursor={true}
+                                    />
+                                </div>
                             </motion.div>
                         </motion.div>
 
