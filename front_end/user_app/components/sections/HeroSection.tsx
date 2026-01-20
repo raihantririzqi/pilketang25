@@ -4,8 +4,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { containerVariants, fadeInUpVariants, floatingAnimation, neonBacklight, popUpVariants, slowFloatingAnimation } from "../common/animation";
 import Link from "next/link";
-import { useState, useCallback } from "react";
-import EasterEgg from "../ui/EasterEgg";
 
 // --- DEFINISI ANIMASI GLOW BARU ---
 const textGlowAnimation = {
@@ -23,9 +21,6 @@ const textGlowAnimation = {
 };
 
 const HeroSection = () => {
-    const [clickCount, setClickCount] = useState(0);
-    const [showEasterEgg, setShowEasterEgg] = useState(false);
-
     const handleStartScroll = () => {
         const section = document.getElementById("kandidat-section");
         if (section) {
@@ -33,28 +28,9 @@ const HeroSection = () => {
         }
     };
 
-    // Easter egg: klik logo 5x
-    const handleLogoClick = useCallback(() => {
-        const newCount = clickCount + 1;
-        setClickCount(newCount);
-
-        if (newCount >= 5) {
-            setShowEasterEgg(true);
-            setClickCount(0);
-        }
-
-        // Reset count setelah 2 detik jika tidak mencapai 5
-        setTimeout(() => {
-            setClickCount((prev) => (prev === newCount ? 0 : prev));
-        }, 2000);
-    }, [clickCount]);
-
     return (
         <section id="hero-section" className="relative flex flex-col min-h-screen container mx-auto py-10 items-center justify-center overflow-x-hidden pt-20">
             {/* overflow-x-hidden: Mencegah scroll samping jika ada animasi yang lewat batas */}
-
-            {/* Easter Egg Component */}
-            <EasterEgg trigger={showEasterEgg} onComplete={() => setShowEasterEgg(false)} />
 
             <motion.div
                 variants={containerVariants}
@@ -79,35 +55,22 @@ const HeroSection = () => {
                         // blur besar membuat efek pendaran cahaya lembut
                         />
 
-                        {/* === LOGO UTAMA (DENGAN EASTER EGG) === */}
+                        {/* === LOGO UTAMA === */}
                         <motion.div
                             animate={slowFloatingAnimation}
-                            onClick={handleLogoClick}
-                            whileTap={{ scale: 0.95 }}
                             // Tambahkan 'relative z-10' agar berada di atas layer glow
-                            className="relative z-10 bg-white rounded-full h-48 w-48 sm:h-64 sm:w-64 lg:h-80 lg:w-80 flex items-center justify-center border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] lg:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] cursor-pointer select-none"
+                            className="relative z-10 bg-white rounded-full h-48 w-48 sm:h-64 sm:w-64 lg:h-80 lg:w-80 flex items-center justify-center border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] lg:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]"
                         >
                             <Image
                                 src="/images/logo_pemiket.png"
                                 alt="Logo Pemiket"
                                 fill
-                                className="object-contain p-6 lg:p-10 pointer-events-none"
+                                className="object-contain p-6 lg:p-10"
                                 sizes="(max-width: 768px) 192px, 384px"
                                 priority
                             />
                             {/* Efek Kilau Stiker (Opsional) */}
                             <div className="absolute top-6 right-8 w-8 h-4 bg-white/50 rounded-full rotate-45 blur-[2px]"></div>
-
-                            {/* Click indicator (hint) */}
-                            {clickCount > 0 && clickCount < 5 && (
-                                <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-magenta text-white text-xs font-retro px-2 py-1 rounded-full"
-                                >
-                                    {clickCount}/5
-                                </motion.div>
-                            )}
                         </motion.div>
                     </motion.div>
 
