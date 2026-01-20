@@ -34,7 +34,7 @@ const Home = () => {
       {!isLoading && (
         // WRAPPER UTAMA (Relative & Background Color)
         <div className="relative min-h-screen bg-background">
-          
+
           {/* --- BACKGROUND PATTERN (Diterapkan Global) --- */}
           {/* Menggunakan h-full agar memanjang sampai bawah mengikuti konten */}
           <div className="absolute inset-0 z-0 opacity-10 bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[20px_20px] pointer-events-none"></div>
@@ -44,7 +44,7 @@ const Home = () => {
             <Navbar />
 
             <main className="container mx-auto px-4">
-              
+
               <HeroSection />
 
               <SectionDivider />
@@ -64,7 +64,7 @@ const Home = () => {
 
             <FaqSection />
           </div>
-          
+
         </div>
       )}
     </>
