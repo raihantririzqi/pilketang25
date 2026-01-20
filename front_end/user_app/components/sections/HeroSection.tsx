@@ -6,7 +6,6 @@ import { containerVariants, fadeInUpVariants, floatingAnimation, neonBacklight, 
 import Link from "next/link";
 import { useState, useCallback } from "react";
 import EasterEgg from "../ui/EasterEgg";
-import TypingText from "../ui/TypingText";
 
 // --- DEFINISI ANIMASI GLOW BARU ---
 const textGlowAnimation = {
@@ -16,28 +15,6 @@ const textGlowAnimation = {
         "0px 0px 20px rgba(214, 101, 141, 0.6)",
         "0px 0px 0px rgba(214, 101, 141, 0)"
     ],
-    transition: {
-        duration: 3,
-        repeat: Infinity,
-        ease: "easeInOut" as const,
-    },
-};
-
-// --- ANIMASI LOVE PULSE ---
-const lovePulseAnimation = {
-    scale: [1, 1.1, 1],
-    opacity: [0.3, 0.6, 0.3],
-    transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: "easeInOut" as const,
-    },
-};
-
-// --- ANIMASI FLOATING HEART ---
-const heartFloatAnimation = {
-    y: [0, -10, 0],
-    rotate: [-5, 5, -5],
     transition: {
         duration: 3,
         repeat: Infinity,
@@ -78,55 +55,6 @@ const HeroSection = () => {
 
             {/* Easter Egg Component */}
             <EasterEgg trigger={showEasterEgg} onComplete={() => setShowEasterEgg(false)} />
-
-            {/* === VALENTINE LOVE AURA DECORATIONS === */}
-            {/* Floating Hearts Around Logo */}
-            <motion.div
-                animate={heartFloatAnimation}
-                className="absolute top-32 left-10 lg:left-32 text-4xl lg:text-6xl text-pink-400/40 pointer-events-none"
-            >
-                ♥
-            </motion.div>
-            <motion.div
-                animate={{
-                    ...heartFloatAnimation,
-                    transition: { ...heartFloatAnimation.transition, delay: 0.5 },
-                }}
-                className="absolute top-48 right-10 lg:right-40 text-3xl lg:text-5xl text-magenta/30 pointer-events-none"
-            >
-                ♥
-            </motion.div>
-            <motion.div
-                animate={{
-                    ...heartFloatAnimation,
-                    transition: { ...heartFloatAnimation.transition, delay: 1 },
-                }}
-                className="absolute bottom-40 left-20 lg:left-48 text-2xl lg:text-4xl text-red-400/30 pointer-events-none"
-            >
-                ♥
-            </motion.div>
-            <motion.div
-                animate={{
-                    ...heartFloatAnimation,
-                    transition: { ...heartFloatAnimation.transition, delay: 1.5 },
-                }}
-                className="absolute bottom-60 right-16 lg:right-56 text-3xl lg:text-5xl text-pink-500/25 pointer-events-none"
-            >
-                ♥
-            </motion.div>
-
-            {/* Love Glow Background Orbs */}
-            <motion.div
-                animate={lovePulseAnimation}
-                className="absolute top-1/3 left-1/4 w-32 h-32 lg:w-64 lg:h-64 rounded-full bg-linear-to-r from-pink-400/20 to-magenta/20 blur-[60px] lg:blur-[100px] pointer-events-none"
-            />
-            <motion.div
-                animate={{
-                    ...lovePulseAnimation,
-                    transition: { ...lovePulseAnimation.transition, delay: 1 },
-                }}
-                className="absolute bottom-1/3 right-1/4 w-40 h-40 lg:w-72 lg:h-72 rounded-full bg-linear-to-l from-red-400/15 to-pink-500/20 blur-[70px] lg:blur-[120px] pointer-events-none"
-            />
 
             <motion.div
                 variants={containerVariants}
@@ -210,14 +138,7 @@ const HeroSection = () => {
                             <motion.div animate={textGlowAnimation} className="text-center">
                                 <div className="text-black">Selamat</div>
                                 <div className="text-black">Datang Di</div>
-                                <div className="text-magenta mt-1 lg:mt-2">
-                                    <TypingText
-                                        text="Peduli Hati"
-                                        speed={120}
-                                        delay={800}
-                                        showCursor={true}
-                                    />
-                                </div>
+                                <div className="text-magenta mt-1 lg:mt-2">Peduli Hati</div>
                             </motion.div>
                         </motion.div>
 
