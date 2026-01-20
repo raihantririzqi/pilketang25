@@ -248,7 +248,7 @@ export default function GenerateQrPage() {
                     <div className="w-full mb-4">
                       <div className="flex justify-between font-mono text-[10px] font-bold mb-1">
                         <span className={isTimeout ? "text-gray-400" : "text-red-500 animate-pulse"}>
-                          {isChecking ? "CHECKING..." : isTimeout ? "EXPIRED" : "VALID UNTIL"}
+                          {isChecking ? "CHECKING..." : isTimeout ? "EXPIRED" : "TIME LEFT"}
                         </span>
                         <span>{timeLeft}s</span>
                       </div>
