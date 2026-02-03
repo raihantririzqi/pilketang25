@@ -99,38 +99,38 @@ const CandidateCard = ({
               {/* Foto Container */}
               <div className="h-full w-full flex justify-center p-4 bg-gray-50">
                 <div className="relative w-full h-full bg-white border-4 overflow-hidden shadow-inner">
-                  
+
                   {/* --- ANIMASI FOTO (WRAPPER) --- */}
                   {/* Kita bungkus Image dengan motion.div agar fotonya bergerak halus */}
-                  <motion.div 
+                  <motion.div
                     className="relative w-full h-full"
                     animate={photoFloatAnimation} // Pasang animasi di sini
                   >
-                     {/* Placeholder Image (Jika src kosong/error) */}
-                     {/* Uncomment Image di bawah jika sudah ada file aslinya */}
-                     {/* <Image 
-                        src={imageSrc}
-                        alt={`Foto ${name}`}
-                        fill
-                        className="object-cover object-top"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      /> 
-                      */}
-                      
-                      {/* Placeholder Sementara (Hapus div ini jika Image sudah aktif) */}
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 font-mono text-xs">
-                        NO_IMAGE_SIGNAL
-                      </div>
+                    {/* Placeholder Image (Jika src kosong/error) */}
+                    {/* Uncomment Image di bawah jika sudah ada file aslinya */}
+                    <Image
+                      src={imageSrc}
+                      alt={`Foto ${name}`}
+                      fill
+                      className="object-cover object-top"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+
+
+                    {/* Placeholder Sementara (Hapus div ini jika Image sudah aktif) */}
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 font-mono text-xs">
+                      NO_IMAGE_SIGNAL
+                    </div>
 
                   </motion.div>
 
                   {/* Overlay Nama File (.exe style) */}
-                  <div className="absolute w-full border-t-4 h-12 bottom-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10 shadow-lg">
-                    
+                  <div className="absolute w-full border-t-4 h-12 bottom-0 bg-white/60 backdrop-blur-md flex items-center justify-center z-10 shadow-lg">
+
                     {/* --- ANIMASI SEGITIGA --- */}
                     <motion.div
-                        animate={triangleBounce}
-                        className={`mr-4 w-0 h-0
+                      animate={triangleBounce}
+                      className={`mr-4 w-0 h-0
                         border-t-[10px] border-t-transparent
                         border-b-[10px] border-b-transparent
                         border-l-[15px] ${colors.borderLeft}`}
@@ -139,7 +139,7 @@ const CandidateCard = ({
 
                     {/* Teks Nama File */}
                     <span className="font-retro text-xs lg:text-sm truncate max-w-[150px] text-black">
-                        {name.split(" ")[0].toLowerCase()}.exe
+                      {name.split(" ")[0].toLowerCase()}.exe
                     </span>
 
                   </div>

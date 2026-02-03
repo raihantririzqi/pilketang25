@@ -15,10 +15,10 @@ const candidatesData = [
   {
     name: "Musbar Ramadhan",
     nim: "125140051",
-    base_color: "red",
+    base_color: "navy",
     kandidat_number: 1,
     vision: "Mewujudkan nortbyte'25 sebagai angkatan yang kolaboratif, seling menghargai perbedaan, serta bertumbuh bersama tanpa menghilangkan karakter masing masing",
-    imageSrc: "images/kandidat/1.jpg",
+    imageSrc: "/images/musbar.png",
     missions: [
       "N: Nyata dalam kolaborasi (mendorong kolaborasi yang nyata baik akademik dan non akademik tanpa memandang latar belakang ataupun kemapuan)",
       "O: open space untuk semua karakter (menciptakan ruangan yang terbuka dan inklusif dengan beragam minat dan karakter) ",
@@ -30,10 +30,10 @@ const candidatesData = [
   {
     name: "Seysar Rizky Sujadi",
     nim: "125140148",
-    base_color: "navy",
+    base_color: "green",
     kandidat_number: 2,
     vision: "menjadikan NordByte sebagai wadah untuk berkembang di bidang akademik maupun non akademik dengan tujuan menggali potensi diri dari masing-masing individu anggota Nordbyte.",
-    imageSrc: "images/kandidat/2.jpg",
+    imageSrc: "/images/seysar.png",
     missions: [
       "Menyediakan sebuah forum khusus untuk masing-masing bidang minat dan bakat.",
       "Membangun komunikasi yang aktif dan terbuka dengan tujuan memperkuat hubungan antara anggota.",
