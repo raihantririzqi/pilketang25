@@ -106,21 +106,19 @@ const CandidateCard = ({
                     className="relative w-full h-full"
                     animate={photoFloatAnimation} // Pasang animasi di sini
                   >
-                    {/* Placeholder Image (Jika src kosong/error) */}
-                    {/* Uncomment Image di bawah jika sudah ada file aslinya */}
-                    {/* <Image 
+                    {imageSrc ? (
+                      <Image
                         src={imageSrc}
                         alt={`Foto ${name}`}
                         fill
                         className="object-cover object-top"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      /> 
-                      */}
-
-                    {/* Placeholder Sementara (Hapus div ini jika Image sudah aktif) */}
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 font-mono text-xs">
-                      NO_IMAGE_SIGNAL
-                    </div>
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 font-mono text-xs">
+                        NO_IMAGE_SIGNAL
+                      </div>
+                    )}
 
                   </motion.div>
 

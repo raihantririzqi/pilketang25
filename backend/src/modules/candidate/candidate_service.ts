@@ -16,6 +16,7 @@ export class CandidateService {
         nim: true,
         vision: true,
         mission: true,
+        photo_url: true,
       },
     });
 

@@ -48,11 +48,30 @@ export default function DashboardPage() {
 
     // COMMITTEE: publish state
     const [isPublishing, setIsPublishing] = useState(false);
+    const [isAlreadyPublished, setIsAlreadyPublished] = useState(false);
+    const [publishedAt, setPublishedAt] = useState<string | null>(null);
     const [publishResult, setPublishResult] = useState<{ total_votes: number; total_candidates: number } | null>(null);
     const [publishError, setPublishError] = useState("");
 
     const isCommittee = user?.role === "COMMITTEE";
     const SESSION_ID = "session_pilketang_2025";
+
+    // Cek status publish saat mount (hanya untuk COMMITTEE)
+    useEffect(() => {
+        if (!isCommittee) return;
+        const checkPublishStatus = async () => {
+            try {
+                const res = await api.get(`/sessions/${SESSION_ID}/results`);
+                if (res.data.result?.is_published) {
+                    setIsAlreadyPublished(true);
+                    setPublishedAt(res.data.result.published_at);
+                }
+            } catch {
+                // Belum di-publish atau error — abaikan
+            }
+        };
+        checkPublishStatus();
+    }, [isCommittee]);
 
     const handlePublish = async () => {
         if (!confirm("Yakin ingin publish hasil voting? Aksi ini tidak bisa dibatalkan.")) return;
@@ -61,6 +80,8 @@ export default function DashboardPage() {
         try {
             const res = await api.post(`/sessions/${SESSION_ID}/publish`);
             setPublishResult(res.data.result);
+            setIsAlreadyPublished(true);
+            setPublishedAt(new Date().toISOString());
         } catch (err: any) {
             const msg = err.response?.data?.message || err.response?.data?.errors?.[0] || "Gagal publish hasil";
             setPublishError(msg);
@@ -343,10 +364,27 @@ export default function DashboardPage() {
                         </div>
 
                         <div className="border-t-2 border-dashed border-gray-300 pt-4 space-y-4">
+                            {/* STATUS: Sudah di-publish */}
+                            {isAlreadyPublished && (
+                                <div className="flex items-center gap-3 bg-green/10 border-2 border-green p-3">
+                                    <span className="w-3 h-3 bg-green rounded-full"></span>
+                                    <div className="font-mono text-sm">
+                                        <span className="font-bold text-green">SUDAH DI-PUBLISH</span>
+                                        {publishedAt && (
+                                            <span className="text-gray-500 ml-2 text-xs">
+                                                — {new Date(publishedAt).toLocaleString("id-ID")}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                 <div className="flex-1">
                                     <p className="font-mono text-sm text-gray-700">
-                                        Publish hasil voting agar dapat dilihat oleh semua participant.
+                                        {isAlreadyPublished
+                                            ? "Hasil voting sudah dapat dilihat oleh semua participant."
+                                            : "Publish hasil voting agar dapat dilihat oleh semua participant."}
                                     </p>
                                     <p className="font-mono text-[10px] text-gray-400 mt-1">
                                         SESSION: {SESSION_ID}
@@ -357,12 +395,14 @@ export default function DashboardPage() {
                                     <Link href="/results">
                                         <RetroButton text="LIHAT HASIL" colorClass="bg-[#2b5ca6]" icon={<BarChart3 size={14} />} className="w-40 h-12" />
                                     </Link>
-                                    <RetroButton
-                                        text={isPublishing ? "PUBLISHING..." : "PUBLISH"}
-                                        colorClass={publishResult ? "bg-green" : "bg-magenta"}
-                                        onClick={handlePublish}
-                                        className="w-36 h-12"
-                                    />
+                                    {!isAlreadyPublished && (
+                                        <RetroButton
+                                            text={isPublishing ? "PUBLISHING..." : "PUBLISH"}
+                                            colorClass="bg-magenta"
+                                            onClick={handlePublish}
+                                            className="w-36 h-12"
+                                        />
+                                    )}
                                 </div>
                             </div>
 

@@ -7,8 +7,7 @@ export interface Candidate {
     nim: string;
     vision: string;
     mission: string;
-    // Assuming image_url might be part of the candidate data from the backend
-    image_url?: string;
+    photo_url?: string | null;
 }
 
 interface VotingSessionState {

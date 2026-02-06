@@ -34,6 +34,7 @@ async function main() {
       id: uuidv4(),
       name: "MUSBAR RAMADHAN",
       nim: "125140051",
+      photo_url: "/images/musbar.png",
       vision: "Mewujudkan nortbyte'25 sebagai angkatan yang kolaboratif, saling menghargai perbedaan, serta bertumbuh bersama tanpa menghilangkan karakter masing masing",
       mission: "N: Nyata dalam kolaborasi (mendorong kolaborasi yang nyata baik akademik dan non akademik tanpa memandang latar belakang ataupun kemampuan)\nO: open space untuk semua karakter (menciptakan ruangan yang terbuka dan inklusif dengan beragam minat dan karakter)\nR: Ringan tapi rutin (interaksi sederhana namun menumbuhkan keakraban angkatan tanpa memberatkan)\nT: Tumbuh bareng, bukan saling membandingkan\nH: Harmoni dalam perbedaan (menjaga keharmonisan dan komunikasi yang sehat ditengah perbedaan, kemampuan, dan karakter tanpa adanya diskriminasi terhadap individu tertentu)"
     },
@@ -41,6 +42,7 @@ async function main() {
       id: uuidv4(),
       name: "SEYSAR RIZKY SUJADI",
       nim: "125140148",
+      photo_url: "/images/seysar.png",
       vision: "menjadikan NordByte sebagai wadah untuk berkembang di bidang akademik maupun non akademik dengan tujuan menggali potensi diri dari masing-masing individu anggota Nordbyte.",
       mission: "Menyediakan sebuah forum khusus untuk masing-masing bidang minat dan bakat.\nMembangun komunikasi yang aktif dan terbuka dengan tujuan memperkuat hubungan antara anggota.\nMembentuk BPA (Badan Pengurus Angkatan) dengan tujuan agar kedepannya dapat bekerjasama untuk menyukseskan berbagai prokja angkatan."
     },
@@ -53,6 +55,7 @@ async function main() {
         name: candidate.name,
         vision: candidate.vision,
         mission: candidate.mission,
+        photo_url: candidate.photo_url,
       },
       create: candidate,
     });

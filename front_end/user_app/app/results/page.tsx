@@ -153,7 +153,7 @@ export default function ResultsPage() {
                                 </div>
                                 <div className="flex items-center gap-2 bg-black text-white px-4 py-2 border-2 border-black">
                                     <span className="font-retro text-xs">TOTAL SUARA:</span>
-                                    <span className="font-roster text-2xl">{data.total_votes}</span>
+                                    <span className="font-mono text-2xl font-bold">{data.total_votes}</span>
                                 </div>
                             </div>
                         </motion.div>
@@ -177,7 +177,7 @@ export default function ResultsPage() {
                                             className="w-full sm:w-24 flex items-center justify-center py-4 sm:py-0 border-b-4 sm:border-b-0 sm:border-r-4 border-black"
                                             style={{ backgroundColor: color }}
                                         >
-                                            <span className="font-roster text-4xl text-white">
+                                            <span className="font-retro text-4xl text-white">
                                                 #{index + 1}
                                             </span>
                                         </div>

@@ -89,7 +89,7 @@ export class VotingService {
     });
 
     const candidates = await this.prisma.candidate.findMany({
-      select: { id: true, name: true, nim: true, vision: true, mission: true },
+      select: { id: true, name: true, nim: true, vision: true, mission: true, photo_url: true },
     });
 
     return {
