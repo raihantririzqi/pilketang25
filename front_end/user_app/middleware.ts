@@ -43,7 +43,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const authRoutes = ["/login"];
-  const userRoutes = ["/dashboard", "/qr_generate"];
+  const userRoutes = ["/dashboard", "/qr_generate", "/results"];
   const adminRoutes = ["/admin", "/scan", "/attendance"];
 
   const isAuthRoute = authRoutes.includes(pathname);

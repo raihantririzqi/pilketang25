@@ -5,6 +5,8 @@ import { QRService } from "./modules/qr/qr_service";
 import { QRController } from "./modules/qr/qr_controller";
 import { VotingService } from "./modules/voting/voting_service";
 import { VotingController } from "./modules/voting/voting_controller";
+import { SessionService } from "./modules/sessions/session_service";
+import { SessionController } from "./modules/sessions/session_controller";
 import { PrismaClient } from "./generated/prisma/client";
 import { OAuth2Client } from "google-auth-library";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
@@ -39,6 +41,7 @@ const oauth2Client = new OAuth2Client(
 const auth_service = new AuthService(prisma, oauth2Client);
 const qr_service = new QRService(prisma);
 const voting_service = new VotingService(prisma);
+const session_service = new SessionService(prisma);
 
 /**
  * 4. Controllers (Hanya inject Service yang dibutuhkan)
@@ -47,6 +50,7 @@ const voting_service = new VotingService(prisma);
 const auth_controller = new AuthController(auth_service);
 const qr_controller = new QRController(prisma, qr_service); // Benar: Hanya Service
 const voting_controller = new VotingController(voting_service); // Benar: Hanya Service
+const session_controller = new SessionController(prisma, session_service);
 
 /**
  * 5. Routes Definition
@@ -54,4 +58,5 @@ const voting_controller = new VotingController(voting_service); // Benar: Hanya 
 export const routes = new Elysia({ prefix: "/api" })
   .use(auth_controller.register())
   .use(qr_controller.register())
-  .use(voting_controller.register());
+  .use(voting_controller.register())
+  .use(session_controller.register());

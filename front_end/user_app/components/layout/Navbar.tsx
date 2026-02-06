@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { LayoutDashboard, LogOut, User } from "lucide-react";
+import { LayoutDashboard, LogOut, User, BarChart3 } from "lucide-react";
 
 const menuItems = [
   { label: "Home", target: "hero-section" },
@@ -124,6 +124,16 @@ const Navbar = () => {
                         <div className="flex items-center gap-3">
                           <LayoutDashboard size={18} />
                           <span>Dashboard</span>
+                        </div>
+                      </DropdownMenuItem>
+                    </Link>
+
+                    {/* Hasil Voting Item */}
+                    <Link href="/results" className="w-full">
+                      <DropdownMenuItem className="cursor-pointer font-bold uppercase text-xs tracking-widest py-3 px-3 border-2 border-transparent focus:bg-magenta focus:text-white focus:border-black transition-all">
+                        <div className="flex items-center gap-3">
+                          <BarChart3 size={18} />
+                          <span>Hasil Voting</span>
                         </div>
                       </DropdownMenuItem>
                     </Link>

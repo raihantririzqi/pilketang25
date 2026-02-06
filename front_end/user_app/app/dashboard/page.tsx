@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/components/provider/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, LogOut } from "lucide-react";
+import { Home, LogOut, BarChart3 } from "lucide-react";
+import api from "@/lib/axios";
 
 // --- KOMPONEN BUTTON REUSABLE ---
 interface RetroButtonProps {
@@ -44,6 +45,29 @@ export default function DashboardPage() {
     // STATUS: 'LOCKED' | 'OPEN' | 'VOTED'
     const [status, setStatus] = useState<"LOCKED" | "OPEN" | "VOTED">("LOCKED");
     const [timeLeft, setTimeLeft] = useState("");
+
+    // COMMITTEE: publish state
+    const [isPublishing, setIsPublishing] = useState(false);
+    const [publishResult, setPublishResult] = useState<{ total_votes: number; total_candidates: number } | null>(null);
+    const [publishError, setPublishError] = useState("");
+
+    const isCommittee = user?.role === "COMMITTEE";
+    const SESSION_ID = "session_pilketang_2025";
+
+    const handlePublish = async () => {
+        if (!confirm("Yakin ingin publish hasil voting? Aksi ini tidak bisa dibatalkan.")) return;
+        setIsPublishing(true);
+        setPublishError("");
+        try {
+            const res = await api.post(`/sessions/${SESSION_ID}/publish`);
+            setPublishResult(res.data.result);
+        } catch (err: any) {
+            const msg = err.response?.data?.message || err.response?.data?.errors?.[0] || "Gagal publish hasil";
+            setPublishError(msg);
+        } finally {
+            setIsPublishing(false);
+        }
+    };
 
     const displayUser = user || { name: "User", nim: "000000000", profile_picture: "" };
 
@@ -300,10 +324,63 @@ export default function DashboardPage() {
                 </motion.div>
             </main>
 
-            {/* DEV BUTTON */}
-            {/* <div className="fixed bottom-4 right-4 z-50">
-                <RetroButton text={`DEV: ${status}`} colorClass="bg-black" onClick={toggleDevMode} className="w-32 h-10" />
-            </div> */}
+            {/* COMMITTEE PANEL */}
+            {isCommittee && (
+                <motion.section
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="max-w-6xl mx-auto mt-6 relative z-10"
+                >
+                    <div className="bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_black]">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-8 h-8 bg-magenta border-2 border-black flex items-center justify-center">
+                                <BarChart3 size={16} className="text-white" />
+                            </div>
+                            <h3 className="font-roster text-xl">COMMITTEE PANEL</h3>
+                            <span className="bg-magenta text-white text-[10px] font-retro px-2 py-0.5 border-2 border-black">
+                                RESTRICTED
+                            </span>
+                        </div>
+
+                        <div className="border-t-2 border-dashed border-gray-300 pt-4 space-y-4">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                <div className="flex-1">
+                                    <p className="font-mono text-sm text-gray-700">
+                                        Publish hasil voting agar dapat dilihat oleh semua participant.
+                                    </p>
+                                    <p className="font-mono text-[10px] text-gray-400 mt-1">
+                                        SESSION: {SESSION_ID}
+                                    </p>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <Link href="/results">
+                                        <RetroButton text="LIHAT HASIL" colorClass="bg-[#2b5ca6]" icon={<BarChart3 size={14} />} className="w-40 h-12" />
+                                    </Link>
+                                    <RetroButton
+                                        text={isPublishing ? "PUBLISHING..." : "PUBLISH"}
+                                        colorClass={publishResult ? "bg-green" : "bg-magenta"}
+                                        onClick={handlePublish}
+                                        className="w-36 h-12"
+                                    />
+                                </div>
+                            </div>
+
+                            {publishResult && (
+                                <div className="bg-green/10 border-2 border-green p-3 font-mono text-sm">
+                                    Berhasil di-publish! Total suara: <strong>{publishResult.total_votes}</strong> dari <strong>{publishResult.total_candidates}</strong> kandidat.
+                                </div>
+                            )}
+
+                            {publishError && (
+                                <div className="bg-red/10 border-2 border-red p-3 font-mono text-sm text-red">
+                                    {publishError}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </motion.section>
+            )}
         </div>
     );
 }

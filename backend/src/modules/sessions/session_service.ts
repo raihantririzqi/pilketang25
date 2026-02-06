@@ -139,7 +139,7 @@ export class SessionService {
     return {
       session_id,
       is_published: existing_session.is_published,
-      totaal_votes: total_votes,
+      total_votes,
       results,
       published_at: existing_session.published_at,
     };

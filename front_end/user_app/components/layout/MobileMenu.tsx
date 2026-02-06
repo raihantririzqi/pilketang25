@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { User, LayoutDashboard, LogOut } from "lucide-react";
+import { User, LayoutDashboard, LogOut, BarChart3 } from "lucide-react";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -72,6 +72,17 @@ const MobileMenu = ({ isOpen, onClose, onNavigate, isAuthenticated, user, logout
                 <div className="relative h-full bg-magenta -translate-x-1 -translate-y-1 border-4 border-black flex items-center justify-center gap-2 group-active:translate-x-0 group-active:translate-y-0 transition-transform">
                   <LayoutDashboard size={20} className="text-white" />
                   <span className="text-white font-bold">DASHBOARD</span>
+                </div>
+              </div>
+            </Link>
+
+            {/* Hasil Voting Button */}
+            <Link href="/results" className="w-full" onClick={onClose}>
+              <div className="relative h-12 w-full group">
+                <div className="absolute inset-0 bg-black rounded-sm"></div>
+                <div className="relative h-full bg-navy -translate-x-1 -translate-y-1 border-4 border-black flex items-center justify-center gap-2 group-active:translate-x-0 group-active:translate-y-0 transition-transform">
+                  <BarChart3 size={20} className="text-white" />
+                  <span className="text-white font-bold">HASIL VOTING</span>
                 </div>
               </div>
             </Link>

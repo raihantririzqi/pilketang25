@@ -59,6 +59,17 @@ async function main() {
     console.log("✅ Candidate created:", created.name);
   }
 
+  // 3. Assign COMMITTEE role
+  const committeeEmails = [
+    "raihan.125140125@student.itera.ac.id",
+  ];
+
+  const committeeResult = await prisma.user.updateMany({
+    where: { email: { in: committeeEmails } },
+    data: { role: "COMMITTEE" },
+  });
+  console.log(`✅ ${committeeResult.count} user(s) updated to COMMITTEE`);
+
   console.log("🎉 Seeding completed!");
 }
 
