@@ -38,7 +38,6 @@ export class SessionController {
         {
           params: t.Object({
             id: t.String({
-              format: "uuid",
               description: "Voting session ID",
             }),
           }),
@@ -212,7 +211,6 @@ export class SessionController {
         {
           params: t.Object({
             id: t.String({
-              format: "uuid",
               description: "Voting session ID",
             }),
           }),
