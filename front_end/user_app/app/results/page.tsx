@@ -10,7 +10,7 @@ import api from "@/lib/axios";
 const SESSION_ID = "session_pilketang_2025";
 
 // TODO: Ganti target waktu sesuai kebutuhan
-const TARGET_DATE = new Date("2026-02-09T18:02:00").getTime();
+const TARGET_DATE = new Date("2026-02-09T18:08:00").getTime();
 
 interface CandidateResult {
     candidate_id: string;
@@ -163,7 +163,7 @@ const RevealPhase = ({ onComplete }: { onComplete: () => void }) => {
                         transition={{ duration: 0.4, ease: "easeOut" }}
                         className="relative"
                     >
-                        <span className="font-roster text-[150px] md:text-[200px] text-white leading-none select-none">
+                        <span className="font-retro text-[150px] md:text-[200px] text-white leading-none select-none">
                             {count}
                         </span>
                         {/* Glow ring */}
@@ -213,7 +213,7 @@ export default function ResultsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [phase, setPhase] = useState<"countdown" | "reveal" | "results">(
-        Date.now() >= TARGET_DATE ? "reveal" : "countdown"
+        Date.now() >= TARGET_DATE ? "results" : "countdown"
     );
 
     useEffect(() => {
