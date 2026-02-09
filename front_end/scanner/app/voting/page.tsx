@@ -17,9 +17,9 @@ const colorMap: Record<string, string> = {
 };
 
 // Mapping kandidat berdasarkan NIM (sesuai dengan user_app)
-const candidateStyleMap: Record<string, { color: string; number: number }> = {
-    "125140051": { color: "navy", number: 1 },      // MUSBAR RAMADHAN
-    "125140148": { color: "green", number: 2 },  // SEYSAR RIZKY SUJADI
+const candidateStyleMap: Record<string, { color: string; number: number; image: string }> = {
+    "125140051": { color: "navy", number: 1, image: "/images/musbar.png" },      // MUSBAR RAMADHAN
+    "125140148": { color: "green", number: 2, image: "/images/seysar.png" },  // SEYSAR RIZKY SUJADI
 };
 
 // Helper to get styling based on candidate NIM
@@ -31,7 +31,8 @@ const getCandidateStyling = (nim: string, fallbackIndex: number) => {
     const fallbackColors = ["navy", "green", "yellow"];
     return {
         color: fallbackColors[fallbackIndex % fallbackColors.length],
-        number: fallbackIndex + 1
+        number: fallbackIndex + 1,
+        image: "",
     };
 };
 
@@ -184,7 +185,7 @@ const VotingPage = () => {
                                 kandidat_number={styling.number}
                                 vision={candidate.vision}
                                 missions={candidate.mission.split('\n').filter(m => m.trim() !== '')}
-                                imageSrc={candidate.photo_url || ''}
+                                imageSrc={styling.image || candidate.photo_url || ''}
                             />
                             <button
                                 onClick={() => handleVoteClick(candidate)}
