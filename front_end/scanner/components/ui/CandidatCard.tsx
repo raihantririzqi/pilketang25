@@ -111,6 +111,7 @@ const CandidateCard = ({
                         src={imageSrc}
                         alt={`Foto ${name}`}
                         fill
+                        unoptimized
                         className="object-cover object-top"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
