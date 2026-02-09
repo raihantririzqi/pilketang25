@@ -105,6 +105,8 @@ export default function GenerateQrPage() {
   const [alreadyVoted, setAlreadyVoted] = useState(false);
 
   const [timeLeft, setTimeLeft] = useState(30);
+  const [totalTime, setTotalTime] = useState(30);
+  const [expiresAt, setExpiresAt] = useState<number | null>(null);
   const [isTimeout, setIsTimeout] = useState(false);
   const [isScanned, setIsScanned] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
@@ -156,16 +158,21 @@ export default function GenerateQrPage() {
     return () => { if (pollInterval) clearInterval(pollInterval); };
   }, [ticketData?.token, isTimeout, isScanned, checkStatus]);
 
-  // Timer Countdown
+  // Timer Countdown (synced with server expires_at)
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (ticketData && !isTimeout && !isScanned && timeLeft > 0) {
-      timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
-    } else if (timeLeft === 0 && !isTimeout && !isScanned) {
-      checkStatus(true);
+    if (ticketData && expiresAt && !isTimeout && !isScanned) {
+      timer = setInterval(() => {
+        const remaining = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+        setTimeLeft(remaining);
+        if (remaining <= 0) {
+          clearInterval(timer);
+          checkStatus(true);
+        }
+      }, 1000);
     }
     return () => clearInterval(timer);
-  }, [ticketData, isTimeout, isScanned, timeLeft, checkStatus]);
+  }, [ticketData, expiresAt, isTimeout, isScanned, checkStatus]);
 
   const handleGenerateToken = async () => {
     if (user?.has_voted) { setAlreadyVoted(true); return; }
@@ -173,12 +180,17 @@ export default function GenerateQrPage() {
     setIsLoading(true);
     setIsTimeout(false);
     setIsScanned(false);
-    setTimeLeft(30);
     setTicketData(null);
+    setExpiresAt(null);
 
     try {
       const res = await api.post("/qr/generate");
       if (res.data.result) {
+        const serverExpiresAt = new Date(res.data.result.expires_at).getTime();
+        const remaining = Math.max(0, Math.ceil((serverExpiresAt - Date.now()) / 1000));
+        setExpiresAt(serverExpiresAt);
+        setTotalTime(remaining);
+        setTimeLeft(remaining);
         setTicketData({
           token: res.data.result.token,
           name: res.data.result.user_name,
@@ -253,7 +265,7 @@ export default function GenerateQrPage() {
                         <span>{timeLeft}s</span>
                       </div>
                       <div className="h-1.5 border border-black rounded-full bg-white overflow-hidden">
-                        <motion.div className="h-full bg-red-500" animate={{ width: isTimeout ? "0%" : `${(timeLeft / 30) * 100}%` }} transition={{ ease: "linear", duration: 0.5 }} />
+                        <motion.div className="h-full bg-red-500" animate={{ width: isTimeout ? "0%" : `${(timeLeft / totalTime) * 100}%` }} transition={{ ease: "linear", duration: 0.5 }} />
                       </div>
                     </div>
 
