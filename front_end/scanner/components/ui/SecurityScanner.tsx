@@ -59,50 +59,58 @@ const SecurityScanner = () => {
             const rawValue = detectedCodes[0].rawValue;
 
             if (rawValue) {
+                // Validasi format QR SEBELUM lock isProcessing
+                // Jika gagal parse / bukan format kita, abaikan dan biarkan scanner retry otomatis
+                let parsedData: any;
+                try {
+                    parsedData = JSON.parse(rawValue);
+                } catch {
+                    return;
+                }
+
+                if (!Array.isArray(parsedData) || parsedData.length < 3) {
+                    return;
+                }
+
+                const [extractedNIM, extractedName, extractedToken, extractedProfilePicture] = parsedData;
+
+                // Baru lock setelah yakin QR valid
                 isProcessing.current = true;
                 setLoading(true);
                 setError(null);
                 setScanResult(null);
                 addLog(`Raw Data detected. Analyzing...`);
+                addLog(`Identity: ${extractedNIM}`);
+                addLog("Verifying with Gate Protocol...");
 
                 try {
-                    const parsedData = JSON.parse(rawValue);
+                    const response = await api.post("/voting/validate-qr", {
+                        qr_token: extractedToken
+                    });
 
-                    if (Array.isArray(parsedData) && parsedData.length >= 3) {
-                        const [extractedNIM, extractedName, extractedToken, extractedProfilePicture] = parsedData;
+                    // Simpan ke state lokal dulu (pendingSession)
+                    const { voting_token, candidates } = response.data.result;
+                    setPendingSession({ voting_token, candidates });
 
-                        addLog(`Identity: ${extractedNIM}`);
-                        addLog("Verifying with Gate Protocol...");
+                    const user: ScannedUser = {
+                        nim: extractedNIM,
+                        name: extractedName,
+                        profile_picture: extractedProfilePicture,
+                        token: extractedToken,
+                        status: 'VERIFIED',
+                        timestamp: new Date().toLocaleString()
+                    };
 
-                        const response = await api.post("/voting/validate-qr", {
-                            qr_token: extractedToken
-                        });
-
-                        // LOGIKA BARU: Simpan ke state lokal dulu (pendingSession)
-                        const { voting_token, candidates } = response.data.result;
-                        setPendingSession({ voting_token, candidates });
-
-                        const user: ScannedUser = {
-                            nim: extractedNIM,
-                            name: extractedName,
-                            profile_picture: extractedProfilePicture,
-                            token: extractedToken,
-                            status: 'VERIFIED',
-                            timestamp: new Date().toLocaleString()
-                        };
-
-                        setScanResult(user);
-                        addLog(`ACCESS GRANTED: ${user.name}`);
-                        addLog("Menunggu konfirmasi koordinator...");
-                        setAwaitingConfirmation(true);
-                        setLoading(false);
-
-                    } else {
-                        throw new Error("Invalid QR Data Structure");
-                    }
+                    setScanResult(user);
+                    addLog(`ACCESS GRANTED: ${user.name}`);
+                    addLog("Menunggu konfirmasi koordinator...");
+                    setAwaitingConfirmation(true);
+                    setLoading(false);
 
                 } catch (error: any) {
-                    const errorMsg = error.response?.data?.message || "Invalid QR or Connection Error";
+                    const errorMsg = error.response?.data?.errors?.[0]
+                        || error.response?.data?.message
+                        || "Connection Error";
                     setError(errorMsg);
                     addLog(`[ERROR] ${errorMsg.toUpperCase()}`);
                     addLog("Resetting scanner sequence...");
@@ -182,6 +190,7 @@ const SecurityScanner = () => {
                         <Scanner
                             onScan={handleScan}
                             onError={handleError}
+                            scanDelay={500}
                             components={{ finder: false }}
                             styles={{
                                 container: { width: '100%', height: '100%' },

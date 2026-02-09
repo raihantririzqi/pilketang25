@@ -96,7 +96,7 @@ export default function ResultsPage() {
                     </div>
                     <div>
                         <h1 className="font-roster text-2xl md:text-3xl leading-none">HASIL VOTING</h1>
-                        <p className="text-xs text-magenta font-bold tracking-widest font-retro">PILKETANG 2025</p>
+                        <p className="text-xs text-magenta font-bold tracking-widest font-retro">PEMIKET 2025</p>
                     </div>
                 </div>
 
