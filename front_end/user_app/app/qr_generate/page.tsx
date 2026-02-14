@@ -113,7 +113,7 @@ export default function GenerateQrPage() {
   const [isScanned, setIsScanned] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
-  const TARGET_DATE = new Date("2026-02-17T12:35:00").getTime();
+  const TARGET_DATE = new Date("2026-01-01T00:00:00").getTime(); // TODO: kembalikan ke 2026-02-17T12:35:00
 
   // Efek Sinkronisasi Awal
   useEffect(() => {

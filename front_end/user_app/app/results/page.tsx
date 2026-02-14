@@ -10,7 +10,7 @@ import api from "@/lib/axios";
 const SESSION_ID = "session_pilketang_2025";
 
 // TODO: Ganti target waktu sesuai kebutuhan
-const TARGET_DATE = new Date("2026-02-17T13:55:00").getTime();
+const TARGET_DATE = new Date("2026-01-01T00:00:00").getTime(); // TODO: kembalikan ke 2026-02-17T13:55:00
 
 interface CandidateResult {
     candidate_id: string;
