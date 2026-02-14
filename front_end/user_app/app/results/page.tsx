@@ -10,7 +10,7 @@ import api from "@/lib/axios";
 const SESSION_ID = "session_pilketang_2025";
 
 // TODO: Ganti target waktu sesuai kebutuhan
-const TARGET_DATE = new Date("2026-01-01T00:00:00").getTime(); // TODO: kembalikan ke 2026-02-17T13:55:00
+const TARGET_DATE = new Date("2026-02-17T13:55:00").getTime();
 
 interface CandidateResult {
     candidate_id: string;
@@ -314,7 +314,21 @@ export default function ResultsPage() {
                                 </motion.div>
                             )}
 
-                            {data && !error && (
+                            {data && !data.is_published && !error && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_black] text-center"
+                                >
+                                    <div className="w-20 h-20 bg-gray-200 border-4 border-black rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <span className="text-4xl">🔒</span>
+                                    </div>
+                                    <h2 className="font-roster text-2xl mb-2">BELUM DIPUBLISH</h2>
+                                    <p className="font-mono text-sm text-gray-600">Hasil voting belum dipublikasikan oleh panitia.</p>
+                                </motion.div>
+                            )}
+
+                            {data && data.is_published && !error && (
                                 <div className="space-y-6">
                                     {/* SUMMARY CARD */}
                                     <motion.div
