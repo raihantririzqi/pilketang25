@@ -111,7 +111,7 @@ export default function GenerateQrPage() {
   const [isScanned, setIsScanned] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
-  const TARGET_DATE = new Date("2026-01-04T09:46:00").getTime();
+  const TARGET_DATE = new Date("2026-02-17T12:35:00").getTime();
 
   // Efek Sinkronisasi Awal
   useEffect(() => {
@@ -139,7 +139,7 @@ export default function GenerateQrPage() {
       const res = await api.get(`/qr/status/${ticketData.token}`);
       if (res.data.result.is_used) {
         setIsScanned(true);
-      } else if (isFinalCheck) {
+      } else if (res.data.result.is_expired || isFinalCheck) {
         setIsTimeout(true);
       }
     } catch (error) {

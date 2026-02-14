@@ -69,12 +69,13 @@ export class QRService {
       throw new ConflictError("You have already voted in this session");
     }
 
-    // Delete any existing expired/unused QR codes for this user and session
+    // Delete only expired unused QR codes for this user and session
     await this.prisma.qRCode.deleteMany({
       where: {
         user_id,
         session_id: activeSession.id,
         is_used: false,
+        expires_at: { lte: new Date() },
       },
     });
 
@@ -181,7 +182,7 @@ export class QRService {
     };
   };
 
-  public get_qr_status = async (token: string): Promise<{ is_used: boolean }> => {
+  public get_qr_status = async (token: string): Promise<{ is_used: boolean; is_expired: boolean }> => {
     const qr_code = await this.prisma.qRCode.findUnique({
       where: {
         token: token,
@@ -192,6 +193,9 @@ export class QRService {
       throw new NotFoundError("QR code not found");
     }
 
-    return { is_used: qr_code.is_used };
+    return {
+      is_used: qr_code.is_used,
+      is_expired: !qr_code.is_used && new Date() > qr_code.expires_at,
+    };
   };
 }

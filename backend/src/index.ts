@@ -1,6 +1,7 @@
 import Elysia from "elysia";
 import { cors } from "@elysiajs/cors";
 import openapi from "@elysiajs/openapi";
+import { rateLimit } from "elysia-rate-limit";
 import { routes } from "./routes";
 import { errorMiddleware } from "./shared/middlewares/error_middleware";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
@@ -42,6 +43,14 @@ const app = new Elysia()
   )
   .use(openapi())
   .use(errorMiddleware)
+  .use(rateLimit({
+    duration: 60 * 1000,
+    max: 60,
+    errorResponse: new Response(
+      JSON.stringify({ code: 429, message: "Too many requests. Please try again later." }),
+      { status: 429, headers: { "Content-Type": "application/json" } }
+    ),
+  }))
   .get("/", () => ({ status: "healthy" }))
   .use(routes)
   .listen(process.env.PORT || 3001);
