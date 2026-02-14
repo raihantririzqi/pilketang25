@@ -70,10 +70,12 @@ const CountdownPhase = ({ targetDate, onComplete }: { targetDate: number; onComp
                 return;
             }
             const pad = (n: number) => String(n).padStart(2, "0");
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            setTimeString(`${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
+            const prefix = days > 0 ? `${days}H ` : "";
+            setTimeString(`${prefix}${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
         };
         tick();
         const interval = setInterval(tick, 1000);
