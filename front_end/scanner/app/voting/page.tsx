@@ -41,6 +41,7 @@ const VotingPage = () => {
     const {
         votingToken,
         candidates,
+        expiresAt,
         error,
         setLoading,
         setError,
@@ -50,6 +51,7 @@ const VotingPage = () => {
     const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
     useEffect(() => {
         // Protect route: if there's no token, redirect to home.
@@ -57,6 +59,22 @@ const VotingPage = () => {
             router.replace('/');
         }
     }, [votingToken, router]);
+
+    // Countdown timer synced with server expiresAt
+    useEffect(() => {
+        if (!expiresAt || showSuccess) return;
+        const tick = () => {
+            const remaining = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+            setTimeLeft(remaining);
+            if (remaining <= 0) {
+                clearSession();
+                router.replace('/');
+            }
+        };
+        tick();
+        const interval = setInterval(tick, 1000);
+        return () => clearInterval(interval);
+    }, [expiresAt, showSuccess, clearSession, router]);
 
     const handleVoteClick = (candidate: Candidate) => {
         if (isSubmitting) return;
@@ -153,6 +171,12 @@ const VotingPage = () => {
                 <div className="inline-block bg-magenta text-white font-retro text-sm px-4 py-1 mt-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                     Pilih salah satu kandidat di bawah ini
                 </div>
+                {timeLeft !== null && (
+                    <div className={`mt-4 inline-flex items-center gap-2 px-4 py-2 border-2 border-black shadow-[4px_4px_0px_0px_black] font-mono text-sm ${timeLeft <= 30 ? 'bg-red text-white animate-pulse' : 'bg-white text-black'}`}>
+                        <span className={`w-2 h-2 rounded-full ${timeLeft <= 30 ? 'bg-white' : 'bg-red'} animate-pulse`} />
+                        <span className="font-retro">{Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}</span>
+                    </div>
+                )}
             </motion.div>
 
             {error && (
@@ -166,7 +190,11 @@ const VotingPage = () => {
             )}
 
             <div className="flex flex-wrap items-center justify-center gap-10 relative z-10">
-                {candidates.map((candidate, index) => {
+                {[...candidates].sort((a, b) => {
+                    const numA = candidateStyleMap[a.nim]?.number ?? 99;
+                    const numB = candidateStyleMap[b.nim]?.number ?? 99;
+                    return numA - numB;
+                }).map((candidate, index) => {
                     const styling = getCandidateStyling(candidate.nim, index);
                     const bgClass = colorMap[styling.color] || "bg-navy";
 

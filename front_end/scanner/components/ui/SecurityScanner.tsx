@@ -35,7 +35,7 @@ const SecurityScanner = () => {
     const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
 
     // Logic: Simpan data API di sini dulu, jangan di Store global agar /voting tidak bisa diakses manual
-    const [pendingSession, setPendingSession] = useState<{ voting_token: string; candidates: any[] } | null>(null);
+    const [pendingSession, setPendingSession] = useState<{ voting_token: string; candidates: any[]; expiresAt: number } | null>(null);
 
     const [logs, setLogs] = useState<string[]>(["> System initialized...", "> Camera Module loaded [OK]"]);
     const isProcessing = useRef(false);
@@ -89,8 +89,9 @@ const SecurityScanner = () => {
                     });
 
                     // Simpan ke state lokal dulu (pendingSession)
-                    const { voting_token, candidates } = response.data.result;
-                    setPendingSession({ voting_token, candidates });
+                    const { voting_token, candidates, expires_in } = response.data.result;
+                    const expiresAt = Date.now() + (expires_in || 120) * 1000;
+                    setPendingSession({ voting_token, candidates, expiresAt });
 
                     const user: ScannedUser = {
                         nim: extractedNIM,
@@ -130,7 +131,7 @@ const SecurityScanner = () => {
         if (!pendingSession) return;
 
         // Sekarang user resmi punya token, halaman /voting sekarang bisa diakses
-        setSession(pendingSession.voting_token, pendingSession.candidates);
+        setSession(pendingSession.voting_token, pendingSession.candidates, pendingSession.expiresAt);
 
         setAwaitingConfirmation(false);
         setIsRedirecting(true);

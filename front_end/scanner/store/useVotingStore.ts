@@ -13,9 +13,10 @@ export interface Candidate {
 interface VotingSessionState {
     votingToken: string | null;
     candidates: Candidate[];
+    expiresAt: number | null;
     error: string | null;
     isLoading: boolean;
-    setSession: (token: string, candidates: Candidate[]) => void;
+    setSession: (token: string, candidates: Candidate[], expiresAt: number) => void;
     clearSession: () => void;
     setError: (error: string | null) => void;
     setLoading: (loading: boolean) => void;
@@ -26,12 +27,13 @@ export const useVotingStore = create<VotingSessionState>()(
         (set) => ({
             votingToken: null,
             candidates: [],
+            expiresAt: null,
             error: null,
             isLoading: false,
-            setSession: (token, candidates) =>
-                set({ votingToken: token, candidates, isLoading: false, error: null }),
+            setSession: (token, candidates, expiresAt) =>
+                set({ votingToken: token, candidates, expiresAt, isLoading: false, error: null }),
             clearSession: () =>
-                set({ votingToken: null, candidates: [], error: null, isLoading: false }),
+                set({ votingToken: null, candidates: [], expiresAt: null, error: null, isLoading: false }),
             setError: (error) => set({ error, isLoading: false }),
             setLoading: (loading) => set({ isLoading: loading }),
         }),
