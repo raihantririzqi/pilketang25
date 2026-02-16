@@ -105,8 +105,8 @@ export default function DashboardPage() {
             const now = new Date().getTime();
             const diff = TARGET_DATE - now;
 
-            if (diff <= 0) {
-                // Waktu sudah lewat, bilik terbuka
+            if (diff <= 0 || user?.role === "COMMITTEE") {
+                // Waktu sudah lewat atau committee, bilik terbuka
                 setStatus("OPEN");
             } else {
                 // Waktu belum sampai, tetap LOCKED

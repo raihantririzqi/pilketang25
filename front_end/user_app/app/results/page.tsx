@@ -218,6 +218,12 @@ export default function ResultsPage() {
     );
 
     useEffect(() => {
+        if (user?.role === "COMMITTEE" && phase === "countdown") {
+            setPhase("results");
+        }
+    }, [user, phase]);
+
+    useEffect(() => {
         const fetchResults = async () => {
             try {
                 const res = await api.get(`/sessions/${SESSION_ID}/results`);

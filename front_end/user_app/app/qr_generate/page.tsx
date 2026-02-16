@@ -118,7 +118,7 @@ export default function GenerateQrPage() {
   // Efek Sinkronisasi Awal
   useEffect(() => {
     setIsClient(true);
-    if (new Date().getTime() >= TARGET_DATE) setIsVotingOpen(true);
+    if (new Date().getTime() >= TARGET_DATE || user?.role === "COMMITTEE") setIsVotingOpen(true);
     if (user?.has_voted) setAlreadyVoted(true);
   }, [user]);
 
