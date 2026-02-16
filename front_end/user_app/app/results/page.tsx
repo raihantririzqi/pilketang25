@@ -9,8 +9,7 @@ import api from "@/lib/axios";
 
 const SESSION_ID = "session_pilketang_2025";
 
-// TODO: Ganti target waktu sesuai kebutuhan
-const TARGET_DATE = new Date("2026-02-17T13:55:00").getTime();
+const TARGET_DATE = new Date(process.env.NEXT_PUBLIC_RESULTS_UNLOCK || "2026-02-17T13:55:00").getTime();
 
 interface CandidateResult {
     candidate_id: string;

@@ -92,7 +92,7 @@ export default function DashboardPage() {
 
     const displayUser = user || { name: "User", nim: "000000000", profile_picture: "" };
 
-    const TARGET_DATE = new Date("2026-02-17T12:35:00").getTime();
+    const TARGET_DATE = new Date(process.env.NEXT_PUBLIC_VOTING_UNLOCK || "2026-02-17T12:35:00").getTime();
 
     useEffect(() => {
         // Prioritas 1: Jika sudah voting, langsung set VOTED

@@ -54,7 +54,7 @@ const LockedDashboardCard = ({ targetDate, onComplete }: { targetDate: number; o
       <div className="text-5xl mb-6">🔒</div>
       <h2 className="font-roster text-4xl text-black/80 mb-2">ACCESS LOCKED</h2>
       <p className="font-retro text-xs text-black/60 mb-8 leading-relaxed">Sabar dong! biliknya belum dibuka.</p>
-      <div className="bg-black text-white px-6 py-3 border-4 border-gray-500 font-retro text-sm animate-pulse rounded-full">
+      <div className="bg-black text-white px-6 py-3 border-4 border-gray-500 font-retro text-na animate-pulse rounded-full">
         OPENS IN: {timeString}
       </div>
     </motion.div>
@@ -113,7 +113,7 @@ export default function GenerateQrPage() {
   const [isScanned, setIsScanned] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
-  const TARGET_DATE = new Date("2026-02-17T12:35:00").getTime();
+  const TARGET_DATE = new Date(process.env.NEXT_PUBLIC_VOTING_UNLOCK || "2026-02-17T12:35:00").getTime();
 
   // Efek Sinkronisasi Awal
   useEffect(() => {
