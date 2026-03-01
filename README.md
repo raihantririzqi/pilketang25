@@ -106,8 +106,14 @@ Setelah dibuka sekali, cookie akan di-set dan laptop tidak perlu key lagi.
 
 ## Tech Stack
 
-- **Backend**: [Elysia.js](https://elysiajs.com) + [Prisma](https://prisma.io) + MySQL
-- **Frontend**: [Next.js 14](https://nextjs.org) + [Tailwind CSS](https://tailwindcss.com)
-- **Auth**: Google OAuth + JWT
-- **QR**: `qrcode.react` + `@yudiel/react-qr-scanner`
-- **Animation**: [Framer Motion](https://framer.com/motion)
+| Teknologi | Fungsi | Analogi Sederhana |
+|---|---|---|
+| [Elysia.js](https://elysiajs.com) | Framework backend (server) | "Otak" yang terima & proses request |
+| [Prisma](https://prisma.io) | ORM untuk database | Jembatan antara kode dan database |
+| MySQL | Database | Tempat simpan data user, voting, QR |
+| [Next.js](https://nextjs.org) | Framework frontend (UI) | Yang user lihat di browser |
+| [Tailwind CSS](https://tailwindcss.com) | Styling / tampilan | Biar tampilannya bagus |
+| Google OAuth | Login dengan akun Google | Tidak perlu buat sistem login sendiri |
+| JWT | Autentikasi sesi | Bukti bahwa user sudah login |
+| QR Code | Media transfer token voting | Pengganti kertas suara |
+| [Framer Motion](https://framer.com/motion) | Animasi UI | Efek gerak di halaman |
